@@ -102,6 +102,8 @@ contract ERC20Interface {
 contract LavaWallet {
 
 
+      using SafeMath for uint;
+
   // balances[tokenContractAddress][EthereumAccountAddress] = 0
   mapping(address => mapping (address => uint256)) balances;
   mapping(bytes32 => uint256) spentSignatures;
@@ -115,7 +117,7 @@ contract LavaWallet {
        return balances[tokenContract][tokenOwner];
    }
 
-   function signatureSpent(bytes32 digest) public pure returns (bool)
+   function signatureSpent(bytes32 digest) public view returns (bool)
    {
      return (spentSignatures[digest] == 0x0);
    }
@@ -142,11 +144,11 @@ contract LavaWallet {
 
   }
 
-  function withdrawTokensFrom(address from, uint256 tokens, address token, bytes32 sigHash, bytes signature) public returns (bool)
+  function withdrawTokensFrom(address from, uint256 tokens, address token, uint256 checkNumber, bytes32 sigHash, bytes signature) public returns (bool)
   {
       //check to make sure that signature == ecrecover signature
 
-      recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
+      address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
 
       //make sure the signer is the depositor of the tokens
       if(from != recoveredSignatureSigner) revert();
