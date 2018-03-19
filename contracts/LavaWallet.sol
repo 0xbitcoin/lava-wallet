@@ -115,6 +115,11 @@ contract LavaWallet {
        return balances[tokenContract][tokenOwner];
    }
 
+   function signatureSpent(bytes32 digest) public pure returns (bool)
+   {
+     return (spentSignatures[digest] == 0x0);
+   }
+
 /*
    function invalidateSignature()
    {
@@ -124,20 +129,20 @@ contract LavaWallet {
 
 
    //performed via an ApproveAndCall
-  function _depositTokens(address from, uint256 tokens, address token) internal
+  function _depositTokens(address from, uint256 tokens, address token) internal returns (bool)
   {
 
       if(msg.sender != token) revert(); //must come from ApproveAndCall
       if(tokens <= 0) revert(); //need to deposit some tokens
 
       //we already have approval so lets do a transferFrom - transfer the tokens into this contract
-      ERC20Interface().transferFrom(from, this, tokens);
+      ERC20Interface(token).transferFrom(from, this, tokens);
       balances[token][from].add(tokens);
 
 
   }
 
-  function withdrawTokensFrom(address from, uint256 tokens, address token, bytes32 sigHash, bytes signature) public
+  function withdrawTokensFrom(address from, uint256 tokens, address token, bytes32 sigHash, bytes signature) public returns (bool)
   {
       //check to make sure that signature == ecrecover signature
 
@@ -154,29 +159,31 @@ contract LavaWallet {
       spentSignatures[sigDigest] = 0x1;
       if(spentSignature != 0x0 ) revert();
 
+      //make sure the data being signed (sigHash) really does match the msg.sender, tokens, and checkNumber
       if(sigDigest != sigHash) revert();
 
       //make sure the token-depositor has enough tokens in escrow
       if(balanceOf(token, from) < tokens) revert();
 
       //finally, transfer the tokens out of this contracts escrow to msg.sender
+      balances[token][from].sub(tokens);
       ERC20Interface(token).transfer(msg.sender, tokens);
   }
 
    /*
      Receive approval to spend tokens and perform any action all in one transaction
    */
- function receiveApproval(address from, uint256 tokens, address token, bytes data) public {
+ function receiveApproval(address from, uint256 tokens, address token, bytes data) public returns (bool) {
 
    //parse the data:   first byte is for 'action_id'
    byte action_id = data[0];
 
    if(action_id == 0x1)
    {
-     _depositTokens(from, tokens, token);
+     return _depositTokens(from, tokens, token);
    }
 
-
+   return false;
 
  }
 
