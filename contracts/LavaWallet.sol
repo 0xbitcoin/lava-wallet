@@ -108,7 +108,8 @@ contract LavaWallet {
   mapping(address => mapping (address => uint256)) balances;
   mapping(bytes32 => uint256) spentSignatures;
 
-  function LavaWallet() internal  {
+
+  function LavaWallet() public  {
 
   }
 
@@ -122,18 +123,30 @@ contract LavaWallet {
      return (spentSignatures[digest] == 0x0);
    }
 
-/*
-   function invalidateSignature()
-   {
 
+   function invalidateSignature(address to, uint256 tokens, address token, uint256 checkNumber, bytes32 sigHash, bytes signature) public returns (bool)
+   {
+       address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
+
+       //maker sure the invalidator is the signer
+       if(recoveredSignatureSigner != msg.sender) revert();
+
+       bytes32 sigDigest = keccak256(to, tokens, token, checkNumber);
+
+       if(sigDigest != sigHash) revert();
+
+       //make sure this signature has never been used
+       uint spentSignature = spentSignatures[sigDigest];
+       spentSignatures[sigDigest] = 0x2; //invalidated
+       if(spentSignature != 0x0 ) revert();
+
+       return true;
    }
-*/
 
 
    //performed via an ApproveAndCall
   function _depositTokens(address from, uint256 tokens, address token) internal returns (bool)
   {
-
       if(msg.sender != token) revert(); //must come from ApproveAndCall
       if(tokens <= 0) revert(); //need to deposit some tokens
 
@@ -141,7 +154,7 @@ contract LavaWallet {
       ERC20Interface(token).transferFrom(from, this, tokens);
       balances[token][from].add(tokens);
 
-
+      return true;
   }
 
   function withdrawTokensFrom(address from, uint256 tokens, address token, uint256 checkNumber, bytes32 sigHash, bytes signature) public returns (bool)
@@ -154,11 +167,11 @@ contract LavaWallet {
       if(from != recoveredSignatureSigner) revert();
 
       //make sure the signed hash incorporates the token recipient, quantity to withdraw, and the check number
-      bytes32 sigDigest = keccak256(msg.sender, tokens, checkNumber);
+      bytes32 sigDigest = keccak256(msg.sender, tokens, token, checkNumber);
 
       //make sure this signature has never been used
       uint spentSignature = spentSignatures[sigDigest];
-      spentSignatures[sigDigest] = 0x1;
+      spentSignatures[sigDigest] = 0x1; //spent
       if(spentSignature != 0x0 ) revert();
 
       //make sure the data being signed (sigHash) really does match the msg.sender, tokens, and checkNumber
@@ -170,6 +183,9 @@ contract LavaWallet {
       //finally, transfer the tokens out of this contracts escrow to msg.sender
       balances[token][from].sub(tokens);
       ERC20Interface(token).transfer(msg.sender, tokens);
+
+
+      return true;
   }
 
    /*

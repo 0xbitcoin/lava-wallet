@@ -1,0 +1,16 @@
+{
+  "name": "lava-wallet-js",
+  "version": "1.0.0",
+  "description": "Javascript interface for Lava Wallet ",
+  "main": "lavawallet.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "babel-preset-env": "^1.6.1",
+    "web3": "^1.0.0-beta.33",
+    "web3-utils": "^1.0.0-beta.33"
+  }
+}
