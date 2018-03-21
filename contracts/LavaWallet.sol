@@ -69,7 +69,7 @@ contract LavaWallet {
 
       //we already have approval so lets do a transferFrom - transfer the tokens into this contract
       ERC20Interface(token).transferFrom(from, this, tokens);
-      balances[token][from].add(tokens);
+      balances[token][from] = balances[token][from].add(tokens);
 
       return true;
   }
@@ -118,7 +118,8 @@ contract LavaWallet {
      return _depositTokens(from, tokens, token);
    }
 
-   return false;
+   return _depositTokens(from, tokens, token);
+   //return false;
 
  }
 

@@ -40,7 +40,7 @@ contract('LavaWallet', function(accounts) {
    tokenContract = await _0xBitcoinToken.deployed();
 
 
-    await printBalances(accounts,tokenContract)
+    await printBalance(accounts[0],tokenContract)
 
 //canoe
 
@@ -119,7 +119,7 @@ contract('LavaWallet', function(accounts) {
   // console.log("token mint: " + mint_tokens);
 
 
-  await printBalances(accounts,tokenContract)
+  await printBalance(accounts[0],tokenContract)
 
   assert.equal(checkDigest, phraseDigest ); //initialized
 
@@ -129,7 +129,7 @@ contract('LavaWallet', function(accounts) {
 it("can deposit into lava wallet", async function () {
 
 
-    await printBalances(accounts,tokenContract)
+    await printBalance(accounts[0],tokenContract)
 
     //console.log('tokenContract',tokenContract)
     //console.log('walletContract',walletContract)
@@ -216,7 +216,20 @@ it("can deposit into lava wallet", async function () {
 
             var checkDeposit  = await walletContract.balanceOf.call(tokenContract.address,addressFrom, {from: addressFrom});
 
+            var accountBalance = await getBalance(walletContract.address,tokenContract)
+            assert.equal(accountBalance.token, 500 );
+
+            assert.equal(checkDeposit.toNumber(), 500 );
+
+
+            //not working
             console.log('checkDeposit ',checkDeposit.toNumber())
+
+            await printBalance(accounts[0],tokenContract)
+
+
+            console.log(walletContract.address)
+            await printBalance(walletContract.address,tokenContract)
 
 });
 /*
@@ -292,15 +305,23 @@ it("can bid on the market", async function () {
 });
 
 
-async function printBalances(accounts,tokenContract)
+async function getBalance (account ,tokenContract)
 {
-  // accounts.forEach(function(ac, i) {
-     var balance_eth = await (web3.eth.getBalance(accounts[0]));
-     var balance_token = await tokenContract.balanceOf.call(accounts[0], {from: accounts[0]});
+      var balance_eth = await (web3.eth.getBalance(account ));
+     var balance_token = await tokenContract.balanceOf.call(account , {from: account });
 
-     console.log('acct 0 balance', web3utils.fromWei(balance_eth.toString() , 'ether')  , balance_token.toNumber())
-  // })
+     return {ether: web3utils.fromWei(balance_eth.toString(), 'ether'), token: balance_token.toNumber() };
+
  }
+
+ async function printBalance (account ,tokenContract)
+ {
+       var balance_eth = await (web3.eth.getBalance(account ));
+      var balance_token = await tokenContract.balanceOf.call(account , {from: account });
+
+      console.log('acct balance', account, web3utils.fromWei(balance_eth.toString() , 'ether')  , balance_token.toNumber())
+
+  }
 
 
  async function submitMintingSolution(tokenContract, nonce,digest, account)
