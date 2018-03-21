@@ -85,7 +85,7 @@ contract('LavaWallet', function(accounts) {
     var digestBigNumber = web3utils.toBN(phraseDigest)
 
 
-    if ( digestBigNumber.lt(miningTarget)   || true )
+    if ( digestBigNumber.lt(miningTarget)   )
     {
       console.log("found a good solution nonce!", solution_number);
 
@@ -242,7 +242,11 @@ async function printBalances(accounts,tokenContract)
 
    console.log('tokenContract',tokenContract);
 
-   var mintMethod =  tokenContract.mint(nonce,digest);
+
+
+   var addressTo =  tokenContract.address;
+   var addressFrom = account.address;
+
 
   try{
     var txCount = await  web3.eth.getTransactionCount(addressFrom);
@@ -254,8 +258,6 @@ async function printBalances(accounts,tokenContract)
    }
 
 
-   var addressTo =  tokenContract.address;
-   var addressFrom = account.address;
 
 
     var txData =  web3.eth.abi.encodeFunctionCall({
@@ -268,14 +270,19 @@ async function printBalances(accounts,tokenContract)
                 type: 'bytes32',
                 name: 'challenge_digest'
             }]
-        }, [solution_number, challenge_digest]);
+        }, [nonce, digest]);
 
 
 
     var max_gas_cost = 1704624;
 
-    var estimatedGasCost = await mintMethod.estimateGas({gas: max_gas_cost, from:addressFrom, to: addressTo });
+  //  var mintMethod =  tokenContract.mint(nonce,digest);
 
+  //  var estimatedGasCost = await mintMethod.estimateGas({gas: max_gas_cost, from:addressFrom, to: addressTo });
+
+  console.log(tokenContract);
+
+  var estimatedGasCost = 1704623
 
     console.log('estimatedGasCost',estimatedGasCost);
     console.log('txData',txData);
@@ -294,7 +301,7 @@ async function printBalances(accounts,tokenContract)
     const txOptions = {
       nonce: web3utils.toHex(txCount),
       gas: web3utils.toHex(estimatedGasCost),   //?
-      gasPrice: web3utils.toHex(this.vault.getGasPriceWei()),
+      gasPrice: web3utils.toHex(3),
       value: 0,
       to: addressTo,
       from: addressFrom,
@@ -305,7 +312,7 @@ async function printBalances(accounts,tokenContract)
 
   return new Promise(function (result,error) {
 
-       this.sendSignedRawTransaction( web3,txOptions,addressFrom,account.privateKey, function(err, res) {
+       sendSignedRawTransaction( web3,txOptions,addressFrom,account.privateKey, function(err, res) {
         if (err) error(err)
           result(res)
       })
