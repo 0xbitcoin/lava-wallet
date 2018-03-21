@@ -4,6 +4,8 @@ var LavaWallet = artifacts.require("./LavaWallet.sol");
 var ethUtil =  require('ethereumjs-util');
 var web3utils =  require('web3-utils');
 
+const Tx = require('ethereumjs-tx')
+
 
 const Web3 = require('web3')
 // Instantiate new web3 object pointing toward an Ethereum node.
@@ -325,7 +327,7 @@ async function printBalances(accounts,tokenContract)
  async function sendSignedRawTransaction(web3,txOptions,addressFrom,fullPrivKey,callback) {
 
 
-   var privKey = this.truncate0xFromString( fullPrivKey )
+   var privKey = truncate0xFromString( fullPrivKey )
 
    const privateKey = new Buffer( privKey, 'hex')
    const transaction = new Tx(txOptions)
