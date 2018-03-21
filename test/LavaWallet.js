@@ -19,11 +19,13 @@ let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"))
 
 contract('LavaWallet', function(accounts) {
 
+  var walletContract ;
+  var tokenContract;
 
     it("can deploy ", async function () {
 
-      console.log( 'deploying token' )
-      var tokenContract = await LavaWallet.deployed();
+      console.log( 'deploying wallet' )
+        walletContract = await LavaWallet.deployed();
 
 
 
@@ -35,7 +37,8 @@ contract('LavaWallet', function(accounts) {
   it("can mint tokens", async function () {
 
 
- var tokenContract = await _0xBitcoinToken.deployed();
+   tokenContract = await _0xBitcoinToken.deployed();
+
 
     await printBalances(accounts,tokenContract)
 
@@ -123,37 +126,94 @@ contract('LavaWallet', function(accounts) {
 });
 
 
-it("can be mined", async function () {
+it("can deposit into lava wallet", async function () {
 
-
-
-
-  var tokenContract = await _0xBitcoinToken.deployed();
 
     await printBalances(accounts,tokenContract)
 
-  console.log('contract')
+    //console.log('tokenContract',tokenContract)
+    //console.log('walletContract',walletContract)
 
-  console.log(tokenContract.address)
+//  console.log(tokenContract.address)
 
-
-  var mining_account = accounts[0];
-  console.log(mining_account )
-
-
-
-/*
-  var test_account= {
-      'address': '0x087964cd8b33ea47c01fbe48b70113ce93481e01',
-      'privateKey': 'dca672104f895219692175d87b04483d31f53af8caad1d7348d269b35e21c3df'
-  }
-  */
+    var _0xBitcoinABI = require('../javascript/abi/_0xBitcoinToken.json');
+    var LavaWalletABI = require('../javascript/abi/LavaWallet.json');
 
 
-      networkInterfaceHelper.init(web3,tokenContract,test_account);
-      miningHelper.init(web3,tokenContract,test_account,networkInterfaceHelper);
+
+      var test_account= {
+          'address': '0x087964cd8b33ea47c01fbe48b70113ce93481e01',
+          'privateKey': 'dca672104f895219692175d87b04483d31f53af8caad1d7348d269b35e21c3df'
+      }
+
+      var addressFrom = test_account.address;
+
+      var depositAmount = 500;
+
+      //??
+      var remoteCallData = '0x01';
+
+      var txData = web3.eth.abi.encodeFunctionCall({
+              name: 'approveAndCall',
+              type: 'function',
+              inputs: [
+                {
+                  "name": "spender",
+                  "type": "address"
+                },
+                {
+                  "name": "tokens",
+                  "type": "uint256"
+                },
+                {
+                  "name": "data",
+                  "type": "bytes"
+                }],
+                outputs: [
+                  {
+                    "name": "success",
+                    "type": "bool"
+                  }
+              ]
+          }, [walletContract.address, depositAmount, remoteCallData]);
 
 
+          try{
+            var txCount = await web3.eth.getTransactionCount(addressFrom);
+            console.log('txCount',txCount)
+           } catch(error) {  //here goes if someAsyncPromise() rejected}
+            console.log(error);
+
+             return error;    //this will result in a resolved promise.
+           }
+
+           var addressTo = tokenContract.address;
+           var privateKey = test_account.privateKey;
+
+          const txOptions = {
+            nonce: web3utils.toHex(txCount),
+            gas: web3utils.toHex("1704624"),
+            gasPrice: web3utils.toHex(web3utils.toWei("4", 'gwei') ),
+            value: 0,
+            to: addressTo,
+            from: addressFrom,
+            data: txData
+          }
+
+
+
+        var sentDeposit = await new Promise(function (result,error) {
+
+              sendSignedRawTransaction(web3,txOptions,addressFrom,privateKey, function(err, res) {
+              if (err) error(err)
+                result(res)
+            })
+
+          }.bind(this));
+
+
+
+          console.log(sentDeposit)
 });
 /*
   assert.equal(10, good_type_record[4].toNumber() ); //check price
