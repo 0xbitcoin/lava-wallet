@@ -118,7 +118,7 @@ contract LavaWallet {
      return _depositTokens(from, tokens, token);
    }
 
-   return _depositTokens(from, tokens, token);
+   return false;
    //return false;
 
  }
