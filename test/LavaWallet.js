@@ -212,8 +212,12 @@ it("can deposit into lava wallet", async function () {
           }.bind(this));
 
 
+           console.log(sentDeposit)
 
-          console.log(sentDeposit)
+            var checkDeposit  = await walletContract.balanceOf.call(tokenContract.address,addressFrom, {from: addressFrom});
+
+            console.log('checkDeposit ',checkDeposits)
+
 });
 /*
   assert.equal(10, good_type_record[4].toNumber() ); //check price
