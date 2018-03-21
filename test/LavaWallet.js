@@ -216,7 +216,7 @@ it("can deposit into lava wallet", async function () {
 
             var checkDeposit  = await walletContract.balanceOf.call(tokenContract.address,addressFrom, {from: addressFrom});
 
-            console.log('checkDeposit ',checkDeposits)
+            console.log('checkDeposit ',checkDeposit.toNumber())
 
 });
 /*

@@ -224,7 +224,7 @@ contract _0xBitcoinToken is ERC20Interface, Owned {
 
       //a big number is easier ; just find a solution that is smaller
     //uint public  _MAXIMUM_TARGET = 2**224;  bitcoin uses 224
-    uint public  _MAXIMUM_TARGET = 2**234;
+    uint public  _MAXIMUM_TARGET = 2**244;
 
 
     uint public miningTarget;
