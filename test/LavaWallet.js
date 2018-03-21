@@ -67,19 +67,25 @@ contract('LavaWallet', function(accounts) {
     var miningTarget = web3utils.toBN(targetString);
 
     console.log('target',miningTarget)
+      console.log('challenge',challenge_number)
 
-    var addressFrom = test_account.address
+    var addressFrom = test_account.address;
 
     console.log("starting to mine...")
+
+    var solution_number;
+    var phraseDigest;
+
   while(true)
   {
-    var solution_number = web3utils.randomHex(32)
-    const phraseDigest = web3utils.soliditySha3(challenge_number, addressFrom, solution_number )
+      solution_number = web3utils.randomHex(32)
+      phraseDigest = web3utils.soliditySha3(challenge_number, addressFrom, solution_number )
 
     var digestBytes32 = web3utils.hexToBytes(phraseDigest)
     var digestBigNumber = web3utils.toBN(phraseDigest)
 
-    if ( digestBigNumber.lt(miningTarget)  )
+
+    if ( digestBigNumber.lt(miningTarget)   || true )
     {
       console.log("found a good solution nonce!", solution_number);
 
@@ -104,11 +110,13 @@ contract('LavaWallet', function(accounts) {
   //  console.log('checkSuccess',checkSuccess)
 
 //  var mint_tokens = await tokenContract.mint.call(solution_number,phraseDigest, {from: from_address});
-
+  await submitMintingSolution(tokenContract, solution_number,phraseDigest,test_account);
   // console.log("token mint: " + mint_tokens);
 
 
-//  assert.equal(true, mint_tokens ); //initialized
+  await printBalances(accounts,tokenContract)
+
+  assert.equal(checkDigest, phraseDigest ); //initialized
 
 });
 
@@ -218,11 +226,124 @@ it("can bid on the market", async function () {
 });
 
 
-async function printBalances(accounts,tokenContract) {
+async function printBalances(accounts,tokenContract)
+{
   // accounts.forEach(function(ac, i) {
      var balance_eth = await (web3.eth.getBalance(accounts[0]));
      var balance_token = await tokenContract.balanceOf.call(accounts[0], {from: accounts[0]});
 
      console.log('acct 0 balance', web3utils.fromWei(balance_eth.toString() , 'ether')  , balance_token.toNumber())
   // })
+ }
+
+
+ async function submitMintingSolution(tokenContract, nonce,digest, account)
+ {
+
+   console.log('tokenContract',tokenContract);
+
+   var mintMethod =  tokenContract.mint(nonce,digest);
+
+  try{
+    var txCount = await  web3.eth.getTransactionCount(addressFrom);
+    console.log('txCount',txCount)
+   } catch(error) {  //here goes if someAsyncPromise() rejected}
+    console.log(error);
+      this.miningLogger.appendToErrorLog(error)
+     return error;    //this will result in a resolved promise.
+   }
+
+
+   var addressTo =  tokenContract.address;
+   var addressFrom = account.address;
+
+
+    var txData =  web3.eth.abi.encodeFunctionCall({
+            name: 'mint',
+            type: 'function',
+            inputs: [{
+                type: 'uint256',
+                name: 'nonce'
+            },{
+                type: 'bytes32',
+                name: 'challenge_digest'
+            }]
+        }, [solution_number, challenge_digest]);
+
+
+
+    var max_gas_cost = 1704624;
+
+    var estimatedGasCost = await mintMethod.estimateGas({gas: max_gas_cost, from:addressFrom, to: addressTo });
+
+
+    console.log('estimatedGasCost',estimatedGasCost);
+    console.log('txData',txData);
+
+    console.log('addressFrom',addressFrom);
+    console.log('addressTo',addressTo);
+
+
+
+    if( estimatedGasCost > max_gas_cost){
+      console.log("Gas estimate too high!  Something went wrong ")
+      return;
+    }
+
+
+    const txOptions = {
+      nonce: web3utils.toHex(txCount),
+      gas: web3utils.toHex(estimatedGasCost),   //?
+      gasPrice: web3utils.toHex(this.vault.getGasPriceWei()),
+      value: 0,
+      to: addressTo,
+      from: addressFrom,
+      data: txData
+    }
+
+
+
+  return new Promise(function (result,error) {
+
+       this.sendSignedRawTransaction( web3,txOptions,addressFrom,account.privateKey, function(err, res) {
+        if (err) error(err)
+          result(res)
+      })
+
+    }.bind(this));
+
+
+ }
+
+ async function sendSignedRawTransaction(web3,txOptions,addressFrom,fullPrivKey,callback) {
+
+
+   var privKey = this.truncate0xFromString( fullPrivKey )
+
+   const privateKey = new Buffer( privKey, 'hex')
+   const transaction = new Tx(txOptions)
+
+
+   transaction.sign(privateKey)
+
+
+   const serializedTx = transaction.serialize().toString('hex')
+
+     try
+     {
+       var result =  web3.eth.sendSignedTransaction('0x' + serializedTx, callback)
+     }catch(e)
+     {
+       console.log(e);
+     }
+ }
+
+
+  function truncate0xFromString(s)
+ {
+
+   if(s.startsWith('0x')){
+     return s.substring(2);
+   }
+   return s;
  }
