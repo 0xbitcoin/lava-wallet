@@ -270,14 +270,16 @@ it("can sign a lava request", async function () {
       console.log(addressFrom)
 
          console.log(sigHash)
-   var sig = await web3.eth.sign(sigHash, addressFrom)
+   var sig = ethUtil.ecsign(Buffer.from(sigHash,'hex'), Buffer.from(privateKey,'hex'))
+
    console.log(sig)
-   var signature = sig.slice(2)
-   var r = `0x${sig.slice(0, 64)}`
-   var s = `0x${sig.slice(64, 128)}`
-   var v = web3utils.toDecimal(sig.slice(128, 130)) + 27
+   sig = sig.substr(2, sig.length);
+   let r = '0x' + sig.substr(0, 64);
+   let s = '0x' + sig.substr(64, 64);
+   let v = web3utils.toDecimal(sig.substr(128, 2)) + 27;
 
-
+   var recoveredPubkey = ethUtil.ecrecover(sigHash, 27, sig.r, sig.s);
+   console.log('recoveredPubkey',recoveredPubkey)
 
    var txData = web3.eth.abi.encodeFunctionCall({
            name: 'withdrawTokensFrom',
@@ -314,7 +316,10 @@ it("can sign a lava request", async function () {
                  "type": "bool"
                }
            ]
-       }, [requestRecipient, requestQuantity, requestToken, requestNonce, sigHash, sig]);
+       }, [requestRecipient, requestQuantity, requestToken, requestNonce, sigHash, sig ]);
+
+
+       console.log(sig.length);
 
        try{
          var txCount = await web3.eth.getTransactionCount(addressFrom);
