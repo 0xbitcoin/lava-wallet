@@ -232,6 +232,129 @@ it("can deposit into lava wallet", async function () {
             await printBalance(walletContract.address,tokenContract)
 
 });
+
+
+
+
+
+
+it("can sign a lava request", async function () {
+
+
+    await printBalance(accounts[0],tokenContract)
+
+    var test_account= {
+        'address': '0x087964cd8b33ea47c01fbe48b70113ce93481e01',
+        'privateKey': 'dca672104f895219692175d87b04483d31f53af8caad1d7348d269b35e21c3df'
+    }
+
+    var addressFrom = test_account.address;
+
+
+
+//var msg = '0x8CbaC5e4d803bE2A3A5cd3DbE7174504c6DD0c1C'
+  var requestRecipient = test_account.address;
+    var requestQuantity = 500;
+
+
+     var requestToken = tokenContract.address;
+
+     var requestNonce = web3utils.randomHex(32);
+
+     var privateKey = test_account.privateKey;
+
+
+
+   var sigHash = web3utils.soliditySha3(requestRecipient, requestQuantity, requestToken, requestNonce)
+
+      console.log(addressFrom)
+
+         console.log(sigHash)
+   var sig = await web3.eth.sign(sigHash, addressFrom)
+   console.log(sig)
+   var signature = sig.slice(2)
+   var r = `0x${sig.slice(0, 64)}`
+   var s = `0x${sig.slice(64, 128)}`
+   var v = web3utils.toDecimal(sig.slice(128, 130)) + 27
+
+
+
+   var txData = web3.eth.abi.encodeFunctionCall({
+           name: 'withdrawTokensFrom',
+           type: 'function',
+           inputs: [
+             {
+               "name": "from",
+               "type": "address"
+             },
+             {
+               "name": "tokens",
+               "type": "uint256"
+             },
+             {
+               "name": "token",
+               "type": "address"
+             },
+             {
+               "name": "checkNumber",
+               "type": "uint256"
+             },
+             {
+               "name": "sigHash",
+               "type": "bytes32"
+             },
+             {
+               "name": "signature",
+               "type": "bytes"
+             }
+           ],
+             outputs: [
+               {
+                 "name": "",
+                 "type": "bool"
+               }
+           ]
+       }, [requestRecipient, requestQuantity, requestToken, requestNonce, sigHash, sig]);
+
+       try{
+         var txCount = await web3.eth.getTransactionCount(addressFrom);
+         console.log('txCount',txCount)
+        } catch(error) {  //here goes if someAsyncPromise() rejected}
+         console.log(error);
+
+          return error;    //this will result in a resolved promise.
+        }
+
+           var addressTo = walletContract.address;
+
+      const txOptions = {
+         nonce: web3utils.toHex(txCount),
+         gas: web3utils.toHex("1704624"),
+         gasPrice: web3utils.toHex(web3utils.toWei("4", 'gwei') ),
+         value: 0,
+         to: addressTo,
+         from: addressFrom,
+         data: txData
+       }
+
+
+
+     var sentWithdraw = await new Promise(function (result,error) {
+
+           sendSignedRawTransaction(web3,txOptions,addressFrom,privateKey, function(err, res) {
+           if (err) error(err)
+             result(res)
+         })
+
+       }.bind(this));
+
+       console.log(sentWithdraw);
+
+       await printBalance(accounts[0],tokenContract)
+
+});
+
+
 /*
   assert.equal(10, good_type_record[4].toNumber() ); //check price
 
