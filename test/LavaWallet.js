@@ -275,13 +275,18 @@ it("can sign a lava request", async function () {
 
    var sig = ethUtil.ecsign(sigHashHex, Buffer.from(privateKey,'hex'))
 
-   console.log(sig)
+
+      console.log(sig)
+
+  // var vrs_data = ethUtil.fromRpcSig(sig)
+
+   //console.log(vrs_data)
 
   // const res = ethUtil.fromRpcSig(sig);
 
     //  console.log(res)
 
-   var recoveredPubkey = ethUtil.ecrecover(sigHashHex, 27, sig.r, sig.s);
+   var recoveredPubkey = ethUtil.ecrecover(sigHashHex, sig.v, sig.r, sig.s);
    console.log('recoveredPubkey',recoveredPubkey)
 
 
