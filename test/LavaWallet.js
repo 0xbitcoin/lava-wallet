@@ -295,6 +295,8 @@ it("can sign a lava request", async function () {
 
   console.log(addr)
 
+var signature = ethUtil.toRpcSig(sig.v, sig.r, sig.s)
+
    var txData = web3.eth.abi.encodeFunctionCall({
            name: 'withdrawTokensFrom',
            type: 'function',
@@ -330,7 +332,7 @@ it("can sign a lava request", async function () {
                  "type": "bool"
                }
            ]
-       }, [requestRecipient, requestQuantity, requestToken, requestNonce, sigHash, sig ]);
+       }, [requestRecipient, requestQuantity, requestToken, requestNonce, sigHash, signature ]);
 
 
        console.log(sig.length);
