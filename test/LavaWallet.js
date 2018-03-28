@@ -269,17 +269,26 @@ it("can sign a lava request", async function () {
 
       console.log(addressFrom)
 
-         console.log(sigHash)
-   var sig = ethUtil.ecsign(Buffer.from(sigHash,'hex'), Buffer.from(privateKey,'hex'))
+      console.log(sigHash)
+
+      var sigHashHex = Buffer.from(sigHash.substr(2, sigHash.length),'hex');
+
+   var sig = ethUtil.ecsign(sigHashHex, Buffer.from(privateKey,'hex'))
 
    console.log(sig)
-   sig = sig.substr(2, sig.length);
-   let r = '0x' + sig.substr(0, 64);
-   let s = '0x' + sig.substr(64, 64);
-   let v = web3utils.toDecimal(sig.substr(128, 2)) + 27;
 
-   var recoveredPubkey = ethUtil.ecrecover(sigHash, 27, sig.r, sig.s);
+  // const res = ethUtil.fromRpcSig(sig);
+
+    //  console.log(res)
+
+   var recoveredPubkey = ethUtil.ecrecover(sigHashHex, 27, sig.r, sig.s);
    console.log('recoveredPubkey',recoveredPubkey)
+
+
+  var addrBuf = ethUtil.pubToAddress(recoveredPubkey);
+  var addr = ethUtil.bufferToHex(addrBuf);
+
+  console.log(addr)
 
    var txData = web3.eth.abi.encodeFunctionCall({
            name: 'withdrawTokensFrom',
