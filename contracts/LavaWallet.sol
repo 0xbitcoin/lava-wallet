@@ -46,8 +46,11 @@ contract LavaWallet {
   using SafeMath for uint;
 
   // balances[tokenContractAddress][EthereumAccountAddress] = 0
-  mapping(address => mapping (address => uint256)) balances;
-  // mapping(address => mapping (address => uint256)) allowed;
+   mapping(address => mapping (address => uint256)) balances;
+
+   //token => owner => spender : amount
+   mapping(address => mapping (address => mapping (address => uint256))) allowed;
+
    mapping(bytes32 => uint256) burnedSignatures;
 
 
@@ -140,7 +143,7 @@ contract LavaWallet {
       return true;
   }
 
-/*  function approve(address spender, address token, uint tokens) public returns (bool success) {
+   function approve(address spender, address token, uint tokens) public returns (bool success) {
        allowed[token][msg.sender][spender] = tokens;
        Approval(msg.sender, token, spender, tokens);
        return true;
@@ -153,7 +156,7 @@ contract LavaWallet {
        balances[token][to] = balances[token][to].add(tokens);
        Transfer(token, from, to, tokens);
        return true;
-   }*/
+   }
 
    //allows transfer without approval as long as you get an EC signature
   function transferFromWithSignature(address from, uint256 tokens, address token, uint256 checkNumber, bytes32 sigHash, bytes signature) public returns (bool)
