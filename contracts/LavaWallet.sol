@@ -48,7 +48,7 @@ contract LavaWallet {
   // balances[tokenContractAddress][EthereumAccountAddress] = 0
   mapping(address => mapping (address => uint256)) balances;
   // mapping(address => mapping (address => uint256)) allowed;
-   mapping(bytes32 => uint256) spentSignatures;
+   mapping(bytes32 => uint256) burnedSignatures;
 
 
   event Deposit(address token, address user, uint amount, uint balance);
@@ -169,9 +169,9 @@ contract LavaWallet {
       bytes32 sigDigest = keccak256(msg.sender, tokens, token, checkNumber);
 
       //make sure this signature has never been used
-      uint spentSignature = spentSignatures[sigDigest];
-      spentSignatures[sigDigest] = 0x1; //spent
-      if(spentSignature != 0x0 ) revert();
+      uint burnedSignature = burnedSignatures[sigDigest];
+      burnedSignatures[sigDigest] = 0x1; //spent
+      if(burnedSignature != 0x0 ) revert();
 
       //make sure the data being signed (sigHash) really does match the msg.sender, tokens, and checkNumber
       if(sigDigest != sigHash) revert();
@@ -189,13 +189,13 @@ contract LavaWallet {
 
 
 
-     function signatureSpent(bytes32 digest) public view returns (bool)
+     function signatureBurned(bytes32 digest) public view returns (bool)
      {
-       return (spentSignatures[digest] != 0x0);
+       return (burnedSignatures[digest] != 0x0);
      }
 
 
-     function invalidateSignature(address to, uint256 tokens, address token, uint256 checkNumber, bytes32 sigHash, bytes signature) public returns (bool)
+     function burnSignature(address to, uint256 tokens, address token, uint256 checkNumber, bytes32 sigHash, bytes signature) public returns (bool)
      {
          address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
 
@@ -207,9 +207,9 @@ contract LavaWallet {
          if(sigDigest != sigHash) revert();
 
          //make sure this signature has never been used
-         uint spentSignature = spentSignatures[sigDigest];
-         spentSignatures[sigDigest] = 0x2; //invalidated
-         if(spentSignature != 0x0 ) revert();
+         uint burnedSignature = burnedSignatures[sigDigest];
+         burnedSignatures[sigDigest] = 0x2; //invalidated
+         if(burnedSignature != 0x0 ) revert();
 
          return true;
      }
