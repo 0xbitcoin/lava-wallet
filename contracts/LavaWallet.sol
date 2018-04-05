@@ -4,6 +4,17 @@ import "./ECRecovery.sol";
 import "./SafeMath.sol";
 
 
+/*
+
+This is a token wallet contract
+
+Store your tokens in this contract to give them super powers
+
+Tokens can be spent from the contract with only an ecSignature from the owner - onchain approve is not needed 
+
+
+*/
+
 contract ERC20Interface {
     function totalSupply() public constant returns (uint);
     function balanceOf(address tokenOwner) public constant returns (uint balance);
@@ -109,9 +120,6 @@ contract LavaWallet {
    //remember you need pre-approval for this - nice with ApproveAndCall
   function depositToken(address from, address token, uint256 tokens) public returns (bool)
   {
-    ///  if(msg.sender != token) revert(); //must come from ApproveAndCall
-      if(token <= 0) revert(); //need to deposit some tokens
-
       //we already have approval so lets do a transferFrom - transfer the tokens into this contract
       ERC20Interface(token).transferFrom(from, this, tokens);
       balances[token][from] = balances[token][from].add(tokens);
@@ -122,7 +130,7 @@ contract LavaWallet {
   }
 
   function withdrawToken(address token, uint256 tokens) {
-    if(token <= 0) revert();
+
     if (balances[token][msg.sender] < tokens) revert();
 
     balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
@@ -136,21 +144,21 @@ contract LavaWallet {
        return balances[token][user];
    }
 
- function transfer(address to, address token, uint tokens) public returns (bool success) {
+ function transferToken(address to, address token, uint tokens) public returns (bool success) {
       balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
       balances[token][to] = balances[token][to].add(tokens);
       Transfer(msg.sender, token, to, tokens);
       return true;
   }
 
-   function approve(address spender, address token, uint tokens) public returns (bool success) {
+   function approveToken(address spender, address token, uint tokens) public returns (bool success) {
        allowed[token][msg.sender][spender] = tokens;
        Approval(msg.sender, token, spender, tokens);
        return true;
    }
 
 
-   function transferFrom( address from, address to,address token,  uint tokens) public returns (bool success) {
+   function transferTokenFrom( address from, address to,address token,  uint tokens) public returns (bool success) {
        balances[token][from] = balances[token][from].sub(tokens);
        allowed[token][from][msg.sender] = allowed[token][from][msg.sender].sub(tokens);
        balances[token][to] = balances[token][to].add(tokens);
@@ -192,11 +200,6 @@ contract LavaWallet {
 
 
 
-     function signatureBurned(bytes32 digest) public view returns (bool)
-     {
-       return (burnedSignatures[digest] != 0x0);
-     }
-
 
      function burnSignature(address to, uint256 tokens, address token, uint256 checkNumber, bytes32 sigHash, bytes signature) public returns (bool)
      {
@@ -215,6 +218,11 @@ contract LavaWallet {
          if(burnedSignature != 0x0 ) revert();
 
          return true;
+     }
+
+     function signatureBurned(bytes32 digest) public view returns (bool)
+     {
+       return (burnedSignatures[digest] != 0x0);
      }
 
 
