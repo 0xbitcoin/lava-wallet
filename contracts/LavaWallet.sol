@@ -158,6 +158,8 @@ contract LavaWallet {
       return true;
   }
 
+
+
    function approveToken(address spender, address token, uint tokens) public returns (bool success) {
        allowed[token][msg.sender][spender] = tokens;
        Approval(msg.sender, token, spender, tokens);
@@ -175,49 +177,48 @@ contract LavaWallet {
 
    //nonce is the same thing as a 'check number'
 
+
+   function approveTokenWithSignature(address from, address to,  uint256 tokens, address token,
+                                     uint256 nonce, bytes signature) public returns (bool)
+   {
+      bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, to, token, tokens, nonce);
+
+       address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
+
+       //make sure the signer is the depositor of the tokens
+       if(from != recoveredSignatureSigner) revert();
+
+       uint burnedSignature = burnedSignatures[sigHash];
+       burnedSignatures[sigHash] = 0x1; //spent
+       if(burnedSignature != 0x0 ) revert();
+
+
+       allowed[token][from][to] = tokens;
+       Approval(from, token, to, tokens);
+       return true;
+
+
+   }
+
    //allows transfer without approval as long as you get an EC signature
-  function transferFromWithSignature(address from, address to, uint256 tokensApproved, uint256 tokens, address token,
+  function transferTokenFromWithSignature(address from, address to, uint256 tokensApproved, uint256 tokens, address token,
                                     uint256 nonce, bytes signature) public returns (bool)
   {
       //check to make sure that signature == ecrecover signature
 
-      //make sure the signed hash incorporates the token recipient, quantity to withdraw, and the check number
-      bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, to, token, tokensApproved, nonce);
-
-
-      address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
-
-      //make sure the signer is the depositor of the tokens
-      if(from != recoveredSignatureSigner) revert();
+      if(!approveTokenWithSignature(from,to,tokensApproved,token,nonce,signature)) revert();
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
-      if(tokens > tokensApproved) revert();
+      return transferTokenFrom( from, to, token, tokens);
 
-
-
-
-      // Dont burn the signature!! just fill up the amount 'used' and treat it as not valid once drained .. like 'amount filled '
-
-
-      //make sure this signature has never been used
-      uint burnedSignature = burnedSignatures[sigHash];
-      burnedSignatures[sigHash] = 0x1; //spent
-      if(burnedSignature != 0x0 ) revert();
-
-      //make sure the data being signed (sigHash) really does match the msg.sender, tokens, and nonce
-      //if(expectedSigHash != sigHash) revert();
-
-      //make sure the token-depositor has enough tokens in escrow
-      if(balanceOf(token, from) < tokens) revert();
-
-      //finally, transfer the tokens out of this contracts escrow to msg.sender
-      balances[token][from].sub(tokens);
-      ERC20Interface(token).transfer(to, tokens);
-
-      Transfer(token, from, to, tokens);
-      return true;
   }
 
+
+    function tokenAllowance(address token, address tokenOwner, address spender) public constant returns (uint remaining) {
+
+        return allowed[token][tokenOwner][spender];
+
+    }
 
 
 
