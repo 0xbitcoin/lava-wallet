@@ -10,7 +10,7 @@ This is a token wallet contract
 
 Store your tokens in this contract to give them super powers
 
-Tokens can be spent from the contract with only an ecSignature from the owner - onchain approve is not needed 
+Tokens can be spent from the contract with only an ecSignature from the owner - onchain approve is not needed
 
 
 */
@@ -193,6 +193,7 @@ contract LavaWallet {
       //finally, transfer the tokens out of this contracts escrow to msg.sender
       balances[token][from].sub(tokens);
       ERC20Interface(token).transfer(msg.sender, tokens);
+
 
       return true;
   }
