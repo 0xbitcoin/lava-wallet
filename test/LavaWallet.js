@@ -471,7 +471,7 @@ async function getBalance (account ,tokenContract)
  async function submitMintingSolution(tokenContract, nonce,digest, account)
  {
 
-   console.log('tokenContract',tokenContract);
+//   console.log('tokenContract',tokenContract);
 
 
 

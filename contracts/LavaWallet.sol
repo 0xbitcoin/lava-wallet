@@ -194,7 +194,6 @@ contract LavaWallet {
       balances[token][from].sub(tokens);
       ERC20Interface(token).transfer(msg.sender, tokens);
 
-
       return true;
   }
 
