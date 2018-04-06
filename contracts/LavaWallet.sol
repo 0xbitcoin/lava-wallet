@@ -195,14 +195,19 @@ contract LavaWallet {
 
 
    function approveTokensWithSignature(address from, address to,  uint256 tokens, address token,
-                                     uint256 nonce, bytes signature) public returns (bool)
+                                     uint256 expires, uint256 nonce, bytes signature) public returns (bool)
    {
-      bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, to, token, tokens, nonce);
+      bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, from, to, token, tokens, expires, nonce);
 
        address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
 
        //make sure the signer is the depositor of the tokens
        if(from != recoveredSignatureSigner) revert();
+
+       //make sure the signature has not expired
+       if(block.number > expires) revert();
+
+
 
        uint burnedSignature = burnedSignatures[sigHash];
        burnedSignatures[sigHash] = 0x1; //spent
@@ -218,11 +223,11 @@ contract LavaWallet {
 
    //allows transfer without approval as long as you get an EC signature
   function transferTokensFromWithSignature(address from, address to, uint256 tokensApproved, uint256 tokens, address token,
-                                    uint256 nonce, bytes signature) public returns (bool)
+                                    uint256 expires, uint256 nonce, bytes signature) public returns (bool)
   {
       //check to make sure that signature == ecrecover signature
 
-      if(!approveTokensWithSignature(from,to,tokensApproved,token,nonce,signature)) revert();
+      if(!approveTokensWithSignature(from,to,tokensApproved,token,expires,nonce,signature)) revert();
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
       return transferTokensFrom( from, to, token, tokens);
@@ -238,20 +243,21 @@ contract LavaWallet {
 
 
 
-     function burnSignature(address to, uint256 tokens, address token, uint256 nonce, bytes32 sigHash, bytes signature) public returns (bool)
+     function burnSignature(address from, address to, uint256 tokens, address token, uint256 expires, uint256 nonce,  bytes signature) public returns (bool)
      {
+
+       bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, from, to, token, tokens, expires, nonce);
+
+
          address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
 
          //maker sure the invalidator is the signer
-         if(recoveredSignatureSigner != msg.sender) revert();
+         if(recoveredSignatureSigner != from) revert();
 
-         bytes32 sigDigest = keccak256(to, tokens, token, nonce);
-
-         if(sigDigest != sigHash) revert();
 
          //make sure this signature has never been used
-         uint burnedSignature = burnedSignatures[sigDigest];
-         burnedSignatures[sigDigest] = 0x2; //invalidated
+         uint burnedSignature = burnedSignatures[sigHash];
+         burnedSignatures[sigHash] = 0x2; //invalidated
          if(burnedSignature != 0x0 ) revert();
 
          return true;
