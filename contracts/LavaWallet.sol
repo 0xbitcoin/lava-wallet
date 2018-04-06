@@ -89,7 +89,7 @@ contract LavaWallet {
 
 
   //send Ether into this method, it gets wrapped and then deposited in this contract as a token balance assigned to the sender
-  function depositAndWrap(address wrappingContract) public payable
+  function depositAndWrap(address wrappingContract, address preApprove) public payable
   {
     //convert the eth into wEth
 
@@ -102,6 +102,11 @@ contract LavaWallet {
     balances[wrappingContract][msg.sender] = balances[wrappingContract][msg.sender].add(msg.value);
 
     assert(this.balance == 0); //make sure it is not a faulty wrapping contract
+
+    if(preApprove != 0x0)
+    {
+      approveMoreToken(preApprove,wrappingContract,msg.value)
+    }
 
     Deposit(wrappingContract, msg.sender, msg.value, balances[wrappingContract][msg.sender]);
   }
@@ -125,11 +130,16 @@ contract LavaWallet {
 
 
    //remember you need pre-approval for this - nice with ApproveAndCall
-  function depositToken(address from, address token, uint256 tokens) public returns (bool)
+  function depositToken(address from, address token, uint256 tokens, address preApprove) public returns (bool)
   {
       //we already have approval so lets do a transferFrom - transfer the tokens into this contract
       ERC20Interface(token).transferFrom(from, this, tokens);
       balances[token][from] = balances[token][from].add(tokens);
+
+      if(preApprove != 0x0)
+      {
+        approveMoreToken(preApprove,token,tokens)
+      }
 
       Deposit(token, from, tokens, balances[token][from]);
 
@@ -159,10 +169,16 @@ contract LavaWallet {
   }
 
 
+  //remember... can also be used to remove approval by using a 'tokens' value of 0
+  function approveToken(address spender, address token, uint tokens) public returns (bool success) {
+      allowed[token][msg.sender][spender] = tokens;
+      Approval(msg.sender, token, spender, tokens);
+      return true;
+  }
 
-   function approveToken(address spender, address token, uint tokens) public returns (bool success) {
-       allowed[token][msg.sender][spender] = tokens;
-       Approval(msg.sender, token, spender, tokens);
+   function approveMoreToken(address spender, address token, uint tokens) public returns (bool success) {
+       allowed[token][msg.sender][spender] = allowed[token][msg.sender][spender].add(tokens);
+       Approval(msg.sender, token, spender, allowed[token][msg.sender][spender]);
        return true;
    }
 
