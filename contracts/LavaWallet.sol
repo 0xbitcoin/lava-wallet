@@ -191,7 +191,7 @@ contract LavaWallet {
       if(from != recoveredSignatureSigner) revert();
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
-      if(tokens < tokensApproved) revert();
+      if(tokens > tokensApproved) revert();
 
 
 
