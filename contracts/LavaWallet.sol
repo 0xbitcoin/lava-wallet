@@ -105,7 +105,7 @@ contract LavaWallet {
 
     if(preApprove != 0x0)
     {
-      approveMoreToken(preApprove,wrappingContract,msg.value)
+      approveMoreTokens(preApprove,wrappingContract,msg.value);
     }
 
     Deposit(wrappingContract, msg.sender, msg.value, balances[wrappingContract][msg.sender]);
@@ -115,7 +115,7 @@ contract LavaWallet {
   function unwrapAndWithdraw(address token, uint256 tokens) public
   {
       //transfer the tokens into the wrapping contract which is also the token contract
-      transferToken(token,token,tokens);
+      transferTokens(token,token,tokens);
 
       WrapperInterface(token).withdraw(tokens);
 
@@ -130,7 +130,7 @@ contract LavaWallet {
 
 
    //remember you need pre-approval for this - nice with ApproveAndCall
-  function depositToken(address from, address token, uint256 tokens, address preApprove) public returns (bool)
+  function depositTokens(address from, address token, uint256 tokens, address preApprove) public returns (bool)
   {
       //we already have approval so lets do a transferFrom - transfer the tokens into this contract
       ERC20Interface(token).transferFrom(from, this, tokens);
@@ -138,7 +138,7 @@ contract LavaWallet {
 
       if(preApprove != 0x0)
       {
-        approveMoreToken(preApprove,token,tokens)
+        approveMoreTokens(preApprove,token,tokens);
       }
 
       Deposit(token, from, tokens, balances[token][from]);
@@ -146,7 +146,7 @@ contract LavaWallet {
       return true;
   }
 
-  function withdrawToken(address token, uint256 tokens) {
+  function withdrawTokens(address token, uint256 tokens) {
 
     if (balances[token][msg.sender] < tokens) revert();
 
@@ -161,7 +161,7 @@ contract LavaWallet {
        return balances[token][user];
    }
 
- function transferToken(address to, address token, uint tokens) public returns (bool success) {
+ function transferTokens(address to, address token, uint tokens) public returns (bool success) {
       balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
       balances[token][to] = balances[token][to].add(tokens);
       Transfer(msg.sender, token, to, tokens);
@@ -170,20 +170,20 @@ contract LavaWallet {
 
 
   //remember... can also be used to remove approval by using a 'tokens' value of 0
-  function approveToken(address spender, address token, uint tokens) public returns (bool success) {
+  function approveTokens(address spender, address token, uint tokens) public returns (bool success) {
       allowed[token][msg.sender][spender] = tokens;
       Approval(msg.sender, token, spender, tokens);
       return true;
   }
 
-   function approveMoreToken(address spender, address token, uint tokens) public returns (bool success) {
+   function approveMoreTokens(address spender, address token, uint tokens) public returns (bool success) {
        allowed[token][msg.sender][spender] = allowed[token][msg.sender][spender].add(tokens);
        Approval(msg.sender, token, spender, allowed[token][msg.sender][spender]);
        return true;
    }
 
 
-   function transferTokenFrom( address from, address to,address token,  uint tokens) public returns (bool success) {
+   function transferTokensFrom( address from, address to,address token,  uint tokens) public returns (bool success) {
        balances[token][from] = balances[token][from].sub(tokens);
        allowed[token][from][msg.sender] = allowed[token][from][msg.sender].sub(tokens);
        balances[token][to] = balances[token][to].add(tokens);
@@ -194,7 +194,7 @@ contract LavaWallet {
    //nonce is the same thing as a 'check number'
 
 
-   function approveTokenWithSignature(address from, address to,  uint256 tokens, address token,
+   function approveTokensWithSignature(address from, address to,  uint256 tokens, address token,
                                      uint256 nonce, bytes signature) public returns (bool)
    {
       bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, to, token, tokens, nonce);
@@ -217,15 +217,15 @@ contract LavaWallet {
    }
 
    //allows transfer without approval as long as you get an EC signature
-  function transferTokenFromWithSignature(address from, address to, uint256 tokensApproved, uint256 tokens, address token,
+  function transferTokensFromWithSignature(address from, address to, uint256 tokensApproved, uint256 tokens, address token,
                                     uint256 nonce, bytes signature) public returns (bool)
   {
       //check to make sure that signature == ecrecover signature
 
-      if(!approveTokenWithSignature(from,to,tokensApproved,token,nonce,signature)) revert();
+      if(!approveTokensWithSignature(from,to,tokensApproved,token,nonce,signature)) revert();
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
-      return transferTokenFrom( from, to, token, tokens);
+      return transferTokensFrom( from, to, token, tokens);
 
   }
 
@@ -269,17 +269,34 @@ contract LavaWallet {
  function receiveApproval(address from, uint256 tokens, address token, bytes data) public returns (bool) {
 
    //parse the data:   first byte is for 'action_id'
-   byte action_id = data[0];
+   //byte action_id = data[0];
 
-   if(action_id == 0x1)
+    address preApprove = 0x0;
+   //will this work ?
+   if(data.length == 20)
    {
-     return depositToken(from, token, tokens);
+     preApprove = bytesToAddress(data);
    }
 
-   return false;
-   //return false;
+   return depositTokens(from, token, tokens, preApprove);
 
  }
+
+ //Usage
+//address addr = bytesToAddress("0xa462d983B4b8C855e1876e8c24889CBa466A67EB");
+function bytesToAddress(bytes _address) public pure returns (address) {
+   uint160 m = 0;
+   uint160 b = 0;
+
+   for (uint8 i = 0; i < 20; i++) {
+     m *= 256;
+     b = uint160(_address[i]);
+     m += (b);
+   }
+
+   return address(m);
+ }
+
 
 
 }
