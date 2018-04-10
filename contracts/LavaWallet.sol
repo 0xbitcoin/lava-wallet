@@ -93,15 +93,21 @@ contract LavaWallet {
   {
     //convert the eth into wEth
 
-    //send this payable ether into the wrapping contract
-    wrappingContract.transfer(msg.value);
+
+    //forward this payable ether into the wrapping contract
+    WrapperInterface(wrappingContract).deposit.value(msg.value);
+
+
+    //assert(WrapperInterface(wrappingContract).);
 
     //send the tokens from the wrapping contract to here
     WrapperInterface(wrappingContract).transfer(this, msg.value);
 
+    //assert(  WrapperInterface(wrappingContract).balanceOf(this) == msg.value  )
+
     balances[wrappingContract][msg.sender] = balances[wrappingContract][msg.sender].add(msg.value);
 
-    assert(this.balance == 0); //make sure it is not a faulty wrapping contract
+    //assert(this.balance == 0); //make sure it is not a faulty wrapping contract
 
     if(preApprove != 0x0)
     {
@@ -112,17 +118,24 @@ contract LavaWallet {
   }
 
   //when this contract has control of wrapped eth, this is a way to easily withdraw it as ether
+  //if there is any Ether in the contract before this function is called, it can be withdrawn using this method and a false wrapping contract.
   function unwrapAndWithdraw(address token, uint256 tokens) public
   {
       //transfer the tokens into the wrapping contract which is also the token contract
+
+      uint memory balanceBefore = this.balance;
+
       transferTokens(token,token,tokens);
 
       WrapperInterface(token).withdraw(tokens);
 
+      //make sure it is not a faulty wrapping contract
+      //make sure the wrapper contract just sent us ether equal to 'tokens'
+      assert(this.balance.sub(balanceBefore) == tokens);
+
       //send ether to the token-sender
       msg.sender.transfer(tokens);
 
-      assert(this.balance == 0); //make sure it is not a faulty wrapping contract
 
       Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);
 
