@@ -91,20 +91,19 @@ contract LavaWallet {
   //send Ether into this method, it gets wrapped and then deposited in this contract as a token balance assigned to the sender
   function depositAndWrap(address wrappingContract, address preApprove) public payable
   {
-    //convert the eth into wEth
-
-
+ 
     //forward this payable ether into the wrapping contract
     WrapperInterface(wrappingContract).deposit.value(msg.value);
 
 
-    //assert(WrapperInterface(wrappingContract).);
-
     //send the tokens from the wrapping contract to here
     WrapperInterface(wrappingContract).transfer(this, msg.value);
 
-    //assert(  WrapperInterface(wrappingContract).balanceOf(this) == msg.value  )
+    // make sure that the amount of tokens we got are equal to the amount of ether we got
+    //assert(this.balance.sub(balanceBefore) == tokens);
 
+
+    //since the token balance is recorded in terms of the exact ether balance, no assert is needed
     balances[wrappingContract][msg.sender] = balances[wrappingContract][msg.sender].add(msg.value);
 
     //assert(this.balance == 0); //make sure it is not a faulty wrapping contract
