@@ -5,9 +5,6 @@
 
 
 
-Deployed on ropsten :
- 0xfde045f9bee14b252bdc618980253daceb2e2a0a
-
 
 TO VERIFY:
 1. Had to flatten so libs were inside the one file  
@@ -17,10 +14,12 @@ TO VERIFY:
 
 
 
-safemath lib ropsten:  0xf921b95ac43dcf0ad1f5f85406705328aa10d516
+### Published on Ropsten
+ECRecover
+0x1e577cc10b112c75e27ae916c1843d2dc9bcd0c0
 
-
-ecrecovery lib ropsten: 0xd8a794aeb5264f5c7d9b37cba0163df5aa0c2ad1
+LavaWallet
+0xa5c4bbeb9c6dc16f91869273f1dd938a9e2cc9fa
 
 
 
