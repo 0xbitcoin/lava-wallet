@@ -3,6 +3,11 @@
 
  #### Deposit tokens in this smart contract in order to allow smart contracts (and other users) to directly spend them with offchain digital signatures (without on chain approve() calls)
 
+### Usecases
+
+1. Pool sends tokens here.  Pays people using offchain codes which they redeem
+
+2. Traders keep tokens here.  Perform offchain trades using a separate DEX contract
 
 
 
