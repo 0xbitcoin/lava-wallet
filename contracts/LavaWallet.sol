@@ -91,7 +91,7 @@ contract LavaWallet {
   //send Ether into this method, it gets wrapped and then deposited in this contract as a token balance assigned to the sender
   function depositAndWrap(address wrappingContract, address preApprove) public payable
   {
- 
+
     //forward this payable ether into the wrapping contract
     WrapperInterface(wrappingContract).deposit.value(msg.value);
 
@@ -122,7 +122,7 @@ contract LavaWallet {
   {
       //transfer the tokens into the wrapping contract which is also the token contract
 
-      uint memory balanceBefore = this.balance;
+      uint balanceBefore = this.balance;
 
       transferTokens(token,token,tokens);
 
