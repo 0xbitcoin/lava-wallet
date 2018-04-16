@@ -110,7 +110,8 @@ contract LavaWallet {
 
     if(preApprove != 0x0)
     {
-      approveMoreTokens(preApprove,wrappingContract,msg.value);
+      //preapprove an account (typically a contract) to spend these tokens immediately
+      approveAddTokens(preApprove,wrappingContract,msg.value);
     }
 
     Deposit(wrappingContract, msg.sender, msg.value, balances[wrappingContract][msg.sender]);
@@ -150,7 +151,8 @@ contract LavaWallet {
 
       if(preApprove != 0x0)
       {
-        approveMoreTokens(preApprove,token,tokens);
+        //preapprove an account (typically a contract) to spend these tokens immediately
+        approveAddTokens(preApprove,token,tokens);
       }
 
       Deposit(token, from, tokens, balances[token][from]);
@@ -158,10 +160,9 @@ contract LavaWallet {
       return true;
   }
 
+
+  //no approve needed
   function withdrawTokens(address token, uint256 tokens) {
-
-    if (balances[token][msg.sender] < tokens) revert();
-
     balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
 
     ERC20Interface(token).transfer(msg.sender, tokens);
@@ -169,16 +170,24 @@ contract LavaWallet {
     Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);
   }
 
+
+  function withdrawTokensFrom( address from, address to,address token,  uint tokens) public returns (bool success) {
+      balances[token][from] = balances[token][from].sub(tokens);
+      allowed[token][from][to] = allowed[token][from][to].sub(tokens);
+
+      ERC20Interface(token).transfer(to, tokens);
+
+      Withdraw(token, from, tokens, balances[token][from]);
+      return true;
+  }
+
+
+
   function balanceOf(address token,address user) public constant returns (uint) {
        return balances[token][user];
    }
 
- function transferTokens(address to, address token, uint tokens) public returns (bool success) {
-      balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
-      balances[token][to] = balances[token][to].add(tokens);
-      Transfer(msg.sender, token, to, tokens);
-      return true;
-  }
+
 
 
   //remember... can also be used to remove approval by using a 'tokens' value of 0
@@ -188,11 +197,19 @@ contract LavaWallet {
       return true;
   }
 
-   function approveMoreTokens(address spender, address token, uint tokens) public returns (bool success) {
+   function approveAddTokens(address spender, address token, uint tokens) public returns (bool success) {
        allowed[token][msg.sender][spender] = allowed[token][msg.sender][spender].add(tokens);
        Approval(msg.sender, token, spender, allowed[token][msg.sender][spender]);
        return true;
    }
+
+  //no approve needed
+   function transferTokens(address to, address token, uint tokens) public returns (bool success) {
+        balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
+        balances[token][to] = balances[token][to].add(tokens);
+        Transfer(msg.sender, token, to, tokens);
+        return true;
+    }
 
 
    function transferTokensFrom( address from, address to,address token,  uint tokens) public returns (bool success) {
@@ -206,10 +223,10 @@ contract LavaWallet {
    //nonce is the same thing as a 'check number'
 
 
-   function approveTokensWithSignature(address from, address to,  uint256 tokens, address token,
+   function approveTokensWithSignature(address from, address to,  address token, uint256 tokens, uint256 relayerReward,
                                      uint256 expires, uint256 nonce, bytes signature) public returns (bool)
    {
-      bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, from, to, token, tokens, expires, nonce);
+       bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, from, to, token, tokens, relayerReward, expires, nonce);
 
        address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
 
@@ -219,30 +236,53 @@ contract LavaWallet {
        //make sure the signature has not expired
        if(block.number > expires) revert();
 
-
-
        uint burnedSignature = burnedSignatures[sigHash];
        burnedSignatures[sigHash] = 0x1; //spent
        if(burnedSignature != 0x0 ) revert();
 
 
+
        allowed[token][from][to] = tokens;
        Approval(from, token, to, tokens);
        return true;
-
-
    }
 
-   //allows transfer without approval as long as you get an EC signature
-  function transferTokensFromWithSignature(address from, address to, uint256 tokensApproved, uint256 tokens, address token,
+   //the tokens leave lava wallet
+   function withdrawTokensFromWithSignature(address from, address to,  uint256 relayerReward, uint256 tokens, address token,
                                     uint256 expires, uint256 nonce, bytes signature) public returns (bool)
   {
       //check to make sure that signature == ecrecover signature
 
-      if(!approveTokensWithSignature(from,to,tokensApproved,token,expires,nonce,signature)) revert();
+      if(!approveTokensWithSignature(from,to,token,tokens,relayerReward,expires,nonce,signature)) revert();
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
-      return transferTokensFrom( from, to, token, tokens);
+      if(!withdrawTokensFrom( from, to, token, tokens)) revert();
+
+
+      //transferRelayerReward
+      if(!transferTokensFrom(from, msg.sender, token, relayerReward)) revert();
+
+      return true;
+
+  }
+
+   //the tokens remain in lava wallet
+  function transferTokensFromWithSignature(address from, address to,  uint256 relayerReward, uint256 tokens, address token,
+                                    uint256 expires, uint256 nonce, bytes signature) public returns (bool)
+  {
+      //check to make sure that signature == ecrecover signature
+
+      if(!approveTokensWithSignature(from,to,token,tokens,relayerReward,expires,nonce,signature)) revert();
+
+      //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
+      if(!transferTokensFrom( from, to, token, tokens)) revert();
+
+
+      //transferRelayerReward
+      if(!transferTokensFrom(from, msg.sender, token, relayerReward)) revert();
+
+
+      return true;
 
   }
 
