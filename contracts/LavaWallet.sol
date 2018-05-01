@@ -1,8 +1,7 @@
 pragma solidity ^0.4.18;
 
 import "./ECRecovery.sol";
-import "./SignTypedDataBeta.sol";
-
+ 
 import "./SafeMath.sol";
 
 
@@ -224,7 +223,7 @@ contract LavaWallet {
 
    //nonce is the same thing as a 'check number'
 
-   //EIP 712 
+   //EIP 712
    function getLavaTypedDataHash( address from, address to, address walletAddress, address token, uint256 tokens, uint256 relayerReward,
                                      uint256 expires, uint256 nonce) public returns (bytes32)
    {
