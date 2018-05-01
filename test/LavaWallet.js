@@ -322,8 +322,6 @@ var nonce = 12
 
 const msgParams = [
 
-
-
 {
  type: 'address',
  name: 'from',
@@ -367,10 +365,59 @@ const msgParams = [
 ]
 
 
+const testMsgParams = [
+
+{
+ type: 'address',
+ name: 'from',
+ value: '0xb11ca87e32075817c82cc471994943a4290f4a14'
+},
+{
+ type: 'address',
+ name: 'to',
+ value: '0xb11ca87e32075817c82cc471994943a4290f4a14'
+},
+{
+ type: 'address',
+ name: 'walletAddress',
+ value: '0xd53f047ceb0dc6cbaf6d09e877a7c3043caf9e7e'
+},
+{
+ type: 'address',
+ name: 'tokenAddress',
+ value: "0x9d2cc383e677292ed87f63586086cff62a009010"
+},
+{
+ type: 'uint256',
+ name: 'tokenAmount',
+ value: 0
+},
+{
+ type: 'uint256',
+ name: 'relayerReward',
+ value: 0
+},
+{
+ type: 'uint256',
+ name: 'expires',
+ value: 3159739
+},
+{
+ type: 'uint256',
+ name: 'nonce',
+ value: "0xcb427e37485ce638ad24b9e1125e9"
+},
+]
+
+//compund hash should be
+//     0xb2efb2a45454a62d28bace8669a72b4cf313e0e38018457bd640322a858d3134
+
+/// -> 0xb2efb2a45454a62d28bace8669a72b4cf313e0e38018457bd640322a858d3134
+
 // i need to hardcode the typehash in to solidity!!
 
 
-       var hash = typedSignatureHash(msgParams)
+       var hash = typedSignatureHash(testMsgParams)
 
        console.log('hash3', '0x'+ hash.toString('hex') )
 
