@@ -1,6 +1,8 @@
 var _0xBitcoinToken = artifacts.require("./_0xBitcoinToken.sol");
 var LavaWallet = artifacts.require("./LavaWallet.sol");
 
+
+const ethAbi = require('ethereumjs-abi')
 var ethUtil =  require('ethereumjs-util');
 var web3utils =  require('web3-utils');
 
@@ -305,6 +307,16 @@ const hash = keccak256(
 address recoveredSignerAddress = ecrecover(hash, v, r, s);
 */
 
+
+var from = test_account.address
+var to = test_account.address
+var walletAddress = test_account.address
+var tokenAddress = test_account.address
+var tokenAmount = 100
+var relayerReward = 1
+var expires = 999999999
+var nonce = 12
+
 const msgParams = [
 
 {
@@ -559,6 +571,9 @@ function typedSignatureHash(typedData) {
     if (!e.name) throw error
     return e.type + ' ' + e.name
   })
+
+  console.log('schema subhash',ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema))
+  console.log('data subhash',ethAbi.soliditySHA3(types, data))
 
   return ethAbi.soliditySHA3(
     ['bytes32', 'bytes32'],

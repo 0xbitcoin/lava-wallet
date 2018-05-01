@@ -3,8 +3,8 @@ pragma solidity ^0.4.18;
 import "./ECRecovery.sol";
 
 /**
- * @title SignTypedDataBeta
- * @dev
+ * SignTypedDataBeta
+ *
  */
 library SignTypedDataBeta {
 
