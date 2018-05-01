@@ -276,15 +276,50 @@ it("can sign a lava request", async function () {
    var sig = ethUtil.ecsign(sigHashHex, Buffer.from(privateKey,'hex'))
 
 
+
+
+//https://github.com/ukstv/sign-typed-data-test/blob/master/contracts/SignTypedData.sol#L11
+
+
+//see
+//https://github.com/MetaMask/eth-sig-util/blob/master/index.js
+// need to implement typedSignatureHash in solidity
+
+
+/*
+{
+   type: 'uint32',
+   name: 'A number',
+   value: '1337'
+}
+*/
+ 
+/*
+// Solidity example
+string message = 'Hi, Alice!';
+unit value = 1337;
+const hash = keccak256(
+  keccak256('string message', 'uint32 A number'),
+  keccak256(message, value),
+);
+address recoveredSignerAddress = ecrecover(hash, v, r, s);
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       console.log(sig)
-
-  // var vrs_data = ethUtil.fromRpcSig(sig)
-
-   //console.log(vrs_data)
-
-  // const res = ethUtil.fromRpcSig(sig);
-
-    //  console.log(res)
 
    var recoveredPubkey = ethUtil.ecrecover(sigHashHex, sig.v, sig.r, sig.s);
    console.log('recoveredPubkey',recoveredPubkey)
