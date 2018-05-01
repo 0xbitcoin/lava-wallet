@@ -577,10 +577,10 @@ function typedSignatureHash(typedData) {
 
 
 console.log('schema',new Array(typedData.length).fill('string'),schema)
-  console.log('schema subhash',ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema))
+  console.log('schema subhash',ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema).toString('hex'))
 
   console.log('types',types, data)
-  console.log('types subhash',ethAbi.soliditySHA3(types, data))
+  console.log('types subhash',ethAbi.soliditySHA3(types, data).toString('hex'))
 
 
   return ethAbi.soliditySHA3(
