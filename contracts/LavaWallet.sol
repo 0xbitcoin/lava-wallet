@@ -1,7 +1,7 @@
 pragma solidity ^0.4.18;
 
 import "./ECRecovery.sol";
- 
+
 import "./SafeMath.sol";
 
 
@@ -66,7 +66,7 @@ contract LavaWallet {
 
    //like orderFills in lavadex..
    //how much of the offchain sig approval has been 'drained' or used up
-   mapping (address => mapping (bytes32 => uint)) public signatureApprovalDrained; //mapping of user accounts to mapping of order hashes to uints (amount of order that has been filled)
+  // mapping (address => mapping (bytes32 => uint)) public signatureApprovalDrained; //mapping of user accounts to mapping of order hashes to uints (amount of order that has been filled)
 
 
    //deprecated
