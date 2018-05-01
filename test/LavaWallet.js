@@ -350,6 +350,7 @@ const msgParams = [
 ]
 
 
+// i need to hardcode the typehash in to solidity!!
 
 
        var hash = typedSignatureHash(msgParams)
