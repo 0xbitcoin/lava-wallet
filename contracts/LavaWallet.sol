@@ -225,7 +225,7 @@ contract LavaWallet {
 
    //EIP 712
    function getLavaTypedDataHash( address from, address to, address walletAddress, address token, uint256 tokens, uint256 relayerReward,
-                                     uint256 expires, uint256 nonce) public returns (bytes32)
+                                     uint256 expires, uint256 nonce) public constant returns (bytes32)
    {
         bytes32 hardcodedSchemaHash = 0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3 ;
 
