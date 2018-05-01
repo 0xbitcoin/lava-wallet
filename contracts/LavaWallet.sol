@@ -224,15 +224,15 @@ contract LavaWallet {
 
    //nonce is the same thing as a 'check number'
 
-
-   function testSignTypedData( address walletAddress, address from, address to, address token, uint256 tokens, uint256 relayerReward,
+   //EIP 712 
+   function getLavaTypedDataHash( address from, address to, address walletAddress, address token, uint256 tokens, uint256 relayerReward,
                                      uint256 expires, uint256 nonce) public returns (bytes32)
    {
-      bytes32   hardcodedSchemaHash = 0xd7129e5bb0e3c24b6fdca8d929de951662dc0b39e455524e37d52361536505da ;
+        bytes32 hardcodedSchemaHash = 0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3 ;
 
         bytes32 typedDataHash = sha3(
             hardcodedSchemaHash,
-            sha3(walletAddress,from,to,token,tokens,relayerReward,expires,nonce)
+            sha3(from,to,walletAddress,token,tokens,relayerReward,expires,nonce)
           );
 
         return typedDataHash;
@@ -240,10 +240,12 @@ contract LavaWallet {
 
 
 
-   function approveTokensWithSignature(address from, address to,    address token, uint256 tokens, uint256 relayerReward,
+   function approveTokensWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,
                                      uint256 expires, uint256 nonce, bytes signature) public returns (bool)
    {
-       bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, from, to, token, tokens, relayerReward, expires, nonce);
+       //bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, from, to, token, tokens, relayerReward, expires, nonce);
+
+       bytes32 sigHash = getLavaTypedDataHash(from,to,this,token,tokens,relayerReward,expires,nonce);
 
        address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
 

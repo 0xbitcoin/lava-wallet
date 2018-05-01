@@ -308,6 +308,9 @@ address recoveredSignerAddress = ecrecover(hash, v, r, s);
 */
 
 
+
+
+
 var from = test_account.address
 var to = test_account.address
 var walletAddress = test_account.address
@@ -320,11 +323,7 @@ var nonce = 12
 const msgParams = [
 
 
-  {
-   type: 'address',
-   name: 'walletAddress',
-   value: walletAddress
-  },
+
 {
  type: 'address',
  name: 'from',
@@ -335,7 +334,11 @@ const msgParams = [
  name: 'to',
  value: to
 },
-
+{
+ type: 'address',
+ name: 'walletAddress',
+ value: walletAddress
+},
 {
  type: 'address',
  name: 'tokenAddress',
@@ -369,7 +372,7 @@ const msgParams = [
 
        var hash = typedSignatureHash(msgParams)
 
-       console.log('hash3', hash.toString('hex') )
+       console.log('hash3', '0x'+ hash.toString('hex') )
 
        var result = await walletContract.testSignTypedData.call(walletAddress,from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
 
@@ -599,7 +602,7 @@ console.log('schema',new Array(typedData.length).fill('string'),schema)
   console.log("hash2", ethAbi.soliditySHA3(
     ['bytes32', 'bytes32'],
     [
-      '0xd7129e5bb0e3c24b6fdca8d929de951662dc0b39e455524e37d52361536505da',
+      '0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3',
       ethAbi.soliditySHA3(types, data)
     ]
   ))
