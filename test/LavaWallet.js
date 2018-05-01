@@ -583,6 +583,24 @@ console.log('schema',new Array(typedData.length).fill('string'),schema)
   console.log('types subhash',ethAbi.soliditySHA3(types, data).toString('hex'))
 
 
+  console.log("hash1", ethAbi.soliditySHA3(
+    ['bytes32', 'bytes32'],
+    [
+      ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema),
+      ethAbi.soliditySHA3(types, data)
+    ]
+  ))
+
+  //need to hardcode the 0x64fcd ... into solidity !!
+  console.log("hash2", ethAbi.soliditySHA3(
+    ['bytes32', 'bytes32'],
+    [
+      '0x64fcd15804c70e89e7632eced8f6b98a3bcbbe92bc0c5bc3db65fa9f923d7299',
+      ethAbi.soliditySHA3(types, data)
+    ]
+  ))
+
+
   return ethAbi.soliditySHA3(
     ['bytes32', 'bytes32'],
     [
