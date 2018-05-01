@@ -246,8 +246,8 @@ it("can sign a lava request", async function () {
     await printBalance(accounts[0],tokenContract)
 
     var test_account= {
-        'address': '0x087964cd8b33ea47c01fbe48b70113ce93481e01',
-        'privateKey': 'dca672104f895219692175d87b04483d31f53af8caad1d7348d269b35e21c3df'
+        'address': '0x7104822ff0709d7bcff5017cfe1d6246710aefc2',
+        'privateKey': 'd74926a22497deb0f453869d534f22699b79608c5acdd13435b1612a08081889'
     }
 
     var addressFrom = test_account.address;
@@ -319,6 +319,8 @@ var nonce = 12
 
 const msgParams = [
 
+
+
 {
  type: 'address',
  name: 'from',
@@ -357,7 +359,7 @@ const msgParams = [
 {
  type: 'string',
  name: 'nonce',
- value: nonce
+ value: nonce.toString()
 },
 ]
 
@@ -572,8 +574,14 @@ function typedSignatureHash(typedData) {
     return e.type + ' ' + e.name
   })
 
+
+
+console.log('schema',new Array(typedData.length).fill('string'),schema)
   console.log('schema subhash',ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema))
-  console.log('data subhash',ethAbi.soliditySHA3(types, data))
+
+  console.log('types',types, data)
+  console.log('types subhash',ethAbi.soliditySHA3(types, data))
+
 
   return ethAbi.soliditySHA3(
     ['bytes32', 'bytes32'],
