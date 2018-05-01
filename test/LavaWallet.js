@@ -320,7 +320,11 @@ var nonce = 12
 const msgParams = [
 
 
-
+  {
+   type: 'address',
+   name: 'walletAddress',
+   value: walletAddress
+  },
 {
  type: 'address',
  name: 'from',
@@ -331,11 +335,7 @@ const msgParams = [
  name: 'to',
  value: to
 },
-{
- type: 'address',
- name: 'walletAddress',
- value: walletAddress
-},
+
 {
  type: 'address',
  name: 'tokenAddress',
@@ -357,9 +357,9 @@ const msgParams = [
  value: expires
 },
 {
- type: 'string',
+ type: 'uint256',
  name: 'nonce',
- value: nonce.toString()
+ value: nonce
 },
 ]
 
@@ -369,7 +369,11 @@ const msgParams = [
 
        var hash = typedSignatureHash(msgParams)
 
+       console.log('hash3', hash.toString('hex') )
 
+       var result = await walletContract.testSignTypedData.call(walletAddress,from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
+
+       console.log('hash4', result )
 /*
 [ { type: 'uint256', name:'amount', value: 0 }, { type: 'address', name:'account', value: '0x000000000 ' } ]
 
@@ -595,7 +599,7 @@ console.log('schema',new Array(typedData.length).fill('string'),schema)
   console.log("hash2", ethAbi.soliditySHA3(
     ['bytes32', 'bytes32'],
     [
-      '0x64fcd15804c70e89e7632eced8f6b98a3bcbbe92bc0c5bc3db65fa9f923d7299',
+      '0xd7129e5bb0e3c24b6fdca8d929de951662dc0b39e455524e37d52361536505da',
       ethAbi.soliditySHA3(types, data)
     ]
   ))

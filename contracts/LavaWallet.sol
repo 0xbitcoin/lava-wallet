@@ -225,7 +225,22 @@ contract LavaWallet {
    //nonce is the same thing as a 'check number'
 
 
-   function approveTokensWithSignature(address from, address to,  address token, uint256 tokens, uint256 relayerReward,
+   function testSignTypedData( address walletAddress, address from, address to, address token, uint256 tokens, uint256 relayerReward,
+                                     uint256 expires, uint256 nonce) public returns (bytes32)
+   {
+      bytes32   hardcodedSchemaHash = 0xd7129e5bb0e3c24b6fdca8d929de951662dc0b39e455524e37d52361536505da ;
+
+        bytes32 typedDataHash = sha3(
+            hardcodedSchemaHash,
+            sha3(walletAddress,from,to,token,tokens,relayerReward,expires,nonce)
+          );
+
+        return typedDataHash;
+   }
+
+
+
+   function approveTokensWithSignature(address from, address to,    address token, uint256 tokens, uint256 relayerReward,
                                      uint256 expires, uint256 nonce, bytes signature) public returns (bool)
    {
        bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, from, to, token, tokens, relayerReward, expires, nonce);
