@@ -1,6 +1,8 @@
 pragma solidity ^0.4.18;
 
 import "./ECRecovery.sol";
+import "./SignTypedDataBeta.sol";
+
 import "./SafeMath.sol";
 
 

@@ -293,7 +293,7 @@ it("can sign a lava request", async function () {
    value: '1337'
 }
 */
- 
+
 /*
 // Solidity example
 string message = 'Hi, Alice!';
@@ -305,11 +305,71 @@ const hash = keccak256(
 address recoveredSignerAddress = ecrecover(hash, v, r, s);
 */
 
+const msgParams = [
+
+{
+ type: 'address',
+ name: 'from',
+ value: from
+},
+{
+ type: 'address',
+ name: 'to',
+ value: to
+},
+{
+ type: 'address',
+ name: 'walletAddress',
+ value: walletAddress
+},
+{
+ type: 'address',
+ name: 'tokenAddress',
+ value: tokenAddress
+},
+{
+ type: 'uint256',
+ name: 'tokenAmount',
+ value: tokenAmount
+},
+{
+ type: 'uint256',
+ name: 'relayerReward',
+ value: relayerReward
+},
+{
+ type: 'uint256',
+ name: 'expires',
+ value: expires
+},
+{
+ type: 'string',
+ name: 'nonce',
+ value: nonce
+},
+]
 
 
 
 
+       var hash = typedSignatureHash(msgParams)
 
+
+/*
+[ { type: 'uint256', name:'amount', value: 0 }, { type: 'address', name:'account', value: '0x000000000 ' } ]
+
+Now in solidity make a hash for the types:
+
+bytes32 typeHash = keccak('uint256 amount', 'address account');
+
+And a hash for the actual values:
+
+bytes32 valueHash =keccak(_amount, _account);
+
+Now you can recover those combined hashes as you would recover a normal sign:
+
+ecrecover(keccak(typeHash, valueHash), v,r,s);
+*/
 
 
 
@@ -368,6 +428,7 @@ var signature = ethUtil.toRpcSig(sig.v, sig.r, sig.s)
                }
            ]
        }, [requestRecipient, requestQuantity, requestToken, requestNonce, sigHash, signature ]);
+
 
 
        console.log(sig.length);
@@ -482,6 +543,31 @@ it("can bid on the market", async function () {
 
   */
 });
+
+
+
+function typedSignatureHash(typedData) {
+  const error = new Error('Expect argument to be non-empty array')
+  if (typeof typedData !== 'object' || !typedData.length) throw error
+
+  const data = typedData.map(function (e) {
+    return e.type === 'bytes' ? ethUtil.toBuffer(e.value) : e.value
+  })
+  const types = typedData.map(function (e) { return e.type })
+  const schema = typedData.map(function (e) {
+    if (!e.name) throw error
+    return e.type + ' ' + e.name
+  })
+
+  return ethAbi.soliditySHA3(
+    ['bytes32', 'bytes32'],
+    [
+      ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema),
+      ethAbi.soliditySHA3(types, data)
+    ]
+  )
+}
+
 
 
 async function getBalance (account ,tokenContract)
