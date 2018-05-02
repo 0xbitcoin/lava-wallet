@@ -292,7 +292,7 @@ contract LavaWallet {
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
       if(!transferTokensFrom( from, to, token, tokens)) revert();
- 
+
 
       return true;
 
@@ -307,10 +307,11 @@ contract LavaWallet {
 
 
 
-     function burnSignature(address from, address to, uint256 tokens, address token, uint256 expires, uint256 nonce,  bytes signature) public returns (bool)
+     function burnSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward, uint256 expires, uint256 nonce,  bytes signature) public returns (bool)
      {
 
-       bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, from, to, token, tokens, expires, nonce);
+       //bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, from, to, token, tokens, expires, nonce);
+       bytes32 sigHash = getLavaTypedDataHash(from,to,this,token,tokens,relayerReward,expires,nonce);
 
 
          address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
