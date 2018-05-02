@@ -1,3 +1,8 @@
+
+import LavaTestUtils from './LavaTestUtils';
+var sigUtil = require('eth-sig-util')
+
+
 var _0xBitcoinToken = artifacts.require("./_0xBitcoinToken.sol");
 var LavaWallet = artifacts.require("./LavaWallet.sol");
 
@@ -5,7 +10,7 @@ var ethUtil =  require('ethereumjs-util');
 var web3utils =  require('web3-utils');
 
 const Tx = require('ethereumjs-tx')
-
+var lavaTestUtils = new LavaTestUtils();
 
 const Web3 = require('web3')
 // Instantiate new web3 object pointing toward an Ethereum node.
@@ -248,7 +253,7 @@ it("can sign a lava request", async function () {
         'privateKey': 'dca672104f895219692175d87b04483d31f53af8caad1d7348d269b35e21c3df'
     }
 
-    var addressFrom = test_account.address;
+    var from = test_account.address;
 
 
 
@@ -264,10 +269,71 @@ it("can sign a lava request", async function () {
      var privateKey = test_account.privateKey;
 
 
+     const msgParams = [
+
+    {
+      type: 'address',
+      name: 'from',
+      value: from
+    },
+    {
+      type: 'address',
+      name: 'to',
+      value: to
+    },
+    {
+      type: 'address',
+      name: 'walletAddress',
+      value: walletAddress
+    },
+    {
+      type: 'address',
+      name: 'tokenAddress',
+      value: tokenAddress
+    },
+    {
+      type: 'uint256',
+      name: 'tokenAmount',
+      value: tokenAmount
+    },
+    {
+      type: 'uint256',
+      name: 'relayerReward',
+      value: relayerReward
+    },
+    {
+      type: 'uint256',
+      name: 'expires',
+      value: expires
+    },
+    {
+      type: 'string',
+      name: 'nonce',
+      value: nonce
+    },
+  ]
+
+      var params = [msgParams, from]
+
+      var signature = await this.signTypedData(params,from);
+        console.log('lava signature',msgParams,signature)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
    var sigHash = web3utils.soliditySha3(requestRecipient, requestQuantity, requestToken, requestNonce)
 
-      console.log(addressFrom)
+      console.log(from)
 
       console.log(sigHash)
 

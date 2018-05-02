@@ -248,7 +248,7 @@ contract LavaWallet {
    }
 
    //the tokens leave lava wallet
-   function withdrawTokensFromWithSignature(address from, address to,  uint256 relayerReward, uint256 tokens, address token,
+   function withdrawTokensFromWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
                                     uint256 expires, uint256 nonce, bytes signature) public returns (bool)
   {
       //check to make sure that signature == ecrecover signature
@@ -267,7 +267,7 @@ contract LavaWallet {
   }
 
    //the tokens remain in lava wallet
-  function transferTokensFromWithSignature(address from, address to,  uint256 relayerReward, uint256 tokens, address token,
+  function transferTokensFromWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
                                     uint256 expires, uint256 nonce, bytes signature) public returns (bool)
   {
       //check to make sure that signature == ecrecover signature
