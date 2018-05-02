@@ -258,7 +258,8 @@ contract LavaWallet {
        burnedSignatures[sigHash] = 0x1; //spent
        if(burnedSignature != 0x0 ) revert();
 
-
+       //transferRelayerReward
+       if(!transferTokensFrom(from, msg.sender, token, relayerReward)) revert();
 
        allowed[token][from][to] = tokens;
        Approval(from, token, to, tokens);
@@ -277,8 +278,7 @@ contract LavaWallet {
       if(!withdrawTokensFrom( from, to, token, tokens)) revert();
 
 
-      //transferRelayerReward
-      if(!transferTokensFrom(from, msg.sender, token, relayerReward)) revert();
+
 
       return true;
 
@@ -297,7 +297,7 @@ contract LavaWallet {
 
 
       //transferRelayerReward
-      if(!transferTokensFrom(from, msg.sender, token, relayerReward)) revert();
+      //if(!transferTokensFrom(from, msg.sender, token, relayerReward)) revert();
 
 
       return true;
