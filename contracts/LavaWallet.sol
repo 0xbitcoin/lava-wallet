@@ -90,7 +90,7 @@ contract LavaWallet {
 
 
   //send Ether into this method, it gets wrapped and then deposited in this contract as a token balance assigned to the sender
-  function depositAndWrap(address wrappingContract, address preApprove) public payable
+  function depositAndWrap(address wrappingContract ) public payable
   {
 
     //forward this payable ether into the wrapping contract
@@ -107,11 +107,7 @@ contract LavaWallet {
     balances[wrappingContract][msg.sender] = balances[wrappingContract][msg.sender].add(msg.value);
 
 
-    if(preApprove != 0x0)
-    {
-      //preapprove an account (typically a contract) to spend these tokens immediately
-      approveAddTokens(preApprove,wrappingContract,msg.value);
-    }
+
 
     Deposit(wrappingContract, msg.sender, msg.value, balances[wrappingContract][msg.sender]);
   }
@@ -142,17 +138,13 @@ contract LavaWallet {
 
 
    //remember you need pre-approval for this - nice with ApproveAndCall
-  function depositTokens(address from, address token, uint256 tokens, address preApprove) public returns (bool)
+  function depositTokens(address from, address token, uint256 tokens ) public returns (bool)
   {
       //we already have approval so lets do a transferFrom - transfer the tokens into this contract
       ERC20Interface(token).transferFrom(from, this, tokens);
       balances[token][from] = balances[token][from].add(tokens);
 
-      if(preApprove != 0x0)
-      {
-        //preapprove an account (typically a contract) to spend these tokens immediately
-        approveAddTokens(preApprove,token,tokens);
-      }
+
 
       Deposit(token, from, tokens, balances[token][from]);
 
@@ -342,30 +334,10 @@ contract LavaWallet {
    //parse the data:   first byte is for 'action_id'
    //byte action_id = data[0];
 
-    address preApprove = 0x0;
-   //will this work ?
-   if(data.length == 20)
-   {
-     preApprove = bytesToAddress(data);
-   }
 
-   return depositTokens(from, token, tokens, preApprove);
 
- }
+   return depositTokens(from, token, tokens );
 
- //Usage
-//address addr = bytesToAddress("0xa462d983B4b8C855e1876e8c24889CBa466A67EB");
-function bytesToAddress(bytes _address) public pure returns (address) {
-   uint160 m = 0;
-   uint160 b = 0;
-
-   for (uint8 i = 0; i < 20; i++) {
-     m *= 256;
-     b = uint160(_address[i]);
-     m += (b);
-   }
-
-   return address(m);
  }
 
 
