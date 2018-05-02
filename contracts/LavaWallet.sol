@@ -161,7 +161,7 @@ contract LavaWallet {
     Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);
   }
 
-  //requires approval so it can be public 
+  //requires approval so it can be public
   function withdrawTokensFrom( address from, address to,address token,  uint tokens) public returns (bool success) {
       balances[token][from] = balances[token][from].sub(tokens);
       allowed[token][from][to] = allowed[token][from][to].sub(tokens);
@@ -246,9 +246,7 @@ contract LavaWallet {
        if(burnedSignature != 0x0 ) revert();
 
 
-       //approve transfer of tokens
-       allowed[token][from][to] = tokens;
-       Approval(from, token, to, tokens);
+
 
        //approve the relayer reward
        allowed[token][from][msg.sender] = relayerReward;
@@ -258,6 +256,11 @@ contract LavaWallet {
        if(!transferTokensFrom(from, msg.sender, token, relayerReward)) revert();
 
 
+       //approve transfer of tokens
+       allowed[token][from][to] = tokens;
+       Approval(from, token, to, tokens);
+
+       
        return true;
    }
 
