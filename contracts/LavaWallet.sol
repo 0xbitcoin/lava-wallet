@@ -188,11 +188,7 @@ contract LavaWallet {
       return true;
   }
 
-   function approveAddTokens(address spender, address token, uint tokens) public returns (bool success) {
-       allowed[token][msg.sender][spender] = allowed[token][msg.sender][spender].add(tokens);
-       Approval(msg.sender, token, spender, allowed[token][msg.sender][spender]);
-       return true;
-   }
+ 
 
   //no approve needed
    function transferTokens(address to, address token, uint tokens) public returns (bool success) {
@@ -248,11 +244,19 @@ contract LavaWallet {
        burnedSignatures[sigHash] = 0x1; //spent
        if(burnedSignature != 0x0 ) revert();
 
+
+       //approve transfer of tokens
+       allowed[token][from][to] = tokens;
+       Approval(from, token, to, tokens);
+
+       //approve the relayer reward
+       allowed[token][from][msg.sender] = relayerReward;
+       Approval(from, token, msg.sender, relayerReward);
+
        //transferRelayerReward
        if(!transferTokensFrom(from, msg.sender, token, relayerReward)) revert();
 
-       allowed[token][from][to] = tokens;
-       Approval(from, token, to, tokens);
+
        return true;
    }
 
@@ -266,8 +270,6 @@ contract LavaWallet {
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
       if(!withdrawTokensFrom( from, to, token, tokens)) revert();
-
-
 
 
       return true;
