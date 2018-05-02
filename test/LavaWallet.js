@@ -6,6 +6,8 @@ var sigUtil = require('eth-sig-util')
 var _0xBitcoinToken = artifacts.require("./_0xBitcoinToken.sol");
 var LavaWallet = artifacts.require("./LavaWallet.sol");
 
+
+const ethAbi = require('ethereumjs-abi')
 var ethUtil =  require('ethereumjs-util');
 var web3utils =  require('web3-utils');
 
@@ -249,8 +251,8 @@ it("can sign a lava request", async function () {
     await printBalance(accounts[0],tokenContract)
 
     var test_account= {
-        'address': '0x087964cd8b33ea47c01fbe48b70113ce93481e01',
-        'privateKey': 'dca672104f895219692175d87b04483d31f53af8caad1d7348d269b35e21c3df'
+        'address': '0x7104822ff0709d7bcff5017cfe1d6246710aefc2',
+        'privateKey': 'd74926a22497deb0f453869d534f22699b79608c5acdd13435b1612a08081889'
     }
 
     var from = test_account.address;
@@ -342,15 +344,177 @@ it("can sign a lava request", async function () {
    var sig = ethUtil.ecsign(sigHashHex, Buffer.from(privateKey,'hex'))
 
 
+
+
+//https://github.com/ukstv/sign-typed-data-test/blob/master/contracts/SignTypedData.sol#L11
+
+
+//see
+//https://github.com/MetaMask/eth-sig-util/blob/master/index.js
+// need to implement typedSignatureHash in solidity
+
+
+/*
+{
+   type: 'uint32',
+   name: 'A number',
+   value: '1337'
+}
+*/
+
+/*
+// Solidity example
+string message = 'Hi, Alice!';
+unit value = 1337;
+const hash = keccak256(
+  keccak256('string message', 'uint32 A number'),
+  keccak256(message, value),
+);
+address recoveredSignerAddress = ecrecover(hash, v, r, s);
+*/
+
+
+
+
+
+var from = test_account.address
+var to = test_account.address
+var walletAddress = test_account.address
+var tokenAddress = test_account.address
+var tokenAmount = 100
+var relayerReward = 1
+var expires = 999999999
+var nonce = 12
+
+const msgParams = [
+
+{
+ type: 'address',
+ name: 'from',
+ value: from
+},
+{
+ type: 'address',
+ name: 'to',
+ value: to
+},
+{
+ type: 'address',
+ name: 'walletAddress',
+ value: walletAddress
+},
+{
+ type: 'address',
+ name: 'tokenAddress',
+ value: tokenAddress
+},
+{
+ type: 'uint256',
+ name: 'tokenAmount',
+ value: tokenAmount
+},
+{
+ type: 'uint256',
+ name: 'relayerReward',
+ value: relayerReward
+},
+{
+ type: 'uint256',
+ name: 'expires',
+ value: expires
+},
+{
+ type: 'uint256',
+ name: 'nonce',
+ value: nonce
+},
+]
+
+
+const testMsgParams = [
+
+{
+ type: 'address',
+ name: 'from',
+ value: '0xb11ca87e32075817c82cc471994943a4290f4a14'
+},
+{
+ type: 'address',
+ name: 'to',
+ value: '0xb11ca87e32075817c82cc471994943a4290f4a14'
+},
+{
+ type: 'address',
+ name: 'walletAddress',
+ value: '0xd53f047ceb0dc6cbaf6d09e877a7c3043caf9e7e'
+},
+{
+ type: 'address',
+ name: 'tokenAddress',
+ value: "0x9d2cc383e677292ed87f63586086cff62a009010"
+},
+{
+ type: 'uint256',
+ name: 'tokenAmount',
+ value: 0
+},
+{
+ type: 'uint256',
+ name: 'relayerReward',
+ value: 0
+},
+{
+ type: 'uint256',
+ name: 'expires',
+ value: 3159739
+},
+{
+ type: 'uint256',
+ name: 'nonce',
+ value: "0xcb427e37485ce638ad24b9e1125e9"
+},
+]
+
+//compund hash should be
+//     0xb2efb2a45454a62d28bace8669a72b4cf313e0e38018457bd640322a858d3134
+
+/// -> 0xb2efb2a45454a62d28bace8669a72b4cf313e0e38018457bd640322a858d3134
+
+// i need to hardcode the typehash in to solidity!!
+
+
+       var hash = typedSignatureHash(testMsgParams)
+
+       console.log('hash3', '0x'+ hash.toString('hex') )
+
+       var result = await walletContract.testSignTypedData.call(walletAddress,from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
+
+       console.log('hash4', result )
+/*
+[ { type: 'uint256', name:'amount', value: 0 }, { type: 'address', name:'account', value: '0x000000000 ' } ]
+
+Now in solidity make a hash for the types:
+
+bytes32 typeHash = keccak('uint256 amount', 'address account');
+
+And a hash for the actual values:
+
+bytes32 valueHash =keccak(_amount, _account);
+
+Now you can recover those combined hashes as you would recover a normal sign:
+
+ecrecover(keccak(typeHash, valueHash), v,r,s);
+*/
+
+
+
+
+
+
+
+
+
       console.log(sig)
-
-  // var vrs_data = ethUtil.fromRpcSig(sig)
-
-   //console.log(vrs_data)
-
-  // const res = ethUtil.fromRpcSig(sig);
-
-    //  console.log(res)
 
    var recoveredPubkey = ethUtil.ecrecover(sigHashHex, sig.v, sig.r, sig.s);
    console.log('recoveredPubkey',recoveredPubkey)
@@ -399,6 +563,7 @@ var signature = ethUtil.toRpcSig(sig.v, sig.r, sig.s)
                }
            ]
        }, [requestRecipient, requestQuantity, requestToken, requestNonce, sigHash, signature ]);
+
 
 
        console.log(sig.length);
@@ -513,6 +678,58 @@ it("can bid on the market", async function () {
 
   */
 });
+
+
+
+function typedSignatureHash(typedData) {
+  const error = new Error('Expect argument to be non-empty array')
+  if (typeof typedData !== 'object' || !typedData.length) throw error
+
+  const data = typedData.map(function (e) {
+    return e.type === 'bytes' ? ethUtil.toBuffer(e.value) : e.value
+  })
+  const types = typedData.map(function (e) { return e.type })
+  const schema = typedData.map(function (e) {
+    if (!e.name) throw error
+    return e.type + ' ' + e.name
+  })
+
+
+
+console.log('schema',new Array(typedData.length).fill('string'),schema)
+  console.log('schema subhash',ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema).toString('hex'))
+
+  console.log('types',types, data)
+  console.log('types subhash',ethAbi.soliditySHA3(types, data).toString('hex'))
+
+
+  console.log("hash1", ethAbi.soliditySHA3(
+    ['bytes32', 'bytes32'],
+    [
+      ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema),
+      ethAbi.soliditySHA3(types, data)
+    ]
+  ))
+
+  //need to hardcode the 0x64fcd ... into solidity !!
+  console.log("hash2", ethAbi.soliditySHA3(
+    ['bytes32', 'bytes32'],
+    [
+      '0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3',
+      ethAbi.soliditySHA3(types, data)
+    ]
+  ))
+
+
+  return ethAbi.soliditySHA3(
+    ['bytes32', 'bytes32'],
+    [
+      ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema),
+      ethAbi.soliditySHA3(types, data)
+    ]
+  )
+}
+
 
 
 async function getBalance (account ,tokenContract)

@@ -1,6 +1,7 @@
 pragma solidity ^0.4.18;
 
 import "./ECRecovery.sol";
+
 import "./SafeMath.sol";
 
 
@@ -65,7 +66,7 @@ contract LavaWallet {
 
    //like orderFills in lavadex..
    //how much of the offchain sig approval has been 'drained' or used up
-   mapping (address => mapping (bytes32 => uint)) public signatureApprovalDrained; //mapping of user accounts to mapping of order hashes to uints (amount of order that has been filled)
+  // mapping (address => mapping (bytes32 => uint)) public signatureApprovalDrained; //mapping of user accounts to mapping of order hashes to uints (amount of order that has been filled)
 
 
    //deprecated
@@ -222,11 +223,28 @@ contract LavaWallet {
 
    //nonce is the same thing as a 'check number'
 
+   //EIP 712
+   function getLavaTypedDataHash( address from, address to, address walletAddress, address token, uint256 tokens, uint256 relayerReward,
+                                     uint256 expires, uint256 nonce) public constant returns (bytes32)
+   {
+        bytes32 hardcodedSchemaHash = 0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3 ;
 
-   function approveTokensWithSignature(address from, address to,  address token, uint256 tokens, uint256 relayerReward,
+        bytes32 typedDataHash = sha3(
+            hardcodedSchemaHash,
+            sha3(from,to,walletAddress,token,tokens,relayerReward,expires,nonce)
+          );
+
+        return typedDataHash;
+   }
+
+
+
+   function approveTokensWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,
                                      uint256 expires, uint256 nonce, bytes signature) public returns (bool)
    {
-       bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, from, to, token, tokens, relayerReward, expires, nonce);
+       //bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, from, to, token, tokens, relayerReward, expires, nonce);
+
+       bytes32 sigHash = getLavaTypedDataHash(from,to,this,token,tokens,relayerReward,expires,nonce);
 
        address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
 
