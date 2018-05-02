@@ -188,7 +188,7 @@ contract LavaWallet {
       return true;
   }
 
- 
+
 
   //no approve needed
    function transferTokens(address to, address token, uint tokens) public returns (bool success) {
@@ -199,7 +199,8 @@ contract LavaWallet {
     }
 
 
-   function transferTokensFrom( address from, address to,address token,  uint tokens) internal returns (bool success) {
+    //can be public because it requires approval
+   function transferTokensFrom( address from, address to,address token,  uint tokens) public returns (bool success) {
        balances[token][from] = balances[token][from].sub(tokens);
        allowed[token][from][to] = allowed[token][from][to].sub(tokens);
        balances[token][to] = balances[token][to].add(tokens);

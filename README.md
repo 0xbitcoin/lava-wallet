@@ -31,7 +31,7 @@ TO VERIFY:
 
 ### Published on Ropsten
 ECRecover
-0x1472b81d5cdd283ffdbb1926860722e71f58dc3c
+0xd795e019bfba8e0549cc748e24e403c01d0b6ec5
 
 LavaWallet
   0x3147b2a27d911498985d098ad00a29f1c1c3be3e
