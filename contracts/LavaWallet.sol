@@ -260,7 +260,7 @@ contract LavaWallet {
        allowed[token][from][to] = tokens;
        Approval(from, token, to, tokens);
 
-       
+
        return true;
    }
 
@@ -328,7 +328,12 @@ contract LavaWallet {
 
      function signatureBurned(bytes32 digest) public view returns (bool)
      {
-       return (burnedSignatures[digest] != 0x0);
+       return (burnedSignatures[digest] == 0x2);
+     }
+
+     function signatureRedeemed(bytes32 digest) public view returns (bool)
+     {
+       return (burnedSignatures[digest] == 0x1);
      }
 
 
