@@ -103,11 +103,9 @@ contract LavaWallet {
     // make sure that the amount of tokens we got are equal to the amount of ether we got
     //assert(this.balance.sub(balanceBefore) == tokens);
 
-
     //since the token balance is recorded in terms of the exact ether balance, no assert is needed
     balances[wrappingContract][msg.sender] = balances[wrappingContract][msg.sender].add(msg.value);
 
-    //assert(this.balance == 0); //make sure it is not a faulty wrapping contract
 
     if(preApprove != 0x0)
     {
@@ -267,7 +265,7 @@ contract LavaWallet {
    }
 
    //the tokens leave lava wallet
-   function withdrawTokensFromWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
+  function withdrawTokensFromWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
                                     uint256 expires, uint256 nonce, bytes signature) public returns (bool)
   {
       //check to make sure that signature == ecrecover signature
@@ -294,11 +292,7 @@ contract LavaWallet {
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
       if(!transferTokensFrom( from, to, token, tokens)) revert();
-
-
-      //transferRelayerReward
-      //if(!transferTokensFrom(from, msg.sender, token, relayerReward)) revert();
-
+ 
 
       return true;
 
