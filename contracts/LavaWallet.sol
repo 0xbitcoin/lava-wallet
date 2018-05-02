@@ -161,8 +161,8 @@ contract LavaWallet {
     Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);
   }
 
-
-  function withdrawTokensFrom( address from, address to,address token,  uint tokens) internal returns (bool success) {
+  //requires approval so it can be public 
+  function withdrawTokensFrom( address from, address to,address token,  uint tokens) public returns (bool success) {
       balances[token][from] = balances[token][from].sub(tokens);
       allowed[token][from][to] = allowed[token][from][to].sub(tokens);
 
