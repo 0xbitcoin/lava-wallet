@@ -49,10 +49,57 @@ contract WrapperInterface
 }
 
 
+contract Owned {
+
+    address public owner;
+
+    address public newOwner;
+
+
+    event OwnershipTransferred(address indexed _from, address indexed _to);
+
+
+    function Owned() public {
+
+        owner = msg.sender;
+
+    }
+
+
+    modifier onlyOwner {
+
+        require(msg.sender == owner);
+
+        _;
+
+    }
+
+
+    function transferOwnership(address _newOwner) public onlyOwner {
+
+        newOwner = _newOwner;
+
+    }
+
+    function acceptOwnership() public {
+
+        require(msg.sender == newOwner);
+
+        OwnershipTransferred(owner, newOwner);
+
+        owner = newOwner;
+
+        newOwner = address(0);
+
+    }
+
+}
 
 
 
-contract LavaWallet {
+
+
+contract LavaWallet is Owned {
 
 
   using SafeMath for uint;
@@ -326,15 +373,15 @@ contract LavaWallet {
          return true;
      }
 
-     function signatureBurned(bytes32 digest) public view returns (bool)
+
+     //2 is burned
+     //1 is redeemed
+     function signatureBurnStatus(bytes32 digest) public view returns (uint)
      {
-       return (burnedSignatures[digest] == 0x2);
+       return (burnedSignatures[digest]  );
      }
 
-     function signatureRedeemed(bytes32 digest) public view returns (bool)
-     {
-       return (burnedSignatures[digest] == 0x1);
-     }
+
 
 
    /*
@@ -345,11 +392,37 @@ contract LavaWallet {
    //parse the data:   first byte is for 'action_id'
    //byte action_id = data[0];
 
-
-
    return depositTokens(from, token, tokens );
 
  }
+
+ //approve lava tokens for a smart contract and call the contracts receiveApproval method all in one fell swoop 
+ //to is spender
+ function approveAndCall(address from, address to, address token, uint256 tokens, uint256 relayerReward,
+                                   uint256 expires, uint256 nonce, bytes signature,  bytes data) public returns (bool success) {
+
+     if(!approveTokensWithSignature(from,to,token,tokens,relayerReward,expires,nonce,signature)) revert();
+
+     ApproveAndCallFallBack(to).receiveApproval(from, tokens, token, data);
+
+     return true;
+
+ }
+
+
+
+ // ------------------------------------------------------------------------
+
+ // Owner can transfer out any accidentally sent ERC20 tokens
+
+ // ------------------------------------------------------------------------
+
+ function transferAnyERC20Token(address tokenAddress, uint tokens) public onlyOwner returns (bool success) {
+
+     return ERC20Interface(tokenAddress).transfer(owner, tokens);
+
+ }
+
 
 
 
