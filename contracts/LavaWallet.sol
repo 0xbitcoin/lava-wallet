@@ -38,7 +38,7 @@ contract WrapperInterface
   function totalSupply() public view returns (uint);
   function approve(address guy, uint wad) public returns (bool);
   function transfer(address dst, uint wad) public returns (bool);
-  function transferFrom(address src, address dst, uint wad);
+  function transferFrom(address src, address dst, uint wad) public returns (bool);
 
 
   event  Approval(address indexed src, address indexed guy, uint wad);
@@ -47,6 +47,13 @@ contract WrapperInterface
   event  Withdrawal(address indexed src, uint wad);
 
 }
+
+contract ApproveAndCallFallBack {
+
+    function receiveApproval(address from, uint256 tokens, address token, bytes data) public;
+
+}
+
 
 
 contract Owned {
@@ -200,7 +207,7 @@ contract LavaWallet is Owned {
 
 
   //no approve needed
-  function withdrawTokens(address token, uint256 tokens) {
+  function withdrawTokens(address token, uint256 tokens) public {
     balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
 
     ERC20Interface(token).transfer(msg.sender, tokens);
@@ -396,7 +403,7 @@ contract LavaWallet is Owned {
 
  }
 
- //approve lava tokens for a smart contract and call the contracts receiveApproval method all in one fell swoop 
+ //approve lava tokens for a smart contract and call the contracts receiveApproval method all in one fell swoop
  //to is spender
  function approveAndCall(address from, address to, address token, uint256 tokens, uint256 relayerReward,
                                    uint256 expires, uint256 nonce, bytes signature,  bytes data) public returns (bool success) {
