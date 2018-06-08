@@ -1,13 +1,35 @@
 
-class LavaTestUtils{
+var web3utils = require('web3-utils')
+
+module.exports = class LavaTestUtils{
 
 
 
 
 
-  async signTypedData(params,from)
+  async signTypedData(params,privateKey,web3)
   {
     var result = await new Promise(async resolve => {
+
+      console.log('signTypedData',params)
+
+      //finish me !!! 
+
+         var  hardcodedSchemaHash = '0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3' ;
+
+        var nonce = web3utils.toBN(nonce)
+
+          var typedDataHash = web3utils.soliditySha3(
+                  hardcodedSchemaHash,
+                  web3utils.soliditySha3(from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
+                  );
+
+
+        return typedDataHash;
+
+
+
+
 
       var method = 'eth_signTypedData'
 
@@ -48,5 +70,3 @@ class LavaTestUtils{
 
 
 }
-
-export default LavaTestUtils ;

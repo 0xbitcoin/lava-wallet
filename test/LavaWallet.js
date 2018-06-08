@@ -1,5 +1,6 @@
 
-import LavaTestUtils from './LavaTestUtils';
+var LavaTestUtils = require("./LavaTestUtils");
+
 var sigUtil = require('eth-sig-util')
 
 
@@ -22,12 +23,17 @@ let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"))
 //https://medium.com/@valkn0t/3-things-i-learned-this-week-using-solidity-truffle-and-web3-a911c3adc730
 
 
-
+var test_account= {
+    'address': '0x7b377ba6210564d5885a32632b36e16e149afbf9',
+    'privateKey': '0bd2cf4cb718a02e684fc162f7efc0ed579bc4fc6b1ebbf76cee5849b596f513'
+}
 
 contract('LavaWallet', function(accounts) {
 
   var walletContract ;
   var tokenContract;
+
+
 
     it("can deploy ", async function () {
 
@@ -70,10 +76,7 @@ contract('LavaWallet', function(accounts) {
 
   //  var sress = '0x2B63dB710e35b0C4261b1Aa4fAe441276bfeb971';
 
-  var test_account= {
-      'address': '0x087964cd8b33ea47c01fbe48b70113ce93481e01',
-      'privateKey': 'dca672104f895219692175d87b04483d31f53af8caad1d7348d269b35e21c3df'
-  }
+
 
     var targetString = await tokenContract.getMiningTarget.call({from: addressFrom});
     var miningTarget = web3utils.toBN(targetString);
@@ -148,10 +151,6 @@ it("can deposit into lava wallet", async function () {
 
 
 
-      var test_account= {
-          'address': '0x087964cd8b33ea47c01fbe48b70113ce93481e01',
-          'privateKey': 'dca672104f895219692175d87b04483d31f53af8caad1d7348d269b35e21c3df'
-      }
 
       var addressFrom = test_account.address;
 
@@ -250,10 +249,7 @@ it("can sign a lava request", async function () {
 
     await printBalance(accounts[0],tokenContract)
 
-    var test_account= {
-        'address': '0x7104822ff0709d7bcff5017cfe1d6246710aefc2',
-        'privateKey': 'd74926a22497deb0f453869d534f22699b79608c5acdd13435b1612a08081889'
-    }
+
 
     var from = test_account.address;
 
@@ -271,7 +267,7 @@ it("can sign a lava request", async function () {
      var privateKey = test_account.privateKey;
 
 
-     const msgParams = [
+     var msgParams = [
 
     {
       type: 'address',
@@ -317,7 +313,7 @@ it("can sign a lava request", async function () {
 
       var params = [msgParams, from]
 
-      var signature = await this.signTypedData(params,from);
+      var signature = await lavaTestUtils.signTypedData(params,test_account.privateKey,web3);
         console.log('lava signature',msgParams,signature)
 
 
@@ -377,16 +373,16 @@ address recoveredSignerAddress = ecrecover(hash, v, r, s);
 
 
 
-var from = test_account.address
-var to = test_account.address
-var walletAddress = test_account.address
-var tokenAddress = test_account.address
-var tokenAmount = 100
-var relayerReward = 1
-var expires = 999999999
-var nonce = 12
+var from = test_account.address;
+var to = test_account.address;
+var walletAddress = test_account.address;
+var tokenAddress = test_account.address;
+var tokenAmount = 100;
+var relayerReward = 1;
+var expires = 999999999;
+var nonce = 12;
 
-const msgParams = [
+var msgParams = [
 
 {
  type: 'address',
