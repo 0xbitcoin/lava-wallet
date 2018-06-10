@@ -24,8 +24,8 @@ let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"))
 
 
 var test_account= {
-    'address': '0x7b377ba6210564d5885a32632b36e16e149afbf9',
-    'privateKey': '0bd2cf4cb718a02e684fc162f7efc0ed579bc4fc6b1ebbf76cee5849b596f513'
+    'address': '0xaf631432c6218d6b6bbdbe74ffd61c01d3ddec53',
+    'privateKey': '2aa8acec01c21b371a02fb01b67f2d86e8c984f13e6166fb4ecb6ae08b68ed32'
 }
 
 contract('LavaWallet', function(accounts) {
@@ -267,6 +267,23 @@ it("can sign a lava request", async function () {
      var privateKey = test_account.privateKey;
 
 
+
+
+
+     var sampleLavaPacketData = {
+       from: "0xb11ca87e32075817c82cc471994943a4290f4a14",
+       to: "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c",
+       walletAddress:"0x1d0d66272025d7c59c40257813fc0d7ddf2c4826",
+       tokenAddress:"0x9d2cc383e677292ed87f63586086cff62a009010",
+       tokenAmount:200000000,
+       relayerReward:100000000,
+       expires:3365044,
+       nonce:'0xc18f687c56f1b2749af7d6151fa351',
+       signature:"0x8ef27391a81f77244bf95df58737eecac386ab9a47acd21bdb63757adf71ddf878169c18e4ab7b71d60f333c870258a0644ac7ade789d59c53b0ab75dbcc87d11b"
+     }
+
+
+
      var msgParams = [
 
     {
@@ -313,7 +330,7 @@ it("can sign a lava request", async function () {
 
       var params = [msgParams, from]
 
-      var signature = await lavaTestUtils.signTypedData(params,test_account.privateKey,web3);
+      var signature = lavaTestUtils.signTypedData(test_account.privateKey,params);
         console.log('lava signature',msgParams,signature)
 
 
