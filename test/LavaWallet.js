@@ -255,8 +255,8 @@ it("can sign a lava request", async function () {
 
 
 
-//var msg = '0x8CbaC5e4d803bE2A3A5cd3DbE7174504c6DD0c1C'
-  var requestRecipient = test_account.address;
+    //var msg = '0x8CbaC5e4d803bE2A3A5cd3DbE7174504c6DD0c1C'
+    var requestRecipient = test_account.address;
     var requestQuantity = 500;
 
 
@@ -266,25 +266,18 @@ it("can sign a lava request", async function () {
 
      var privateKey = test_account.privateKey;
 
+     var from= "0xb11ca87e32075817c82cc471994943a4290f4a14"
+     var to= "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c"
+     var walletAddress="0x1d0d66272025d7c59c40257813fc0d7ddf2c4826"
+     var tokenAddress="0x9d2cc383e677292ed87f63586086cff62a009010"
+     var tokenAmount=200000000
+     var relayerReward=100000000
+     var expires=3365044
+     var nonce='0xc18f687c56f1b2749af7d6151fa351'
+     var expectedSignature="0x8ef27391a81f77244bf95df58737eecac386ab9a47acd21bdb63757adf71ddf878169c18e4ab7b71d60f333c870258a0644ac7ade789d59c53b0ab75dbcc87d11b"
 
 
-
-
-     var sampleLavaPacketData = {
-       from: "0xb11ca87e32075817c82cc471994943a4290f4a14",
-       to: "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c",
-       walletAddress:"0x1d0d66272025d7c59c40257813fc0d7ddf2c4826",
-       tokenAddress:"0x9d2cc383e677292ed87f63586086cff62a009010",
-       tokenAmount:200000000,
-       relayerReward:100000000,
-       expires:3365044,
-       nonce:'0xc18f687c56f1b2749af7d6151fa351',
-       signature:"0x8ef27391a81f77244bf95df58737eecac386ab9a47acd21bdb63757adf71ddf878169c18e4ab7b71d60f333c870258a0644ac7ade789d59c53b0ab75dbcc87d11b"
-     }
-
-
-
-     var msgParams = [
+     var params = [
 
     {
       type: 'address',
@@ -322,25 +315,48 @@ it("can sign a lava request", async function () {
       value: expires
     },
     {
-      type: 'string',
+      type: 'uint256',
       name: 'nonce',
       value: nonce
     },
   ]
 
-      var params = [msgParams, from]
 
-      var signature = lavaTestUtils.signTypedData(test_account.privateKey,params);
-        console.log('lava signature',msgParams,signature)
+  //need to format the   params properly
 
 
 
+    var msgParams = {data: params}
+
+    var privKey = Buffer.from(privateKey, 'hex')
+
+    var signature = lavaTestUtils.signTypedData(privKey,msgParams);
+    console.log('lava signature',msgParams,signature)
+
+    msgParams.sig = signature;
+
+
+  //   assert.equal(signature, expectedSignature ); //initialized
+
+
+
+    var recoveredAddress = lavaTestUtils.recoverTypedSignature(msgParams);
+
+
+    assert.equal(from, recoveredAddress ); //initialized
+
+
+
+
+
+  });
 
 
 
 
 
 
+  it("can ?", async function () {
 
 
 
