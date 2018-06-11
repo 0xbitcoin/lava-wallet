@@ -20,6 +20,12 @@
 2. Traders keep tokens here.  Perform offchain trades using a separate DEX contract
 
 
+### Testing
+1. run 'ganache-cli' in another terminal
+2. copy account address and pkey into the /test file LavaWallet.js
+3. 'npm run test'
+
+
 
 TO VERIFY:
 1. Had to flatten so libs were inside the one file  
@@ -29,12 +35,22 @@ TO VERIFY:
 
 
 
-### Published on Ropsten
+### Published on Ropsten (old)
 ECRecover
 0x9add22cd7e6567d7ff979f3d1f77f5b949124792
 
 LavaWallet
-  0x1d0d66272025d7c59c40257813fc0d7ddf2c4826
+0x1d0d66272025d7c59c40257813fc0d7ddf2c4826
+
+
+
+### Published on MainNet
+ECRecover
+ 0x61388904afac03beb15173340dfe3e634fcd7c16
+
+LavaWallet
+0x2f9cc1042d889353caf2e346b63ccfec985ae515
+
 
 
 

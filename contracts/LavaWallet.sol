@@ -13,7 +13,7 @@ Store your tokens in this contract to give them super powers
 
 Tokens can be spent from the contract with only an ecSignature from the owner - onchain approve is not needed
 
- 
+
 */
 
 contract ERC20Interface {
@@ -28,25 +28,7 @@ contract ERC20Interface {
     event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
 }
 
-
-//wEth interface
-contract WrapperInterface
-{
-  function() public payable;
-  function deposit() public payable ;
-  function withdraw(uint wad) public;
-  function totalSupply() public view returns (uint);
-  function approve(address guy, uint wad) public returns (bool success);
-  function transfer(address dst, uint wad) public returns (bool success);
-  function transferFrom(address src, address dst, uint wad) public returns (bool);
-
-
-  event  Approval(address indexed src, address indexed guy, uint wad);
-  event  Transfer(address indexed src, address indexed dst, uint wad);
-  event  Deposit(address indexed dst, uint wad);
-  event  Withdrawal(address indexed src, uint wad);
-
-}
+ 
 
 contract ApproveAndCallFallBack {
 
