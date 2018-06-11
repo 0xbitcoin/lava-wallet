@@ -4,6 +4,8 @@ var LavaTestUtils = require("./LavaTestUtils");
 var ethSigUtil = require('eth-sig-util')
 
 var _0xBitcoinToken = artifacts.require("./_0xBitcoinToken.sol");
+var wEthToken = artifacts.require("./WETH9.sol");
+
 var LavaWallet = artifacts.require("./LavaWallet.sol");
 
 
@@ -415,11 +417,11 @@ it("can approveTokensWithSignature ", async function () {
 
         assert.ok(txhash)
 
+        var burnStatus = await walletContract.signatureBurnStatus.call(msgHash )
 
+        assert.equal( burnStatus.toNumber() , 0x1); //initialized
 
   });
-
-
 
 
 
@@ -545,10 +547,82 @@ it("can approveTokensWithSignature ", async function () {
 
 
         assert.ok(txhash)
- 
 
+        var burnStatus = await walletContract.signatureBurnStatus.call(msgHash )
+
+        assert.equal( burnStatus.toNumber() , 0x2); //initialized
+
+        var burnStatus = await walletContract.signatureBurnStatus.call('0x0' )
+
+        assert.equal( burnStatus.toNumber() , 0x0); //initialized
 });
 
+
+
+
+  it("can wrap Eth Tokens", async function () {
+
+
+    var addressFrom = test_account.address;
+
+    var addressTo = wEthToken.address;
+    var privateKey = test_account.privateKey;
+
+
+        var txData = web3.eth.abi.encodeFunctionCall({
+                name: 'deposit',
+                type: 'function',
+                inputs: [  ],
+                  outputs: [  ]
+            }, [ ]);
+
+            try{
+              var txCount = await web3.eth.getTransactionCount(addressFrom);
+              console.log('txCount',txCount)
+             } catch(error) {  //here goes if someAsyncPromise() rejected}
+              console.log(error);
+
+               return error;    //this will result in a resolved promise.
+             }
+
+
+            const txOptions = {
+              nonce: web3utils.toHex(txCount),
+              gas: web3utils.toHex("1704624"),
+              gasPrice: web3utils.toHex(web3utils.toWei("4", 'gwei') ),
+              value: 1000,
+              to: addressTo,
+              from: addressFrom,
+              data: txData
+            }
+
+
+          var txhash = await new Promise(function (result,error) {
+
+                sendSignedRawTransaction(web3,txOptions,addressFrom,privateKey, function(err, res) {
+                if (err) error(err)
+                  result(res)
+              })
+
+            }.bind(this));
+
+
+            assert.ok(txhash)
+
+        //    console.log(wEthToken)
+        //  var balance =   wEthToken.balanceOf.call(addressFrom)
+        //  assert.equal(balance,1000)
+
+
+
+
+
+
+
+  });
+
+
+ 
 
 /*
   assert.equal(10, good_type_record[4].toNumber() ); //check price
