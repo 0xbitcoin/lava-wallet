@@ -46,11 +46,10 @@ LavaWallet
 
 ### Published on MainNet
 ECRecover
- 0x61388904afac03beb15173340dfe3e634fcd7c16
+ 0x82e91b7967ca55eb1c4cb3d58aa5c91cb8df436b
 
-LavaWallet
-0x2f9cc1042d889353caf2e346b63ccfec985ae515
-
+ LavaWallet
+0xcba65975b1c66586bfe7910f32377e0ee55f783e
 
 
 
