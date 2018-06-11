@@ -36,8 +36,8 @@ contract WrapperInterface
   function deposit() public payable ;
   function withdraw(uint wad) public;
   function totalSupply() public view returns (uint);
-  function approve(address guy, uint wad) public returns (bool);
-  function transfer(address dst, uint wad) public returns (bool);
+  function approve(address guy, uint wad) public returns (bool success);
+  function transfer(address dst, uint wad) public returns (bool success);
   function transferFrom(address src, address dst, uint wad) public returns (bool);
 
 
@@ -192,7 +192,7 @@ contract LavaWallet is Owned {
 
 
    //remember you need pre-approval for this - nice with ApproveAndCall
-  function depositTokens(address from, address token, uint256 tokens ) public returns (bool)
+  function depositTokens(address from, address token, uint256 tokens ) public returns (bool success)
   {
       //we already have approval so lets do a transferFrom - transfer the tokens into this contract
       ERC20Interface(token).transferFrom(from, this, tokens);
@@ -265,14 +265,14 @@ contract LavaWallet is Owned {
    //nonce is the same thing as a 'check number'
 
    //EIP 712
-   function getLavaTypedDataHash( address from, address to, address walletAddress, address token, uint256 tokens, uint256 relayerReward,
+   function getLavaTypedDataHash( address from, address to, address token, uint256 tokens, uint256 relayerReward,
                                      uint256 expires, uint256 nonce) public constant returns (bytes32)
    {
         bytes32 hardcodedSchemaHash = 0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3 ;
 
         bytes32 typedDataHash = sha3(
             hardcodedSchemaHash,
-            sha3(from,to,walletAddress,token,tokens,relayerReward,expires,nonce)
+            sha3(from,to,this,token,tokens,relayerReward,expires,nonce)
           );
 
         return typedDataHash;
@@ -281,11 +281,11 @@ contract LavaWallet is Owned {
 
 
    function approveTokensWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,
-                                     uint256 expires, uint256 nonce, bytes signature) public returns (bool)
+                                     uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
    {
        //bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, from, to, token, tokens, relayerReward, expires, nonce);
 
-       bytes32 sigHash = getLavaTypedDataHash(from,to,this,token,tokens,relayerReward,expires,nonce);
+       bytes32 sigHash = getLavaTypedDataHash(from,to,token,tokens,relayerReward,expires,nonce);
 
        address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
 
@@ -320,7 +320,7 @@ contract LavaWallet is Owned {
 
    //the tokens leave lava wallet
   function withdrawTokensFromWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
-                                    uint256 expires, uint256 nonce, bytes signature) public returns (bool)
+                                    uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
   {
       //check to make sure that signature == ecrecover signature
 
@@ -336,7 +336,7 @@ contract LavaWallet is Owned {
 
    //the tokens remain in lava wallet
   function transferTokensFromWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
-                                    uint256 expires, uint256 nonce, bytes signature) public returns (bool)
+                                    uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
   {
       //check to make sure that signature == ecrecover signature
 
@@ -359,11 +359,11 @@ contract LavaWallet is Owned {
 
 
 
-     function burnSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward, uint256 expires, uint256 nonce,  bytes signature) public returns (bool)
+     function burnSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward, uint256 expires, uint256 nonce,  bytes signature) public returns (bool success)
      {
 
        //bytes32 sigHash = sha3("\x19Ethereum Signed Message:\n32",this, from, to, token, tokens, expires, nonce);
-       bytes32 sigHash = getLavaTypedDataHash(from,to,this,token,tokens,relayerReward,expires,nonce);
+       bytes32 sigHash = getLavaTypedDataHash(from,to,token,tokens,relayerReward,expires,nonce);
 
 
          address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
@@ -394,7 +394,7 @@ contract LavaWallet is Owned {
    /*
      Receive approval to spend tokens and perform any action all in one transaction
    */
- function receiveApproval(address from, uint256 tokens, address token, bytes data) public returns (bool) {
+ function receiveApproval(address from, uint256 tokens, address token, bytes data) public returns (bool success) {
 
    //parse the data:   first byte is for 'action_id'
    //byte action_id = data[0];

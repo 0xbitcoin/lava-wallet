@@ -1,8 +1,7 @@
 
 var LavaTestUtils = require("./LavaTestUtils");
 
-var sigUtil = require('eth-sig-util')
-
+var ethSigUtil = require('eth-sig-util')
 
 var _0xBitcoinToken = artifacts.require("./_0xBitcoinToken.sol");
 var LavaWallet = artifacts.require("./LavaWallet.sol");
@@ -19,13 +18,15 @@ const Web3 = require('web3')
 // Instantiate new web3 object pointing toward an Ethereum node.
 let web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"))
 
+var lavaSignature;
+
 //https://web3js.readthedocs.io/en/1.0/web3-utils.html
 //https://medium.com/@valkn0t/3-things-i-learned-this-week-using-solidity-truffle-and-web3-a911c3adc730
 
 
 var test_account= {
-    'address': '0xaf631432c6218d6b6bbdbe74ffd61c01d3ddec53',
-    'privateKey': '2aa8acec01c21b371a02fb01b67f2d86e8c984f13e6166fb4ecb6ae08b68ed32'
+    'address': '0x3b6ff145874cb90497d1b9c2b35f653763a2beb5',
+    'privateKey': 'ade45c2af86c66fbb39a5026e2417b53ae439d516e63e0cb119c5745772a3f8d'
 }
 
 contract('LavaWallet', function(accounts) {
@@ -53,7 +54,7 @@ contract('LavaWallet', function(accounts) {
    tokenContract = await _0xBitcoinToken.deployed();
 
 
-    await printBalance(accounts[0],tokenContract)
+    await printBalance(test_account.address,tokenContract)
 
 //canoe
 
@@ -129,17 +130,17 @@ contract('LavaWallet', function(accounts) {
   // console.log("token mint: " + mint_tokens);
 
 
-  await printBalance(accounts[0],tokenContract)
+  await printBalance(test_account.address,tokenContract)
 
   assert.equal(checkDigest, phraseDigest ); //initialized
 
 });
 
 
-it("can deposit into lava wallet", async function () {
+it("can deposit 0xbtc into lava wallet", async function () {
 
 
-    await printBalance(accounts[0],tokenContract)
+    await printBalance(test_account.address,tokenContract)
 
     //console.log('tokenContract',tokenContract)
     //console.log('walletContract',walletContract)
@@ -154,7 +155,7 @@ it("can deposit into lava wallet", async function () {
 
       var addressFrom = test_account.address;
 
-      var depositAmount = 500;
+      var depositAmount = 5000000;
 
       //??
       var remoteCallData = '0x01';
@@ -223,15 +224,15 @@ it("can deposit into lava wallet", async function () {
             var checkDeposit  = await walletContract.balanceOf.call(tokenContract.address,addressFrom, {from: addressFrom});
 
             var accountBalance = await getBalance(walletContract.address,tokenContract)
-            assert.equal(accountBalance.token, 500 );
+            assert.equal(accountBalance.token, 5000000 );
 
-            assert.equal(checkDeposit.toNumber(), 500 );
+            assert.equal(checkDeposit.toNumber(), 5000000 );
 
 
             //not working
             console.log('checkDeposit ',checkDeposit.toNumber())
 
-            await printBalance(accounts[0],tokenContract)
+            await printBalance(test_account.address,tokenContract)
 
 
             console.log(walletContract.address)
@@ -244,16 +245,16 @@ it("can deposit into lava wallet", async function () {
 
 
 
-it("can sign a lava request", async function () {
+it("can approveTokensWithSignature ", async function () {
 
 
-    await printBalance(accounts[0],tokenContract)
+    await printBalance(test_account.address,tokenContract)
 
 
 
-    var from = test_account.address;
+    var addressFrom = test_account.address;
 
-
+    console.log( addressFrom )
 
     //var msg = '0x8CbaC5e4d803bE2A3A5cd3DbE7174504c6DD0c1C'
     var requestRecipient = test_account.address;
@@ -266,86 +267,153 @@ it("can sign a lava request", async function () {
 
      var privateKey = test_account.privateKey;
 
-     var from= "0xb11ca87e32075817c82cc471994943a4290f4a14"
+     var from= addressFrom;
      var to= "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c"
-     var walletAddress="0x1d0d66272025d7c59c40257813fc0d7ddf2c4826"
-     var tokenAddress="0x9d2cc383e677292ed87f63586086cff62a009010"
-     var tokenAmount=200000000
-     var relayerReward=100000000
-     var expires=3365044
+     var walletAddress=walletContract.address
+     var tokenAddress=tokenContract.address
+     var tokenAmount=2000000
+     var relayerReward=1000000
+     var expires=336504400
      var nonce='0xc18f687c56f1b2749af7d6151fa351'
-     var expectedSignature="0x8ef27391a81f77244bf95df58737eecac386ab9a47acd21bdb63757adf71ddf878169c18e4ab7b71d60f333c870258a0644ac7ade789d59c53b0ab75dbcc87d11b"
+     //var expectedSignature="0x8ef27391a81f77244bf95df58737eecac386ab9a47acd21bdb63757adf71ddf878169c18e4ab7b71d60f333c870258a0644ac7ade789d59c53b0ab75dbcc87d11b"
 
 
-     var params = [
-
-    {
-      type: 'address',
-      name: 'from',
-      value: from
-    },
-    {
-      type: 'address',
-      name: 'to',
-      value: to
-    },
-    {
-      type: 'address',
-      name: 'walletAddress',
-      value: walletAddress
-    },
-    {
-      type: 'address',
-      name: 'tokenAddress',
-      value: tokenAddress
-    },
-    {
-      type: 'uint256',
-      name: 'tokenAmount',
-      value: tokenAmount
-    },
-    {
-      type: 'uint256',
-      name: 'relayerReward',
-      value: relayerReward
-    },
-    {
-      type: 'uint256',
-      name: 'expires',
-      value: expires
-    },
-    {
-      type: 'uint256',
-      name: 'nonce',
-      value: nonce
-    },
-  ]
+     var params = lavaTestUtils.getLavaParamsFromData(from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
 
 
   //need to format the   params properly
-
 
 
     var msgParams = {data: params}
 
     var privKey = Buffer.from(privateKey, 'hex')
 
+
+
+   const msgHash = ethSigUtil.typedSignatureHash(msgParams.data)
+
+    ///msg hash signed is 0x9201073a01df85b87dab83ad2498bf5b2190bf62cb03b2a407ba7d77279a4ceb
+    var lavaMsgHash = await walletContract.getLavaTypedDataHash.call(from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
+    console.log('lavaMsgHash',lavaMsgHash)
+
+    assert.equal(lavaMsgHash, msgHash ); //initialized
+
+
     var signature = lavaTestUtils.signTypedData(privKey,msgParams);
-    console.log('lava signature',msgParams,signature)
+
+
+
+    lavaSignature = signature;
+    console.log('lava signatureaa',msgParams,signature)
 
     msgParams.sig = signature;
-
-
-  //   assert.equal(signature, expectedSignature ); //initialized
 
 
 
     var recoveredAddress = lavaTestUtils.recoverTypedSignature(msgParams);
 
+    assert.equal(recoveredAddress, test_account.address ); //initialized
 
-    assert.equal(from, recoveredAddress ); //initialized
 
 
+
+
+    var result = await walletContract.getLavaTypedDataHash.call(from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
+
+    console.log('result1', result )
+
+
+    console.log('addressFrom',addressFrom)
+    console.log('meeep',[from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce,signature])
+
+
+
+  //  var result = await walletContract.approveTokensWithSignature.call(from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
+
+
+
+    var txData = web3.eth.abi.encodeFunctionCall({
+            name: 'approveTokensWithSignature',
+            type: 'function',
+            inputs: [
+              {
+                "name": "from",
+                "type": "address"
+              },
+              {
+                "name": "to",
+                "type": "address"
+              },
+              {
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "name": "tokens",
+                "type": "uint256"
+              },
+              {
+                "name": "relayerReward",
+                "type": "uint256"
+              },
+              {
+                "name": "expires",
+                "type": "uint256"
+              },
+              {
+                "name": "nonce",
+                "type": "uint256"
+              },
+              {
+                "name": "signature",
+                "type": "bytes"
+              }
+            ],
+              outputs: [
+                {
+                  "name": "success",
+                  "type": "bool"
+                }
+            ]
+        }, [from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce,signature]);
+
+
+      try{
+          var txCount = await web3.eth.getTransactionCount(addressFrom);
+          console.log('txCount',txCount)
+         } catch(error) {  //here goes if someAsyncPromise() rejected}
+          console.log(error);
+
+           return error;    //this will result in a resolved promise.
+         }
+
+         var addressTo = walletContract.address;
+         var privateKey = test_account.privateKey;
+
+        const txOptions = {
+          nonce: web3utils.toHex(txCount),
+          gas: web3utils.toHex("1704624"),
+          gasPrice: web3utils.toHex(web3utils.toWei("4", 'gwei') ),
+          value: 0,
+          to: addressTo,
+          from: addressFrom,
+          data: txData
+        }
+
+
+
+      var txhash = await new Promise(function (result,error) {
+
+            sendSignedRawTransaction(web3,txOptions,addressFrom,privateKey, function(err, res) {
+            if (err) error(err)
+              result(res)
+          })
+
+        }.bind(this));
+
+
+         
+        assert.ok(txhash)
 
 
 
@@ -355,283 +423,109 @@ it("can sign a lava request", async function () {
 
 
 
-
-  it("can ?", async function () {
-
+  it("can burn a signature", async function () {
 
 
+    var addressFrom = test_account.address;
 
-
-   var sigHash = web3utils.soliditySha3(requestRecipient, requestQuantity, requestToken, requestNonce)
-
-      console.log(from)
-
-      console.log(sigHash)
-
-      var sigHashHex = Buffer.from(sigHash.substr(2, sigHash.length),'hex');
-
-   var sig = ethUtil.ecsign(sigHashHex, Buffer.from(privateKey,'hex'))
+    var from= addressFrom;
+    var to= "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c"
+    var walletAddress=walletContract.addressvar
+    var tokenAddress=tokenContract.address
+    var tokenAmount=2000000
+    var relayerReward=1000000
+    var expires=3365044
+    var nonce='0xc18f687c56f1b2749af7d6151fa351'
+    var signature= lavaSignature;
 
 
 
 
-//https://github.com/ukstv/sign-typed-data-test/blob/master/contracts/SignTypedData.sol#L11
+    var txData = web3.eth.abi.encodeFunctionCall({
+            name: 'burnSignature',
+            type: 'function',
+            inputs: [
+              {
+                "name": "from",
+                "type": "address"
+              },
+              {
+                "name": "to",
+                "type": "address"
+              },
+              {
+                "name": "token",
+                "type": "address"
+              },
+              {
+                "name": "tokens",
+                "type": "uint256"
+              },
+              {
+                "name": "relayerReward",
+                "type": "uint256"
+              },
+              {
+                "name": "expires",
+                "type": "uint256"
+              },
+              {
+                "name": "nonce",
+                "type": "uint256"
+              },
+              {
+                "name": "signature",
+                "type": "bytes"
+              }
+            ],
+              outputs: [
+                {
+                  "name": "success",
+                  "type": "bool"
+                }
+            ]
+        }, [from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce,signature]);
 
 
-//see
-//https://github.com/MetaMask/eth-sig-util/blob/master/index.js
-// need to implement typedSignatureHash in solidity
+        try{
+          var txCount = await web3.eth.getTransactionCount(addressFrom);
+          console.log('txCount',txCount)
+         } catch(error) {  //here goes if someAsyncPromise() rejected}
+          console.log(error);
 
+           return error;    //this will result in a resolved promise.
+         }
 
-/*
-{
-   type: 'uint32',
-   name: 'A number',
-   value: '1337'
-}
-*/
+         var addressTo = walletContract.address;
+         var privateKey = test_account.privateKey;
 
-/*
-// Solidity example
-string message = 'Hi, Alice!';
-unit value = 1337;
-const hash = keccak256(
-  keccak256('string message', 'uint32 A number'),
-  keccak256(message, value),
-);
-address recoveredSignerAddress = ecrecover(hash, v, r, s);
-*/
-
-
-
-
-
-var from = test_account.address;
-var to = test_account.address;
-var walletAddress = test_account.address;
-var tokenAddress = test_account.address;
-var tokenAmount = 100;
-var relayerReward = 1;
-var expires = 999999999;
-var nonce = 12;
-
-var msgParams = [
-
-{
- type: 'address',
- name: 'from',
- value: from
-},
-{
- type: 'address',
- name: 'to',
- value: to
-},
-{
- type: 'address',
- name: 'walletAddress',
- value: walletAddress
-},
-{
- type: 'address',
- name: 'tokenAddress',
- value: tokenAddress
-},
-{
- type: 'uint256',
- name: 'tokenAmount',
- value: tokenAmount
-},
-{
- type: 'uint256',
- name: 'relayerReward',
- value: relayerReward
-},
-{
- type: 'uint256',
- name: 'expires',
- value: expires
-},
-{
- type: 'uint256',
- name: 'nonce',
- value: nonce
-},
-]
-
-
-const testMsgParams = [
-
-{
- type: 'address',
- name: 'from',
- value: '0xb11ca87e32075817c82cc471994943a4290f4a14'
-},
-{
- type: 'address',
- name: 'to',
- value: '0xb11ca87e32075817c82cc471994943a4290f4a14'
-},
-{
- type: 'address',
- name: 'walletAddress',
- value: '0xd53f047ceb0dc6cbaf6d09e877a7c3043caf9e7e'
-},
-{
- type: 'address',
- name: 'tokenAddress',
- value: "0x9d2cc383e677292ed87f63586086cff62a009010"
-},
-{
- type: 'uint256',
- name: 'tokenAmount',
- value: 0
-},
-{
- type: 'uint256',
- name: 'relayerReward',
- value: 0
-},
-{
- type: 'uint256',
- name: 'expires',
- value: 3159739
-},
-{
- type: 'uint256',
- name: 'nonce',
- value: "0xcb427e37485ce638ad24b9e1125e9"
-},
-]
-
-//compund hash should be
-//     0xb2efb2a45454a62d28bace8669a72b4cf313e0e38018457bd640322a858d3134
-
-/// -> 0xb2efb2a45454a62d28bace8669a72b4cf313e0e38018457bd640322a858d3134
-
-// i need to hardcode the typehash in to solidity!!
-
-
-       var hash = typedSignatureHash(testMsgParams)
-
-       console.log('hash3', '0x'+ hash.toString('hex') )
-
-       var result = await walletContract.testSignTypedData.call(walletAddress,from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
-
-       console.log('hash4', result )
-/*
-[ { type: 'uint256', name:'amount', value: 0 }, { type: 'address', name:'account', value: '0x000000000 ' } ]
-
-Now in solidity make a hash for the types:
-
-bytes32 typeHash = keccak('uint256 amount', 'address account');
-
-And a hash for the actual values:
-
-bytes32 valueHash =keccak(_amount, _account);
-
-Now you can recover those combined hashes as you would recover a normal sign:
-
-ecrecover(keccak(typeHash, valueHash), v,r,s);
-*/
-
-
-
-
-
-
-
-
-
-      console.log(sig)
-
-   var recoveredPubkey = ethUtil.ecrecover(sigHashHex, sig.v, sig.r, sig.s);
-   console.log('recoveredPubkey',recoveredPubkey)
-
-
-  var addrBuf = ethUtil.pubToAddress(recoveredPubkey);
-  var addr = ethUtil.bufferToHex(addrBuf);
-
-  console.log(addr)
-
-var signature = ethUtil.toRpcSig(sig.v, sig.r, sig.s)
-
-   var txData = web3.eth.abi.encodeFunctionCall({
-           name: 'withdrawTokensFrom',
-           type: 'function',
-           inputs: [
-             {
-               "name": "from",
-               "type": "address"
-             },
-             {
-               "name": "tokens",
-               "type": "uint256"
-             },
-             {
-               "name": "token",
-               "type": "address"
-             },
-             {
-               "name": "checkNumber",
-               "type": "uint256"
-             },
-             {
-               "name": "sigHash",
-               "type": "bytes32"
-             },
-             {
-               "name": "signature",
-               "type": "bytes"
-             }
-           ],
-             outputs: [
-               {
-                 "name": "",
-                 "type": "bool"
-               }
-           ]
-       }, [requestRecipient, requestQuantity, requestToken, requestNonce, sigHash, signature ]);
-
-
-
-       console.log(sig.length);
-
-       try{
-         var txCount = await web3.eth.getTransactionCount(addressFrom);
-         console.log('txCount',txCount)
-        } catch(error) {  //here goes if someAsyncPromise() rejected}
-         console.log(error);
-
-          return error;    //this will result in a resolved promise.
+        const txOptions = {
+          nonce: web3utils.toHex(txCount),
+          gas: web3utils.toHex("1704624"),
+          gasPrice: web3utils.toHex(web3utils.toWei("4", 'gwei') ),
+          value: 0,
+          to: addressTo,
+          from: addressFrom,
+          data: txData
         }
 
-           var addressTo = walletContract.address;
-
-      const txOptions = {
-         nonce: web3utils.toHex(txCount),
-         gas: web3utils.toHex("1704624"),
-         gasPrice: web3utils.toHex(web3utils.toWei("4", 'gwei') ),
-         value: 0,
-         to: addressTo,
-         from: addressFrom,
-         data: txData
-       }
 
 
+      var approval = await new Promise(function (result,error) {
 
-     var sentWithdraw = await new Promise(function (result,error) {
+            sendSignedRawTransaction(web3,txOptions,addressFrom,privateKey, function(err, res) {
+            if (err) error(err)
+              result(res)
+          })
 
-           sendSignedRawTransaction(web3,txOptions,addressFrom,privateKey, function(err, res) {
-           if (err) error(err)
-             result(res)
-         })
+        }.bind(this));
 
-       }.bind(this));
 
-       console.log(sentWithdraw);
+        assert.equal(approval,true)
 
-       await printBalance(accounts[0],tokenContract)
+       console.log('ssent!');
+
+       await printBalance(test_account.address,tokenContract)
 
 });
 
@@ -645,7 +539,7 @@ var signature = ethUtil.toRpcSig(sig.v, sig.r, sig.s)
 
   //var result = contract.claimGood(typeId, {value: web3utils.toWei('1')});
 
-  var ethBalance = await web3.eth.getBalance(accounts[0]);
+  var ethBalance = await web3.eth.getBalance(test_account.address);
    console.log("Account 0 has " + ethBalance + " Wei");
 
 //console.log( web3utils.toWei('40','ether').toString() );
@@ -676,10 +570,10 @@ it("can bid on the market", async function () {
   var marketContract = await TokenMarket.deployed();
   var contract = await EtherGoods.deployed();
 
-  await marketContract.setTokenContractAddress(accounts[0],tokenContract);
-  await contract.setMarketContractAddress(accounts[0],marketContract);
-  await contract.setTokenContractAddress(accounts[0],tokenContract);
-  await tokenContract.setMasterContractAddress(accounts[0],contract)
+  await marketContract.setTokenContractAddress(test_account.address,tokenContract);
+  await contract.setMarketContractAddress(test_account.address,marketContract);
+  await contract.setTokenContractAddress(test_account.address,tokenContract);
+  await tokenContract.setMasterContractAddress(test_account.address,contract)
 
 
 
@@ -692,14 +586,14 @@ it("can bid on the market", async function () {
 
   it("can not get supply while supply all taken", async function () {
       var contract = await EtherGoods.deployed();
-      var balance = await contract.balanceOf.call(accounts[0]);
+      var balance = await contract.balanceOf.call(test_account.address);
       console.log("Pre Balance: " + balance);
 
       var allAssigned = await contract.allPunksAssigned.call();
       console.log("All assigned: " + allAssigned);
       assert.equal(false, allAssigned, "allAssigned should be false to start.");
       await expectThrow(contract.getPunk(0));
-      var balance = await contract.balanceOf.call(accounts[0]);
+      var balance = await contract.balanceOf.call(test_account.address);
       console.log("Balance after fail: " + balance);
     });
 
@@ -707,57 +601,6 @@ it("can bid on the market", async function () {
 
   */
 });
-
-
-
-function typedSignatureHash(typedData) {
-  const error = new Error('Expect argument to be non-empty array')
-  if (typeof typedData !== 'object' || !typedData.length) throw error
-
-  const data = typedData.map(function (e) {
-    return e.type === 'bytes' ? ethUtil.toBuffer(e.value) : e.value
-  })
-  const types = typedData.map(function (e) { return e.type })
-  const schema = typedData.map(function (e) {
-    if (!e.name) throw error
-    return e.type + ' ' + e.name
-  })
-
-
-
-console.log('schema',new Array(typedData.length).fill('string'),schema)
-  console.log('schema subhash',ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema).toString('hex'))
-
-  console.log('types',types, data)
-  console.log('types subhash',ethAbi.soliditySHA3(types, data).toString('hex'))
-
-
-  console.log("hash1", ethAbi.soliditySHA3(
-    ['bytes32', 'bytes32'],
-    [
-      ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema),
-      ethAbi.soliditySHA3(types, data)
-    ]
-  ))
-
-  //need to hardcode the 0x64fcd ... into solidity !!
-  console.log("hash2", ethAbi.soliditySHA3(
-    ['bytes32', 'bytes32'],
-    [
-      '0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3',
-      ethAbi.soliditySHA3(types, data)
-    ]
-  ))
-
-
-  return ethAbi.soliditySHA3(
-    ['bytes32', 'bytes32'],
-    [
-      ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema),
-      ethAbi.soliditySHA3(types, data)
-    ]
-  )
-}
 
 
 
