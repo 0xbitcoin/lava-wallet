@@ -350,8 +350,10 @@ contract LavaWallet is Owned {
     //find actual balance of the contract
      uint tokenBalance = ERC20Interface(tokenAddress).balanceOf(this);
 
+     //find number of accidentally deposited tokens (actual - purposefully deposited)
      uint undepositedTokens = tokenBalance.sub(depositedTokens[tokenAddress]);
 
+     //only allow withdrawing of accidentally deposited tokens
      assert(tokens <= undepositedTokens);
 
      ERC20Interface(tokenAddress).transfer(owner, tokens);
