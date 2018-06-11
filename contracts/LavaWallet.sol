@@ -368,7 +368,7 @@ contract LavaWallet is Owned {
 
          address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
 
-         //maker sure the invalidator is the signer
+         //make sure the invalidator is the signer
          if(recoveredSignatureSigner != from) revert();
 
 

@@ -412,7 +412,7 @@ it("can approveTokensWithSignature ", async function () {
         }.bind(this));
 
 
-         
+
         assert.ok(txhash)
 
 
@@ -427,17 +427,40 @@ it("can approveTokensWithSignature ", async function () {
 
 
     var addressFrom = test_account.address;
+    var privateKey= test_account.privateKey;
+
 
     var from= addressFrom;
     var to= "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c"
-    var walletAddress=walletContract.addressvar
+    var walletAddress=walletContract.address
     var tokenAddress=tokenContract.address
     var tokenAmount=2000000
     var relayerReward=1000000
-    var expires=3365044
-    var nonce='0xc18f687c56f1b2749af7d6151fa351'
-    var signature= lavaSignature;
+    var expires=336504400
+    var nonce='0xa18f687c56f1b2749af7d6151fa351'  //new nonce
+//    var signature= lavaSignature;
 
+
+
+
+
+
+        var params = lavaTestUtils.getLavaParamsFromData(from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
+
+        var msgParams = {data: params}
+
+        var privKey = Buffer.from(privateKey, 'hex')
+
+        const msgHash = ethSigUtil.typedSignatureHash(msgParams.data)
+
+        ///msg hash signed is 0x9201073a01df85b87dab83ad2498bf5b2190bf62cb03b2a407ba7d77279a4ceb
+        var lavaMsgHash = await walletContract.getLavaTypedDataHash.call(from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
+        console.log('lavaMsgHash',lavaMsgHash)
+
+        assert.equal(lavaMsgHash, msgHash ); //initialized
+
+
+        var signature = lavaTestUtils.signTypedData(privKey,msgParams);
 
 
 
@@ -511,7 +534,7 @@ it("can approveTokensWithSignature ", async function () {
 
 
 
-      var approval = await new Promise(function (result,error) {
+      var txhash = await new Promise(function (result,error) {
 
             sendSignedRawTransaction(web3,txOptions,addressFrom,privateKey, function(err, res) {
             if (err) error(err)
@@ -521,11 +544,8 @@ it("can approveTokensWithSignature ", async function () {
         }.bind(this));
 
 
-        assert.equal(approval,true)
-
-       console.log('ssent!');
-
-       await printBalance(test_account.address,tokenContract)
+        assert.ok(txhash)
+ 
 
 });
 
