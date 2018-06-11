@@ -99,7 +99,7 @@ contract LavaWallet is Owned {
    //token => owner => spender : amount
    mapping(address => mapping (address => mapping (address => uint256))) allowed;
 
-
+   mapping(address => uint256) depositedTokens;
 
    mapping(bytes32 => uint256) burnedSignatures;
 
@@ -126,6 +126,7 @@ contract LavaWallet is Owned {
       //we already have approval so lets do a transferFrom - transfer the tokens into this contract
       ERC20Interface(token).transferFrom(from, this, tokens);
       balances[token][from] = balances[token][from].add(tokens);
+      depositedTokens[token] = depositedTokens[token].add(tokens);
 
       Deposit(token, from, tokens, balances[token][from]);
 
@@ -136,6 +137,7 @@ contract LavaWallet is Owned {
   //No approve needed, only from msg.sender
   function withdrawTokens(address token, uint256 tokens) public {
     balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
+    depositedTokens[token] = depositedTokens[token].sub(tokens);
 
     ERC20Interface(token).transfer(msg.sender, tokens);
 
@@ -145,6 +147,7 @@ contract LavaWallet is Owned {
   //Requires approval so it can be public
   function withdrawTokensFrom( address from, address to,address token,  uint tokens) public returns (bool success) {
       balances[token][from] = balances[token][from].sub(tokens);
+      depositedTokens[token] = depositedTokens[token].sub(tokens);
       allowed[token][from][to] = allowed[token][from][to].sub(tokens);
 
       ERC20Interface(token).transfer(to, tokens);
@@ -333,6 +336,29 @@ contract LavaWallet is Owned {
 
      }
 
+
+
+ // ------------------------------------------------------------------------
+
+ // Owner can transfer out any accidentally sent ERC20 tokens
+ // Owner CANNOT transfer out tokens which were purposefully deposited
+
+ // ------------------------------------------------------------------------
+
+ function transferAnyERC20Token(address tokenAddress, uint tokens) public onlyOwner returns (bool success) {
+
+    //find actual balance of the contract
+     uint tokenBalance = ERC20Interface(tokenAddress).balanceOf(this);
+
+     uint undepositedTokens = tokenBalance.sub(depositedTokens[tokenAddress]);
+
+     assert(tokens <= undepositedTokens);
+
+     ERC20Interface(tokenAddress).transfer(owner, tokens);
+
+     return true;
+
+ }
 
 
 

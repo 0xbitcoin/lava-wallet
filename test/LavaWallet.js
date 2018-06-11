@@ -27,8 +27,8 @@ var lavaSignature;
 
 
 var test_account= {
-    'address': '0x3b6ff145874cb90497d1b9c2b35f653763a2beb5',
-    'privateKey': 'ade45c2af86c66fbb39a5026e2417b53ae439d516e63e0cb119c5745772a3f8d'
+    'address': '0x824442b457ded778f06632f1b59a289e773d3eb4',
+    'privateKey': '2d5bb0b78b46d4e0a444aaaec44acdea8d154e6f441c660d4e065f5f9365c6bf'
 }
 
 contract('LavaWallet', function(accounts) {
@@ -622,7 +622,7 @@ it("can approveTokensWithSignature ", async function () {
   });
 
 
- 
+
 
 /*
   assert.equal(10, good_type_record[4].toNumber() ); //check price
