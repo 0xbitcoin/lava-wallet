@@ -4,6 +4,18 @@
   Deposit tokens in this smart contract in order to allow other users to withdraw them with offchain digital signatures
 
 
+
+### Usecases
+
+1. Pool sends tokens here.  Pays people using offchain codes which the miners redeem, miners pay the gas (ETH)
+
+2. Traders keep tokens here.  Perform offchain trades using a separate DEX contract
+
+3. Users receive 0xBTC in the LavaWallet and can use relays to transfer 0xBTC without having any Ether (pay for tx fee by token, effectively)
+
+
+
+
  #### Background
 
   Many Dapps smart contracts incorporate their own 'balances[]' mapping within in order to keep track of how many tokens it 'owes' each account and these contracts store tokens used for the Dapp within the contract itself.  For example, ForkDelta and EtherDelta and many more.  The problem is, every user who wants to use these Dapps has to make an onchain transaction to deposit their tokens into the Dapp, perform the action within the Dapp, and then withdraw their tokens with another onchain transaction.  This is a lot of onchain overhead including gas fees and storing data in the blockchain and it is not necessary if offchain-transactions /ECRecovery signatures could be used.
@@ -12,12 +24,6 @@
 
  In this way, if multiple Dapps all supported using offchain signature transfers to/from the LavaWallet, those Dapps would not need to keep store any tokens within themselves, they would not need to track token balances[] for users, and the users would be able to easily offchain approve their tokens for those Dapps to utilize.  That way, all of those Dapps would effectively share the same balances[] mapping.. they would all share the same Smart Contract wallet.  
 
-
-### Usecases
-
-1. Pool sends tokens here.  Pays people using offchain codes which they redeem
-
-2. Traders keep tokens here.  Perform offchain trades using a separate DEX contract
 
 
 ### Testing
