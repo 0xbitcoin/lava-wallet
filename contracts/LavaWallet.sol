@@ -124,7 +124,10 @@ contract LavaWallet is Owned {
   function depositTokens(address from, address token, uint256 tokens ) public returns (bool success)
   {
       //we already have approval so lets do a transferFrom - transfer the tokens into this contract
-      ERC20Interface(token).transferFrom(from, this, tokens);
+
+      if(!ERC20Interface(token).transferFrom(from, this, tokens)) revert();
+
+
       balances[token][from] = balances[token][from].add(tokens);
       depositedTokens[token] = depositedTokens[token].add(tokens);
 
@@ -139,7 +142,8 @@ contract LavaWallet is Owned {
     balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
     depositedTokens[token] = depositedTokens[token].sub(tokens);
 
-    ERC20Interface(token).transfer(msg.sender, tokens);
+    if(!ERC20Interface(token).transfer(msg.sender, tokens)) revert();
+
 
     Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);
   }
@@ -150,7 +154,8 @@ contract LavaWallet is Owned {
       depositedTokens[token] = depositedTokens[token].sub(tokens);
       allowed[token][from][to] = allowed[token][from][to].sub(tokens);
 
-      ERC20Interface(token).transfer(to, tokens);
+      if(!ERC20Interface(token).transfer(to, tokens)) revert();
+   
 
       Withdraw(token, from, tokens, balances[token][from]);
       return true;
@@ -356,7 +361,9 @@ contract LavaWallet is Owned {
      //only allow withdrawing of accidentally deposited tokens
      assert(tokens <= undepositedTokens);
 
-     ERC20Interface(tokenAddress).transfer(owner, tokens);
+     if(!ERC20Interface(tokenAddress).transfer(owner, tokens)) revert();
+
+
 
      return true;
 
