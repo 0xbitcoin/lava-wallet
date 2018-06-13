@@ -136,6 +136,20 @@ contract LavaWallet is Owned {
       return true;
   }
 
+  function depositTokensFor(address from, address to, address token, uint256 tokens ) public returns (bool success)
+  {
+      //we already have approval so lets do a transferFrom - transfer the tokens into this contract
+
+      if(!ERC20Interface(token).transferFrom(from, this, tokens)) revert();
+
+      balances[token][to] = balances[token][to].add(tokens);
+      depositedTokens[token] = depositedTokens[token].add(tokens);
+
+      Deposit(token, to, tokens, balances[token][to]);
+
+      return true;
+  }
+
 
   //No approve needed, only from msg.sender
   function withdrawTokens(address token, uint256 tokens) public {
@@ -175,7 +189,7 @@ contract LavaWallet is Owned {
       return true;
   }
 
-
+  ///transfer tokens within the lava balances
   //No approve needed, only from msg.sender
    function transferTokens(address to, address token, uint tokens) public returns (bool success) {
         balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
@@ -185,6 +199,7 @@ contract LavaWallet is Owned {
     }
 
 
+    ///transfer tokens within the lava balances
     //Can be public because it requires approval
    function transferTokensFrom( address from, address to,address token,  uint tokens) public returns (bool success) {
        balances[token][from] = balances[token][from].sub(tokens);
@@ -211,10 +226,10 @@ contract LavaWallet is Owned {
 
 
    function tokenApprovalWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,
-                                     uint256 expires, uint256 nonce, bytes signature) internal returns (bool success)
+                                     uint256 expires, bytes32 sigHash, bytes signature) internal returns (bool success)
    {
 
-       bytes32 sigHash = getLavaTypedDataHash(from,to,token,tokens,relayerReward,expires,nonce);
+
 
        address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
 
@@ -251,8 +266,9 @@ contract LavaWallet is Owned {
 
        require(endOfNonce == 0 || endOfNonce == 1);
 
+       bytes32 sigHash = getLavaTypedDataHash(from,to,token,tokens,relayerReward,expires,nonce);
 
-       if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,nonce,signature)) revert();
+       if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
 
        return true;
@@ -264,11 +280,13 @@ contract LavaWallet is Owned {
   {
     uint endOfNonce = nonce % 16;
 
-    require(endOfNonce == 2 || endOfNonce == 0);
+    require(endOfNonce == 0 || endOfNonce == 2);
 
       //check to make sure that signature == ecrecover signature
 
-      if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,nonce,signature)) revert();
+      bytes32 sigHash = getLavaTypedDataHash(from,to,token,tokens,relayerReward,expires,nonce);
+
+      if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
       if(!transferTokensFrom( from, to, token, tokens)) revert();
@@ -284,10 +302,12 @@ contract LavaWallet is Owned {
   {
       uint endOfNonce = nonce % 16;
 
-      require(endOfNonce == 3 || endOfNonce == 0);
+      require(endOfNonce == 0 || endOfNonce == 3);
       //check to make sure that signature == ecrecover signature
 
-      if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,nonce,signature)) revert();
+      bytes32 sigHash = getLavaTypedDataHash(from,to,token,tokens,relayerReward,expires,nonce);
+
+      if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
       if(!withdrawTokensFrom( from, to, token, tokens)) revert();
@@ -353,6 +373,8 @@ contract LavaWallet is Owned {
 
      /*
       Approve lava tokens for a smart contract and call the contracts receiveApproval method all in one fell swoop
+
+      One issue: the data is not being signed and so it could be manipulated
       */
      function approveAndCall(address from, address to, address token, uint256 tokens, uint256 relayerReward,
                                        uint256 expires, uint256 nonce, bytes signature,  bytes data) public returns (bool success) {
@@ -360,7 +382,19 @@ contract LavaWallet is Owned {
 
          require(endOfNonce >= 4);
 
-         if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,nonce,signature)) revert();
+          //bytes32 sigHashWithData = getLavaTypedDataHash(from,to,token,tokens,relayerReward,expires,nonce,data);
+
+          //need to change this !
+          bytes32 hardcodedSchemaHash = 0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3 ;
+
+          
+          bytes32 sigHashWithData = sha3(
+              hardcodedSchemaHash,
+              sha3(from,to,this,token,tokens,relayerReward,expires,nonce,data)
+            );
+
+
+          if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHashWithData,signature)) revert();
 
           ApproveAndCallFallBack(to).receiveApproval(from, tokens, token, data);
 
