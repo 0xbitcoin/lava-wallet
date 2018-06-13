@@ -27,8 +27,8 @@ var lavaSignature;
 
 
 var test_account= {
-    'address': '0x824442b457ded778f06632f1b59a289e773d3eb4',
-    'privateKey': '2d5bb0b78b46d4e0a444aaaec44acdea8d154e6f441c660d4e065f5f9365c6bf'
+    'address': '0xf1c79878d7c31c88940a98cf86d2280dd1008f65',
+    'privateKey': 'd5932d63915612bea806a1b2cc71bbe4620ea0d367775ca8c685e14a34bd6fbb'
 }
 
 contract('LavaWallet', function(accounts) {
