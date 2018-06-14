@@ -228,9 +228,7 @@ contract LavaWallet is Owned {
 
    function tokenApprovalWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,
                                      uint256 expires, bytes32 sigHash, bytes signature) internal returns (bool success)
-   {
-
-
+   { 
 
        address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
 
@@ -262,10 +260,7 @@ contract LavaWallet is Owned {
    function approveTokensWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,
                                      uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
    {
-       //nonce must end in 0 or 1
-       uint endOfNonce = nonce % 16;
 
-       require(endOfNonce == 0 || endOfNonce == 1);
 
        bytes32 sigHash = getLavaTypedDataHash('approve',from,to,token,tokens,relayerReward,expires,nonce);
 
@@ -279,9 +274,7 @@ contract LavaWallet is Owned {
   function transferTokensFromWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
                                     uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
   {
-    uint endOfNonce = nonce % 16;
 
-    require(endOfNonce == 0 || endOfNonce == 2);
 
       //check to make sure that signature == ecrecover signature
 
@@ -301,9 +294,7 @@ contract LavaWallet is Owned {
   function withdrawTokensFromWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
                                     uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
   {
-      uint endOfNonce = nonce % 16;
 
-      require(endOfNonce == 0 || endOfNonce == 3);
       //check to make sure that signature == ecrecover signature
 
       bytes32 sigHash = getLavaTypedDataHash('withdraw',from,to,token,tokens,relayerReward,expires,nonce);
@@ -380,7 +371,7 @@ contract LavaWallet is Owned {
      function approveAndCall(bytes methodname, address from, address to, address token, uint256 tokens, uint256 relayerReward,
                                        uint256 expires, uint256 nonce, bytes signature ) public returns (bool success) {
 
- 
+
 
             bytes32 sigHash = getLavaTypedDataHash(methodname,from,to,token,tokens,relayerReward,expires,nonce);
 
