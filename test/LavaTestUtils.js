@@ -78,14 +78,19 @@ function typedSignatureHash(typedData) {
 
  getLavaPacketSchemaHash()
  {
-    var hardcodedSchemaHash = '0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3' ;
+    var hardcodedSchemaHash = '0x8fd4f9177556bbc74d0710c8bdda543afd18cc84d92d64b5620d5f1881dceb37' ;
     return hardcodedSchemaHash;
  }
 
- getLavaParamsFromData(from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
+ getLavaParamsFromData(method,from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
  {
      var params = [
 
+      {
+        type: 'bytes',
+        name: 'method',
+        value: method
+      },
        {
          type: 'address',
          name: 'from',

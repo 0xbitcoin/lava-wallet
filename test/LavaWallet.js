@@ -27,8 +27,8 @@ var lavaSignature;
 
 
 var test_account= {
-    'address': '0xf1c79878d7c31c88940a98cf86d2280dd1008f65',
-    'privateKey': 'd5932d63915612bea806a1b2cc71bbe4620ea0d367775ca8c685e14a34bd6fbb'
+    'address': '0xd7d5c87fd751a1b18fd1829328da612e16e5f543',
+    'privateKey': 'fef27ba7871f205f76beaa8cd1b2042df5e6ce41aa1512fe385c7abcacece026'
 }
 
 contract('LavaWallet', function(accounts) {
@@ -52,83 +52,86 @@ contract('LavaWallet', function(accounts) {
     it("find schemahash", async function () {
 
 
-      var  hardcodedSchemaHash = '0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3' ;
+      var  hardcodedSchemaHash = '0x8fd4f9177556bbc74d0710c8bdda543afd18cc84d92d64b5620d5f1881dceb37' ;
+
+      var  typedParams =  [
+        {
+          type: 'bytes',
+          name: 'method',
+          value: 0
+        },
+         {
+           type: 'address',
+           name: 'from',
+           value: 0
+         },
+         {
+           type: 'address',
+           name: 'to',
+           value: 0
+         },
+         {
+           type: 'address',
+           name: 'walletAddress',
+           value: 0
+         },
+         {
+           type: 'address',
+           name: 'tokenAddress',
+           value: 0
+         },
+         {
+           type: 'uint256',
+           name: 'tokenAmount',
+           value: 0
+         },
+         {
+           type: 'uint256',
+           name: 'relayerReward',
+           value: 0
+         },
+         {
+           type: 'uint256',
+           name: 'expires',
+           value: 0
+         },
+         {
+           type: 'uint256',
+           name: 'nonce',
+           value: 0
+         }
+       ]
 
 
-
-
-          var  typedData =  [
-
-             {
-               type: 'address',
-               name: 'from',
-               value: 0
-             },
-             {
-               type: 'address',
-               name: 'to',
-               value: 0
-             },
-             {
-               type: 'address',
-               name: 'walletAddress',
-               value: 0
-             },
-             {
-               type: 'address',
-               name: 'tokenAddress',
-               value: 0
-             },
-             {
-               type: 'uint256',
-               name: 'tokenAmount',
-               value: 0
-             },
-             {
-               type: 'uint256',
-               name: 'relayerReward',
-               value: 0
-             },
-             {
-               type: 'uint256',
-               name: 'expires',
-               value: 0
-             },
-             {
-               type: 'uint256',
-               name: 'nonce',
-               value: 0
-             },
-           ]
 
 
         const error = new Error('Expect argument to be non-empty array')
-        if (typeof typedData !== 'object' || !typedData.length) throw error
+        if (typeof typedParams !== 'object' || !typedParams.length) throw error
 
-        const data = typedData.map(function (e) {
+        const data = typedParams.map(function (e) {
           return e.type === 'bytes' ? ethUtil.toBuffer(e.value) : e.value
         })
-        const types = typedData.map(function (e) { return e.type })
-        const schema = typedData.map(function (e) {
+        const types = typedParams.map(function (e) { return e.type })
+        const schema = typedParams.map(function (e) {
           if (!e.name) throw error
           return e.type + ' ' + e.name
         })
 
 
 
-      console.log('schema',new Array(typedData.length).fill('string'),schema)
-        console.log('schema subhash',ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema).toString('hex'))
+      console.log('schema',new Array(typedParams.length).fill('string'),schema)
+        console.log('schema subhash',ethAbi.soliditySHA3(new Array(typedParams.length).fill('string'), schema).toString('hex'))
 
         console.log('types',types, data)
         console.log('types subhash',ethAbi.soliditySHA3(types, data).toString('hex'))
 
 
-        var hash = '0x'+ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema).toString('hex') ;
+        var hash = '0x'+ethAbi.soliditySHA3(new Array(typedParams.length).fill('string'), schema).toString('hex') ;
 
         console.log("hash1", ethAbi.soliditySHA3(
           ['bytes32', 'bytes32'],
           [
-            ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema),
+            ethAbi.soliditySHA3(new Array(typedParams.length).fill('string'), schema),
             ethAbi.soliditySHA3(types, data)
           ]
         ))
@@ -146,7 +149,7 @@ contract('LavaWallet', function(accounts) {
         /*return ethAbi.soliditySHA3(
           ['bytes32', 'bytes32'],
           [
-            ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema),
+            ethAbi.soliditySHA3(new Array(typedParams.length).fill('string'), schema),
             ethAbi.soliditySHA3(types, data)
           ]
         )*/
@@ -154,7 +157,7 @@ contract('LavaWallet', function(accounts) {
 
 
 
-        assert.equal(hash,hardcodedSchemaHash)
+        assert.equal(hash,hardcodedSchemaHash )
     });
 
 
@@ -388,7 +391,7 @@ it("can approveTokensWithSignature ", async function () {
      //var expectedSignature="0x8ef27391a81f77244bf95df58737eecac386ab9a47acd21bdb63757adf71ddf878169c18e4ab7b71d60f333c870258a0644ac7ade789d59c53b0ab75dbcc87d11b"
 
 
-     var params = lavaTestUtils.getLavaParamsFromData(from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
+     var params = lavaTestUtils.getLavaParamsFromData('approve',from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
 
 
   //need to format the   params properly
@@ -403,7 +406,7 @@ it("can approveTokensWithSignature ", async function () {
    const msgHash = ethSigUtil.typedSignatureHash(msgParams.data)
 
     ///msg hash signed is 0x9201073a01df85b87dab83ad2498bf5b2190bf62cb03b2a407ba7d77279a4ceb
-    var lavaMsgHash = await walletContract.getLavaTypedDataHash.call(from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
+    var lavaMsgHash = await walletContract.getLavaTypedDataHash.call('approve',from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
     console.log('lavaMsgHash',lavaMsgHash)
 
     assert.equal(lavaMsgHash, msgHash ); //initialized
@@ -428,7 +431,7 @@ it("can approveTokensWithSignature ", async function () {
 
 
 
-    var result = await walletContract.getLavaTypedDataHash.call(from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
+    var result = await walletContract.getLavaTypedDataHash.call('approve',from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
 
     console.log('result1', result )
 
@@ -555,7 +558,7 @@ it("can approveTokensWithSignature ", async function () {
 
 
 
-        var params = lavaTestUtils.getLavaParamsFromData(from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
+        var params = lavaTestUtils.getLavaParamsFromData('approve',from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
 
         var msgParams = {data: params}
 
@@ -564,7 +567,7 @@ it("can approveTokensWithSignature ", async function () {
         const msgHash = ethSigUtil.typedSignatureHash(msgParams.data)
 
         ///msg hash signed is 0x9201073a01df85b87dab83ad2498bf5b2190bf62cb03b2a407ba7d77279a4ceb
-        var lavaMsgHash = await walletContract.getLavaTypedDataHash.call(from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
+        var lavaMsgHash = await walletContract.getLavaTypedDataHash.call('approve',from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
         console.log('lavaMsgHash',lavaMsgHash)
 
         assert.equal(lavaMsgHash, msgHash ); //initialized
@@ -578,6 +581,10 @@ it("can approveTokensWithSignature ", async function () {
             name: 'burnSignature',
             type: 'function',
             inputs: [
+              {
+                "name": "method",
+                "type": "bytes"
+              },
               {
                 "name": "from",
                 "type": "address"
@@ -617,7 +624,7 @@ it("can approveTokensWithSignature ", async function () {
                   "type": "bool"
                 }
             ]
-        }, [from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce,signature]);
+        }, [web3utils.utf8ToHex('approve'),from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce,signature]);
 
 
         try{

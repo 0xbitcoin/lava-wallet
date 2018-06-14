@@ -211,14 +211,15 @@ contract LavaWallet is Owned {
 
    //Nonce is the same thing as a 'check number'
    //EIP 712
-   function getLavaTypedDataHash( address from, address to, address token, uint256 tokens, uint256 relayerReward,
+   function getLavaTypedDataHash(bytes methodname, address from, address to, address token, uint256 tokens, uint256 relayerReward,
                                      uint256 expires, uint256 nonce) public constant returns (bytes32)
    {
-        bytes32 hardcodedSchemaHash = 0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3 ;
+         bytes32 hardcodedSchemaHash = 0x8fd4f9177556bbc74d0710c8bdda543afd18cc84d92d64b5620d5f1881dceb37; //with methodname
+
 
         bytes32 typedDataHash = sha3(
             hardcodedSchemaHash,
-            sha3(from,to,this,token,tokens,relayerReward,expires,nonce)
+            sha3(methodname,from,to,this,token,tokens,relayerReward,expires,nonce)
           );
 
         return typedDataHash;
@@ -266,7 +267,7 @@ contract LavaWallet is Owned {
 
        require(endOfNonce == 0 || endOfNonce == 1);
 
-       bytes32 sigHash = getLavaTypedDataHash(from,to,token,tokens,relayerReward,expires,nonce);
+       bytes32 sigHash = getLavaTypedDataHash('approve',from,to,token,tokens,relayerReward,expires,nonce);
 
        if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
@@ -284,7 +285,7 @@ contract LavaWallet is Owned {
 
       //check to make sure that signature == ecrecover signature
 
-      bytes32 sigHash = getLavaTypedDataHash(from,to,token,tokens,relayerReward,expires,nonce);
+      bytes32 sigHash = getLavaTypedDataHash('transfer',from,to,token,tokens,relayerReward,expires,nonce);
 
       if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
@@ -305,7 +306,7 @@ contract LavaWallet is Owned {
       require(endOfNonce == 0 || endOfNonce == 3);
       //check to make sure that signature == ecrecover signature
 
-      bytes32 sigHash = getLavaTypedDataHash(from,to,token,tokens,relayerReward,expires,nonce);
+      bytes32 sigHash = getLavaTypedDataHash('withdraw',from,to,token,tokens,relayerReward,expires,nonce);
 
       if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
@@ -328,10 +329,10 @@ contract LavaWallet is Owned {
 
 
 
-     function burnSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward, uint256 expires, uint256 nonce,  bytes signature) public returns (bool success)
+     function burnSignature(bytes methodname, address from, address to, address token, uint256 tokens, uint256 relayerReward, uint256 expires, uint256 nonce,  bytes signature) public returns (bool success)
      {
 
-        bytes32 sigHash = getLavaTypedDataHash(from,to,token,tokens,relayerReward,expires,nonce);
+        bytes32 sigHash = getLavaTypedDataHash(methodname,from,to,token,tokens,relayerReward,expires,nonce);
 
 
          address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
@@ -376,27 +377,26 @@ contract LavaWallet is Owned {
 
       One issue: the data is not being signed and so it could be manipulated
       */
-     function approveAndCall(address from, address to, address token, uint256 tokens, uint256 relayerReward,
-                                       uint256 expires, uint256 nonce, bytes signature,  bytes data) public returns (bool success) {
-         uint endOfNonce = nonce % 16;
+     function approveAndCall(bytes methodname, address from, address to, address token, uint256 tokens, uint256 relayerReward,
+                                       uint256 expires, uint256 nonce, bytes signature ) public returns (bool success) {
 
-         require(endOfNonce >= 4);
 
-          //bytes32 sigHashWithData = getLavaTypedDataHash(from,to,token,tokens,relayerReward,expires,nonce,data);
 
-          //need to change this !
-          bytes32 hardcodedSchemaHash = 0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3 ;
+      /*    bytes32 hardcodedSchemaHash = 0x2ebc1d51cf5ad161ef0b533c10587827e09820c0ab3e3c1716d74c60aa3ae53f ;
 
 
           bytes32 sigHashWithData = sha3(
               hardcodedSchemaHash,
-              sha3(from,to,this,token,tokens,relayerReward,expires,nonce,data)
-            );
+              sha3(methodname, from,to,this,token,tokens,relayerReward,expires,nonce)
+            );  */
+
+            bytes32 sigHash = getLavaTypedDataHash(methodname,from,to,token,tokens,relayerReward,expires,nonce);
 
 
-          if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHashWithData,signature)) revert();
 
-          ApproveAndCallFallBack(to).receiveApproval(from, tokens, token, data);
+          if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
+
+          ApproveAndCallFallBack(to).receiveApproval(from, tokens, token, methodname);
 
          return true;
 
