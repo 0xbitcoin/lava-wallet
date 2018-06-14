@@ -380,15 +380,7 @@ contract LavaWallet is Owned {
      function approveAndCall(bytes methodname, address from, address to, address token, uint256 tokens, uint256 relayerReward,
                                        uint256 expires, uint256 nonce, bytes signature ) public returns (bool success) {
 
-
-
-      /*    bytes32 hardcodedSchemaHash = 0x2ebc1d51cf5ad161ef0b533c10587827e09820c0ab3e3c1716d74c60aa3ae53f ;
-
-
-          bytes32 sigHashWithData = sha3(
-              hardcodedSchemaHash,
-              sha3(methodname, from,to,this,token,tokens,relayerReward,expires,nonce)
-            );  */
+ 
 
             bytes32 sigHash = getLavaTypedDataHash(methodname,from,to,token,tokens,relayerReward,expires,nonce);
 
