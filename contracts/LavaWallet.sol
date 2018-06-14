@@ -136,24 +136,9 @@ contract LavaWallet is Owned {
       return true;
   }
 
-/*
-  function depositTokensFor(address from, address to, address token, uint256 tokens ) public returns (bool success)
-  {
-      //we already have approval so lets do a transferFrom - transfer the tokens into this contract
-
-      if(!ERC20Interface(token).transferFrom(from, this, tokens)) revert();
-
-      balances[token][to] = balances[token][to].add(tokens);
-      depositedTokens[token] = depositedTokens[token].add(tokens);
-
-      Deposit(token, to, tokens, balances[token][to]);
-
-      return true;
-  }
-*/
 
   //No approve needed, only from msg.sender
-  function withdrawTokens(address token, uint256 tokens) public public returns (bool success){
+  function withdrawTokens(address token, uint256 tokens) public returns (bool success){
     balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
     depositedTokens[token] = depositedTokens[token].sub(tokens);
 
