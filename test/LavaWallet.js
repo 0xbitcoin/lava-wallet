@@ -49,6 +49,114 @@ contract('LavaWallet', function(accounts) {
 
 
 
+    it("find schemahash", async function () {
+
+
+      var  hardcodedSchemaHash = '0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3' ;
+
+
+
+
+          var  typedData =  [
+
+             {
+               type: 'address',
+               name: 'from',
+               value: 0
+             },
+             {
+               type: 'address',
+               name: 'to',
+               value: 0
+             },
+             {
+               type: 'address',
+               name: 'walletAddress',
+               value: 0
+             },
+             {
+               type: 'address',
+               name: 'tokenAddress',
+               value: 0
+             },
+             {
+               type: 'uint256',
+               name: 'tokenAmount',
+               value: 0
+             },
+             {
+               type: 'uint256',
+               name: 'relayerReward',
+               value: 0
+             },
+             {
+               type: 'uint256',
+               name: 'expires',
+               value: 0
+             },
+             {
+               type: 'uint256',
+               name: 'nonce',
+               value: 0
+             },
+           ]
+
+
+        const error = new Error('Expect argument to be non-empty array')
+        if (typeof typedData !== 'object' || !typedData.length) throw error
+
+        const data = typedData.map(function (e) {
+          return e.type === 'bytes' ? ethUtil.toBuffer(e.value) : e.value
+        })
+        const types = typedData.map(function (e) { return e.type })
+        const schema = typedData.map(function (e) {
+          if (!e.name) throw error
+          return e.type + ' ' + e.name
+        })
+
+
+
+      console.log('schema',new Array(typedData.length).fill('string'),schema)
+        console.log('schema subhash',ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema).toString('hex'))
+
+        console.log('types',types, data)
+        console.log('types subhash',ethAbi.soliditySHA3(types, data).toString('hex'))
+
+
+        var hash = '0x'+ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema).toString('hex') ;
+
+        console.log("hash1", ethAbi.soliditySHA3(
+          ['bytes32', 'bytes32'],
+          [
+            ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema),
+            ethAbi.soliditySHA3(types, data)
+          ]
+        ))
+
+        //need to hardcode the 0x64fcd ... into solidity !!
+        console.log("hash2", ethAbi.soliditySHA3(
+          ['bytes32', 'bytes32'],
+          [
+            '0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3',
+            ethAbi.soliditySHA3(types, data)
+          ]
+        ))
+
+
+        /*return ethAbi.soliditySHA3(
+          ['bytes32', 'bytes32'],
+          [
+            ethAbi.soliditySHA3(new Array(typedData.length).fill('string'), schema),
+            ethAbi.soliditySHA3(types, data)
+          ]
+        )*/
+
+
+
+
+        assert.equal(hash,hardcodedSchemaHash)
+    });
+
 
   it("can mint tokens", async function () {
 

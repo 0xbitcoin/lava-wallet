@@ -159,7 +159,7 @@ contract LavaWallet is Owned {
     if(!ERC20Interface(token).transfer(msg.sender, tokens)) revert();
 
 
-    Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);
+     Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);
   }
 
   //Requires approval so it can be public
@@ -387,7 +387,7 @@ contract LavaWallet is Owned {
           //need to change this !
           bytes32 hardcodedSchemaHash = 0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3 ;
 
-          
+
           bytes32 sigHashWithData = sha3(
               hardcodedSchemaHash,
               sha3(from,to,this,token,tokens,relayerReward,expires,nonce,data)
