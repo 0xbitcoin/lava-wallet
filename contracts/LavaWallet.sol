@@ -136,6 +136,7 @@ contract LavaWallet is Owned {
       return true;
   }
 
+/*
   function depositTokensFor(address from, address to, address token, uint256 tokens ) public returns (bool success)
   {
       //we already have approval so lets do a transferFrom - transfer the tokens into this contract
@@ -149,10 +150,10 @@ contract LavaWallet is Owned {
 
       return true;
   }
-
+*/
 
   //No approve needed, only from msg.sender
-  function withdrawTokens(address token, uint256 tokens) public {
+  function withdrawTokens(address token, uint256 tokens) public public returns (bool success){
     balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
     depositedTokens[token] = depositedTokens[token].sub(tokens);
 
@@ -160,6 +161,7 @@ contract LavaWallet is Owned {
 
 
      Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);
+     return true;
   }
 
   //Requires approval so it can be public
@@ -228,7 +230,7 @@ contract LavaWallet is Owned {
 
    function tokenApprovalWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,
                                      uint256 expires, bytes32 sigHash, bytes signature) internal returns (bool success)
-   { 
+   {
 
        address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
 
