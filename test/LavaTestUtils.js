@@ -22,10 +22,6 @@ module.exports = class LavaTestUtils{
    signTypedData(privateKey, msgParams)
   {
 
-    //var hardcodedSchemaHash = '0x313236b6cd8d12125421e44528d8f5ba070a781aeac3e5ae45e314b818734ec3' ;
-    //return ethSigUtil.signTypedData(privateKey,msgParams)
-
-
     const msgHash = ethSigUtil.typedSignatureHash(msgParams.data)
     console.log('msghash1',msgHash)
 
