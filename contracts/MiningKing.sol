@@ -27,6 +27,9 @@ contract ERC20Interface {
     event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
 }
 contract ERC918Interface {
+
+  function epochCount() public constant returns (uint);
+
   function totalSupply() public constant returns (uint);
   function getMiningDifficulty() public constant returns (uint);
   function getMiningTarget() public constant returns (uint);
@@ -41,7 +44,10 @@ contract ERC918Interface {
 
 
 
-
+contract proxyMinterInterface
+{
+  function proxyMint(uint256 nonce, bytes32 challenge_digest) public returns (bool success);
+}
 
 
 contract MiningKing   {
@@ -84,20 +90,26 @@ contract MiningKing   {
 
 
 /**
-Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit mining nonce 
+Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit mining nonce
 
 
 **/
-   function proxyMintWithKing(uint256 nonce, bytes32 challenge_digest) returns (bool)
+
+//proxyMintWithKing
+   function mintForwarder(uint256 nonce, bytes32 challenge_digest, address proxyMinter) returns (bool)
    {
 
      bytes memory nonceBytes = toBytesAddress(nonce);
 
      address newKing = bytesToAddress(nonceBytes);
 
-     uint totalReward = ERC918Interface(minedToken).getMiningReward();
-     require(ERC918Interface(minedToken).mint(nonce, challenge_digest));
-     require(ERC20Interface(minedToken).transfer(msg.sender, totalReward));
+      uint previousEpochCount = ERC918Interface(minedToken).epochCount();
+
+    // uint totalReward = ERC918Interface(minedToken).getMiningReward();
+     require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));//pool's owned  mint contract
+
+     //make sure that the minedToken really was proxy minted
+    require(  ERC918Interface(minedToken).epochCount() == previousEpochCount + 1 );
 
      miningKing = newKing;
 

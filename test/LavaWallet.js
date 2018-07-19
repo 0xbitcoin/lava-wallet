@@ -8,6 +8,7 @@ var wEthToken = artifacts.require("./WETH9.sol");
 
 var MiningKing = artifacts.require("./MiningKing.sol");
 
+var MintHelper = artifacts.require("./MintHelper.sol");
 
 var LavaWallet = artifacts.require("./LavaWallet.sol");
 
@@ -39,16 +40,16 @@ contract('LavaWallet', function(accounts) {
   var walletContract ;
   var tokenContract;
   var kingContract;
-
+  var mintHelperContract;
 
     it("can deploy ", async function () {
 
       console.log( 'deploying wallet' )
 
-
+         mintHelperContract = await MintHelper.deployed( );
          kingContract = await MiningKing.deployed( );
 
-        walletContract = await LavaWallet.deployed();
+         walletContract = await LavaWallet.deployed();
 
 
   }),
@@ -204,9 +205,9 @@ contract('LavaWallet', function(accounts) {
     console.log('target',miningTarget)
       console.log('challenge',challenge_number)
 
-    var addressFrom = test_account.address;
+    var addressFrom = mintHelperContract.address;
 
-    console.log("starting to mine...")
+    console.log("starting to mine for", addressFrom)
 
     var solution_number;
     var phraseDigest;
@@ -225,8 +226,6 @@ contract('LavaWallet', function(accounts) {
 
     solution_number = solution_number_prefix.concat(solution_number_suffix)
 
-    console.log('it was ', web3utils.randomHex(32))
-    console.log('it is ', solution_number)
 
     phraseDigest = web3utils.soliditySha3(challenge_number, addressFrom, solution_number )
 
@@ -246,6 +245,8 @@ contract('LavaWallet', function(accounts) {
 
   console.log(solution_number)
 
+  var checkDigest = await mintHelperContract.setMinterWallet(test_account.address)
+  var checkDigest = await mintHelperContract.setPayoutsWallet(test_account.address)
 
   var checkDigest = await tokenContract.getMintDigest.call(solution_number,phraseDigest,challenge_number, {from: addressFrom});
 
@@ -255,17 +256,15 @@ contract('LavaWallet', function(accounts) {
 
   console.log('challenge_number',challenge_number)
 
-  //var checkSuccess = await tokenContract.checkMintSolution.call(solution_number,phraseDigest,challenge_number, target );
-  //  console.log('checkSuccess',checkSuccess)
+ //  await submitMintingSolution(tokenContract, solution_number,phraseDigest,test_account);
 
-//  var mint_tokens = await tokenContract.mint.call(solution_number,phraseDigest, {from: from_address});
-  await submitMintingSolution(tokenContract, solution_number,phraseDigest,test_account);
-  // console.log("token mint: " + mint_tokens);
+   await submitMintingSolutionToForwarder(kingContract, mintHelperContract, solution_number,phraseDigest,test_account);
+  //await submitMintingSolutionToProxy( mintHelperContract, solution_number,phraseDigest,test_account);
 
 
   await printBalance(test_account.address,tokenContract)
 
-  assert.equal(checkDigest, phraseDigest ); //initialized
+//  assert.equal(checkDigest, phraseDigest ); //initialized
 
 });
 
@@ -858,7 +857,6 @@ async function getBalance (account ,tokenContract)
 //   console.log('tokenContract',tokenContract);
 
 
-
    var addressTo =  tokenContract.address;
    var addressFrom = account.address;
 
@@ -896,6 +894,181 @@ async function getBalance (account ,tokenContract)
   //  var estimatedGasCost = await mintMethod.estimateGas({gas: max_gas_cost, from:addressFrom, to: addressTo });
 
   console.log(tokenContract);
+
+  var estimatedGasCost = 1704623
+
+    console.log('estimatedGasCost',estimatedGasCost);
+    console.log('txData',txData);
+
+    console.log('addressFrom',addressFrom);
+    console.log('addressTo',addressTo);
+
+
+
+    if( estimatedGasCost > max_gas_cost){
+      console.log("Gas estimate too high!  Something went wrong ")
+      return;
+    }
+
+
+    const txOptions = {
+      nonce: web3utils.toHex(txCount),
+      gas: web3utils.toHex(estimatedGasCost),   //?
+      gasPrice: web3utils.toHex(3),
+      value: 0,
+      to: addressTo,
+      from: addressFrom,
+      data: txData
+    }
+
+
+
+  return new Promise(function (result,error) {
+
+       sendSignedRawTransaction( web3,txOptions,addressFrom,account.privateKey, function(err, res) {
+        if (err) error(err)
+          result(res)
+      })
+
+    }.bind(this));
+
+
+ }
+
+
+  async function submitMintingSolutionToProxy( proxyMintContract,  nonce,digest, account)
+  {
+
+ //   console.log('tokenContract',tokenContract);
+
+
+    var addressTo =  proxyMintContract.address;
+    var addressFrom = account.address;
+
+
+   try{
+     var txCount = await  web3.eth.getTransactionCount(addressFrom);
+     console.log('txCount',txCount)
+    } catch(error) {  //here goes if someAsyncPromise() rejected}
+     console.log(error);
+       this.miningLogger.appendToErrorLog(error)
+      return error;    //this will result in a resolved promise.
+    }
+
+
+
+
+     var txData =  web3.eth.abi.encodeFunctionCall({
+             name: 'proxyMint',
+             type: 'function',
+             inputs: [{
+                 type: 'uint256',
+                 name: 'nonce'
+             },{
+                 type: 'bytes32',
+                 name: 'challenge_digest'
+             } ]
+         }, [nonce, digest ]);
+
+
+
+     var max_gas_cost = 1704624;
+
+   //  var mintMethod =  tokenContract.mint(nonce,digest);
+
+   //  var estimatedGasCost = await mintMethod.estimateGas({gas: max_gas_cost, from:addressFrom, to: addressTo });
+
+   console.log(addressTo);
+
+   var estimatedGasCost = 1704623
+
+     console.log('estimatedGasCost',estimatedGasCost);
+     console.log('txData',txData);
+
+     console.log('addressFrom',addressFrom);
+     console.log('addressTo',addressTo);
+
+
+
+     if( estimatedGasCost > max_gas_cost){
+       console.log("Gas estimate too high!  Something went wrong ")
+       return;
+     }
+
+
+     const txOptions = {
+       nonce: web3utils.toHex(txCount),
+       gas: web3utils.toHex(estimatedGasCost),   //?
+       gasPrice: web3utils.toHex(3),
+       value: 0,
+       to: addressTo,
+       from: addressFrom,
+       data: txData
+     }
+
+
+
+   return new Promise(function (result,error) {
+
+        sendSignedRawTransaction( web3,txOptions,addressFrom,account.privateKey, function(err, res) {
+         if (err) error(err)
+           result(res)
+       })
+
+     }.bind(this));
+
+
+  }
+
+
+
+
+ async function submitMintingSolutionToForwarder(forwardingContract, proxyMintContract,  nonce,digest, account)
+ {
+
+//   console.log('tokenContract',tokenContract);
+
+
+   var addressTo =  forwardingContract.address;
+   var addressFrom = account.address;
+
+
+  try{
+    var txCount = await  web3.eth.getTransactionCount(addressFrom);
+    console.log('txCount',txCount)
+   } catch(error) {  //here goes if someAsyncPromise() rejected}
+    console.log(error);
+      this.miningLogger.appendToErrorLog(error)
+     return error;    //this will result in a resolved promise.
+   }
+
+
+
+
+    var txData =  web3.eth.abi.encodeFunctionCall({
+            name: 'mintForwarder',
+            type: 'function',
+            inputs: [{
+                type: 'uint256',
+                name: 'nonce'
+            },{
+                type: 'bytes32',
+                name: 'challenge_digest'
+            },{
+                type: 'address',
+                name: 'proxyMinter'
+            }]
+        }, [nonce, digest,proxyMintContract.address]);
+
+
+
+    var max_gas_cost = 1704624;
+
+  //  var mintMethod =  tokenContract.mint(nonce,digest);
+
+  //  var estimatedGasCost = await mintMethod.estimateGas({gas: max_gas_cost, from:addressFrom, to: addressTo });
+
+  console.log(addressTo);
 
   var estimatedGasCost = 1704623
 

@@ -1,95 +1,6 @@
 {
-  "contractName": "MiningKing",
+  "contractName": "proxyMinterInterface",
   "abi": [
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "miningKing",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "minedToken",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "name": "mintableToken",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "fallback"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "name": "from",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "name": "to",
-          "type": "address"
-        }
-      ],
-      "name": "TransferKing",
-      "type": "event"
-    },
-    {
-      "constant": false,
-      "inputs": [],
-      "name": "getMiningKing",
-      "outputs": [
-        {
-          "name": "king",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "newKing",
-          "type": "address"
-        }
-      ],
-      "name": "transferKing",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
     {
       "constant": false,
       "inputs": [
@@ -100,66 +11,24 @@
         {
           "name": "challenge_digest",
           "type": "bytes32"
-        },
-        {
-          "name": "proxyMinter",
-          "type": "address"
         }
       ],
-      "name": "mintForwarder",
+      "name": "proxyMint",
       "outputs": [
         {
-          "name": "",
+          "name": "success",
           "type": "bool"
         }
       ],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "uint256"
-        }
-      ],
-      "name": "toBytesAddress",
-      "outputs": [
-        {
-          "name": "b",
-          "type": "bytes"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "b",
-          "type": "bytes"
-        }
-      ],
-      "name": "bytesToAddress",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
     }
   ],
-  "bytecode": "0x6060604052341561000f57600080fd5b604051602080610a248339810160405280805190602001909190505080600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550506109a88061007c6000396000f300606060405260043610610083576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806306d8619b146100885780630d08872e146100c1578063405103991461015d57806342526e4e146101b2578063b17216f51461024f578063edfffca0146102b6578063fe4d62f91461030b575b600080fd5b341561009357600080fd5b6100bf600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610360565b005b34156100cc57600080fd5b6100e26004808035906020019091905050610495565b6040518080602001828103825283818151815260200191508051906020019080838360005b83811015610122578082015181840152602081019050610107565b50505050905090810190601f16801561014f5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b341561016857600080fd5b61017061055b565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34156101bd57600080fd5b61020d600480803590602001908201803590602001908080601f01602080910402602001604051908101604052809392919081815260200183838082843782019150505050505091905050610580565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b341561025a57600080fd5b61029c60048080359060200190919080356000191690602001909190803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610697565b604051808215151515815260200191505060405180910390f35b34156102c157600080fd5b6102c9610919565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b341561031657600080fd5b61031e61093f565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156103bb57600080fd5b806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055507fcb21dc7de62e70efdb467b866050922f2845c8b005b478e6ca5dd975819943dd3382604051808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019250505060405180910390a150565b61049d610968565b600060146040518059106104ae5750595b9080825280601f01601f19166020018201604052509150600090505b6014811015610555578060130360080260020a838115156104e757fe5b047f010000000000000000000000000000000000000000000000000000000000000002828281518110151561051857fe5b9060200101907effffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1916908160001a90535080806001019150506104ca565b50919050565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60008060008060009250600091505b845182101561068c5784828151811015156105a657fe5b9060200101517f010000000000000000000000000000000000000000000000000000000000000090047f0100000000000000000000000000000000000000000000000000000000000000027f01000000000000000000000000000000000000000000000000000000000000009004905060308110158015610628575060398111155b156106395760308103601084020192505b6041811015801561064b5750605a8111155b1561065c5760378103601084020192505b6061811015801561066e5750607a8111155b1561067f5760578103601084020192505b818060010192505061058f565b829350505050919050565b60006106a1610968565b6000806106ad87610495565b92506106b883610580565b9150600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663829965cc6000604051602001526040518163ffffffff167c0100000000000000000000000000000000000000000000000000000000028152600401602060405180830381600087803b151561074857600080fd5b6102c65a03f1151561075957600080fd5b5050506040518051905090508473ffffffffffffffffffffffffffffffffffffffff1663b1bb4d3588886000604051602001526040518363ffffffff167c010000000000000000000000000000000000000000000000000000000002815260040180838152602001826000191660001916815260200192505050602060405180830381600087803b15156107ec57600080fd5b6102c65a03f115156107fd57600080fd5b50505060405180519050151561081257600080fd5b60018101600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663829965cc6000604051602001526040518163ffffffff167c0100000000000000000000000000000000000000000000000000000000028152600401602060405180830381600087803b15156108a457600080fd5b6102c65a03f115156108b557600080fd5b505050604051805190501415156108cb57600080fd5b816000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550600193505050509392505050565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905090565b6020604051908101604052806000815250905600a165627a7a72305820c7d0810ce485614927a47785f8c68d87a6c57e07066142b4cd8e0e169062e6290029",
-  "deployedBytecode": "0x606060405260043610610083576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806306d8619b146100885780630d08872e146100c1578063405103991461015d57806342526e4e146101b2578063b17216f51461024f578063edfffca0146102b6578063fe4d62f91461030b575b600080fd5b341561009357600080fd5b6100bf600480803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610360565b005b34156100cc57600080fd5b6100e26004808035906020019091905050610495565b6040518080602001828103825283818151815260200191508051906020019080838360005b83811015610122578082015181840152602081019050610107565b50505050905090810190601f16801561014f5780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b341561016857600080fd5b61017061055b565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34156101bd57600080fd5b61020d600480803590602001908201803590602001908080601f01602080910402602001604051908101604052809392919081815260200183838082843782019150505050505091905050610580565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b341561025a57600080fd5b61029c60048080359060200190919080356000191690602001909190803573ffffffffffffffffffffffffffffffffffffffff16906020019091905050610697565b604051808215151515815260200191505060405180910390f35b34156102c157600080fd5b6102c9610919565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b341561031657600080fd5b61031e61093f565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156103bb57600080fd5b806000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055507fcb21dc7de62e70efdb467b866050922f2845c8b005b478e6ca5dd975819943dd3382604051808373ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020018273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1681526020019250505060405180910390a150565b61049d610968565b600060146040518059106104ae5750595b9080825280601f01601f19166020018201604052509150600090505b6014811015610555578060130360080260020a838115156104e757fe5b047f010000000000000000000000000000000000000000000000000000000000000002828281518110151561051857fe5b9060200101907effffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff1916908160001a90535080806001019150506104ca565b50919050565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60008060008060009250600091505b845182101561068c5784828151811015156105a657fe5b9060200101517f010000000000000000000000000000000000000000000000000000000000000090047f0100000000000000000000000000000000000000000000000000000000000000027f01000000000000000000000000000000000000000000000000000000000000009004905060308110158015610628575060398111155b156106395760308103601084020192505b6041811015801561064b5750605a8111155b1561065c5760378103601084020192505b6061811015801561066e5750607a8111155b1561067f5760578103601084020192505b818060010192505061058f565b829350505050919050565b60006106a1610968565b6000806106ad87610495565b92506106b883610580565b9150600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663829965cc6000604051602001526040518163ffffffff167c0100000000000000000000000000000000000000000000000000000000028152600401602060405180830381600087803b151561074857600080fd5b6102c65a03f1151561075957600080fd5b5050506040518051905090508473ffffffffffffffffffffffffffffffffffffffff1663b1bb4d3588886000604051602001526040518363ffffffff167c010000000000000000000000000000000000000000000000000000000002815260040180838152602001826000191660001916815260200192505050602060405180830381600087803b15156107ec57600080fd5b6102c65a03f115156107fd57600080fd5b50505060405180519050151561081257600080fd5b60018101600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663829965cc6000604051602001526040518163ffffffff167c0100000000000000000000000000000000000000000000000000000000028152600401602060405180830381600087803b15156108a457600080fd5b6102c65a03f115156108b557600080fd5b505050604051805190501415156108cb57600080fd5b816000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550600193505050509392505050565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b60008060009054906101000a900473ffffffffffffffffffffffffffffffffffffffff16905090565b6020604051908101604052806000815250905600a165627a7a72305820c7d0810ce485614927a47785f8c68d87a6c57e07066142b4cd8e0e169062e6290029",
-  "sourceMap": "1695:2217:0:-;;;1914:88;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1984:13;1971:10;;:26;;;;;;;;;;;;;;;;;;1914:88;1695:2217;;;;;;",
-  "deployedSourceMap": "1695:2217:0:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2073:8;;;2180:171;;;;;;;;;;;;;;;;;;;;;;;;;;;;3158:275;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;23:1:-1;8:100;33:3;30:1;27:2;8:100;;;99:1;94:3;90;84:5;80:1;75:3;71;64:6;52:2;49:1;45:3;40:15;;8:100;;;12:14;3:109;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1753:25:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3437:469;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2482:671;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1784:25;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2090:85;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2180:171;2260:10;;;;;;;;;;;2246:24;;:10;:24;;;2238:33;;;;;;;;2294:7;2281:10;;:20;;;;;;;;;;;;;;;;;;2311:33;2324:10;2336:7;2311:33;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2180:171;:::o;3158:275::-;3211:7;;:::i;:::-;3336:6;3319:2;3309:13;;;;;;;;;;;;;;;;;;;;;;;;;;;3305:17;;3345:1;3336:10;;3331:94;3352:2;3348:1;:6;3331:94;;;3409:1;3404:2;:6;3401:1;:10;3397:1;:15;3392:1;:21;;;;;;;;3381:34;;3374:1;3376;3374:4;;;;;;;;;;;;;;:41;;;;;;;;;;;3356:3;;;;;;;3331:94;;;3158:275;;;;:::o;1753:25::-;;;;;;;;;;;;;:::o;3437:469::-;3489:7;3505:11;3532:6;3574;3519:1;3505:15;;3541:1;3532:10;;3527:347;3548:1;:8;3544:1;:12;3527:347;;;3588:1;3590;3588:4;;;;;;;;;;;;;;;;;;;;3583:10;;;3574:19;;3613:2;3608:1;:7;;:18;;;;;3624:2;3619:1;:7;;3608:18;3604:82;;;3671:2;3667:1;:6;3661:2;3652:6;:11;:22;3643:31;;3604:82;3704:2;3699:1;:7;;:17;;;;;3714:2;3710:1;:6;;3699:17;3696:80;;;3761:2;3757:1;:6;3751:2;3742:6;:11;:22;3733:31;;3696:80;3794:2;3789:1;:7;;:18;;;;;3804:3;3800:1;:7;;3789:18;3786:81;;;3852:2;3848:1;:6;3842:2;3833:6;:11;:22;3824:31;;3786:81;3558:3;;;;;;;3527:347;;;3895:6;3880:22;;3437:469;;;;;;:::o;2482:671::-;2576:4;2593:23;;:::i;:::-;2648:15;2701:23;2619:21;2634:5;2619:14;:21::i;:::-;2593:47;;2666:26;2681:10;2666:14;:26::i;:::-;2648:44;;2743:10;;;;;;;;;;;2727:38;;;:40;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2701:66;;2877:11;2856:43;;;2900:5;2907:16;2856:68;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2848:77;;;;;;;;3097:1;3076:18;:22;3048:10;;;;;;;;;;;3032:38;;;:40;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:66;3022:78;;;;;;;;3121:7;3108:10;;:20;;;;;;;;;;;;;;;;;;3143:4;3136:11;;2482:671;;;;;;;;:::o;1784:25::-;;;;;;;;;;;;;:::o;2090:85::-;2131:12;2160:10;;;;;;;;;;;2153:17;;2090:85;:::o;1695:2217::-;;;;;;;;;;;;;;;:::o",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.18;\n\n\nimport \"./SafeMath.sol\";\n\n\n/*\n\nThis is a token wallet contract\n\nStore your tokens in this contract to give them super powers\n\nTokens can be spent from the contract with only an ecSignature from the owner - onchain approve is not needed\n\n\n*/\n\ncontract ERC20Interface {\n    function totalSupply() public constant returns (uint);\n    function balanceOf(address tokenOwner) public constant returns (uint balance);\n    function allowance(address tokenOwner, address spender) public constant returns (uint remaining);\n    function transfer(address to, uint tokens) public returns (bool success);\n    function approve(address spender, uint tokens) public returns (bool success);\n    function transferFrom(address from, address to, uint tokens) public returns (bool success);\n\n    event Transfer(address indexed from, address indexed to, uint tokens);\n    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);\n}\ncontract ERC918Interface {\n\n  function epochCount() public constant returns (uint);\n\n  function totalSupply() public constant returns (uint);\n  function getMiningDifficulty() public constant returns (uint);\n  function getMiningTarget() public constant returns (uint);\n  function getMiningReward() public constant returns (uint);\n  function balanceOf(address tokenOwner) public constant returns (uint balance);\n\n  function mint(uint256 nonce, bytes32 challenge_digest) public returns (bool success);\n\n  event Mint(address indexed from, uint reward_amount, uint epochCount, bytes32 newChallengeNumber);\n\n}\n\n\n\ncontract proxyMinterInterface\n{\n  function proxyMint(uint256 nonce, bytes32 challenge_digest) public returns (bool success);\n}\n\n\ncontract MiningKing   {\n\n\n  using SafeMath for uint;\n\n\n   address public miningKing;\n\n   address public minedToken; // = 0xb6ed7644c69416d67b522e20bc294a9a9b405b31;\n\n\n   event TransferKing(address from, address to);\n\n  function MiningKing(address mintableToken) public  {\n    minedToken = mintableToken;\n  }\n\n\n  //do not allow ether to enter\n  function() public payable {\n      revert();\n  }\n\n  function getMiningKing() public returns (address king)\n  {\n    return miningKing;\n  }\n\n   function transferKing(address newKing) public   {\n\n       require(msg.sender == miningKing);\n\n       miningKing = newKing;\n\n       TransferKing(msg.sender, newKing);\n\n   }\n\n\n/**\nSet the king to the Ethereum Address which is encoded as 160 bits of the 256 bit mining nonce\n\n\n**/\n\n//proxyMintWithKing\n   function mintForwarder(uint256 nonce, bytes32 challenge_digest, address proxyMinter) returns (bool)\n   {\n\n     bytes memory nonceBytes = toBytesAddress(nonce);\n\n     address newKing = bytesToAddress(nonceBytes);\n\n      uint previousEpochCount = ERC918Interface(minedToken).epochCount();\n\n    // uint totalReward = ERC918Interface(minedToken).getMiningReward();\n     require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));//pool's owned  mint contract\n\n     //make sure that the minedToken really was proxy minted\n    require(  ERC918Interface(minedToken).epochCount() == previousEpochCount + 1 );\n\n     miningKing = newKing;\n\n     return true;\n   }\n\n\n\n function toBytesAddress(uint256 x) constant returns (bytes b) {\n        //b = new bytes(20);\n        //assembly { mstore(add(b, 20), x) }\n\n        b = new bytes(20);\n       for (uint i = 0; i < 20; i++) {\n           b[i] = byte(uint8(x / (2**(8*(19 - i)))));\n       }\n\n\n    }\n\n\n function bytesToAddress (bytes b) constant returns (address) {\n     uint result = 0;\n     for (uint i = 0; i < b.length; i++) {\n         uint c = uint(b[i]);\n         if (c >= 48 && c <= 57) {\n             result = result * 16 + (c - 48);\n         }\n         if(c >= 65 && c<= 90) {\n             result = result * 16 + (c - 55);\n         }\n         if(c >= 97 && c<= 122) {\n             result = result * 16 + (c - 87);\n         }\n     }\n     return address(result);\n }\n\n\n\n\n}\n",
   "sourcePath": "/home/andy/dev/lava-wallet/contracts/MiningKing.sol",
   "ast": {
@@ -10560,5 +10429,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-07-19T16:07:36.316Z"
+  "updatedAt": "2018-07-19T16:07:36.310Z"
 }

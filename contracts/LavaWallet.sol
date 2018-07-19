@@ -43,7 +43,7 @@ contract ERC918Interface {
 contract MiningKingInterface {
     function getMiningKing() public returns (address);
     function transferKing(address newKing) public;
-    function proxyMintWithKing(uint256 nonce, bytes32 challenge_digest) returns (bool);
+    function mint(uint256 nonce, bytes32 challenge_digest) returns (bool);
 
     event TransferKing(address from, address to);
 }
@@ -243,7 +243,7 @@ contract LavaWallet is Owned {
 
        //make sure the signer is the depositor of the tokens
        if(from != recoveredSignatureSigner) revert();
-       
+
        if(msg.sender != getRelayingKing()
          && msg.sender != from
          && msg.sender != to) revert();  // you must be the 'king of the hill' to relay
