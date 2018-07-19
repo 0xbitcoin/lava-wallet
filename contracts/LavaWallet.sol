@@ -243,7 +243,10 @@ contract LavaWallet is Owned {
 
        //make sure the signer is the depositor of the tokens
        if(from != recoveredSignatureSigner) revert();
-       if(msg.sender != getRelayingKing()) revert();  // you must be the 'king of the hill' to relay
+       
+       if(msg.sender != getRelayingKing()
+         && msg.sender != from
+         && msg.sender != to) revert();  // you must be the 'king of the hill' to relay
 
        //make sure the signature has not expired
        if(block.number > expires) revert();
