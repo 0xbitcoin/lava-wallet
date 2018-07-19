@@ -1,6 +1,6 @@
 var _0xBitcoinToken = artifacts.require("./_0xBitcoinToken.sol");
 
-var miningKing = artifacts.require("./MiningKing.sol");
+var MiningKing = artifacts.require("./MiningKing.sol");
 
 var wEthToken = artifacts.require("./WETH9.sol");
 
@@ -10,20 +10,30 @@ var LavaWallet = artifacts.require("./LavaWallet.sol");
 
 module.exports = function(deployer) {
 
-
-  deployer.deploy(_0xBitcoinToken);
-
-
-    deployer.deploy(miningKing);
-
   deployer.deploy(ECRecovery);
 
 
     deployer.link(ECRecovery, LavaWallet)
+    deployer.deploy(wEthToken);
 
-  deployer.deploy(LavaWallet);
+  return deployer.deploy(_0xBitcoinToken).then(function(){
+    console.log('deploy 1 ')
+    return deployer.deploy(MiningKing, _0xBitcoinToken.address).then(function(){
+        console.log('deploy 2 ',  MiningKing.address)
+      return deployer.deploy(LavaWallet, MiningKing.address).then(function(){
+          console.log('deploy 3 ',  LavaWallet.address)
+           return LavaWallet.deployed()
+      });
 
-  deployer.deploy(wEthToken);
+    });
+     
+  });
+
+  //  deployer.deploy(miningKing);
+
+
+
+
 
 
 };

@@ -6,6 +6,9 @@ var ethSigUtil = require('eth-sig-util')
 var _0xBitcoinToken = artifacts.require("./_0xBitcoinToken.sol");
 var wEthToken = artifacts.require("./WETH9.sol");
 
+var MiningKing = artifacts.require("./MiningKing.sol");
+
+
 var LavaWallet = artifacts.require("./LavaWallet.sol");
 
 
@@ -25,24 +28,27 @@ var lavaSignature;
 //https://web3js.readthedocs.io/en/1.0/web3-utils.html
 //https://medium.com/@valkn0t/3-things-i-learned-this-week-using-solidity-truffle-and-web3-a911c3adc730
 
-
+//generate with ganache-cli
 var test_account= {
-    'address': '0xd7d5c87fd751a1b18fd1829328da612e16e5f543',
-    'privateKey': 'fef27ba7871f205f76beaa8cd1b2042df5e6ce41aa1512fe385c7abcacece026'
+    'address': '0x1ebfe3fb57f96e7328e7658c391db517d81da06d',
+    'privateKey': '4656a9bd9bd52c8ef37cae75528a5cf8eaf6bb90fd6395cd48471dea50b7a082'
 }
 
 contract('LavaWallet', function(accounts) {
 
   var walletContract ;
   var tokenContract;
-
+  var kingContract;
 
 
     it("can deploy ", async function () {
 
       console.log( 'deploying wallet' )
-        walletContract = await LavaWallet.deployed();
 
+
+         kingContract = await MiningKing.deployed( );
+
+        walletContract = await LavaWallet.deployed();
 
 
   }),
@@ -205,10 +211,24 @@ contract('LavaWallet', function(accounts) {
     var solution_number;
     var phraseDigest;
 
+    var solution_number_prefix = test_account.address
+
   while(true)
   {
-      solution_number = web3utils.randomHex(32)
-      phraseDigest = web3utils.soliditySha3(challenge_number, addressFrom, solution_number )
+
+    var solution_number_suffix = web3utils.randomHex(12)
+
+    if(solution_number_suffix.startsWith('0x'))
+    {
+      solution_number_suffix= solution_number_suffix.substring(2)
+    }
+
+    solution_number = solution_number_prefix.concat(solution_number_suffix)
+
+    console.log('it was ', web3utils.randomHex(32))
+    console.log('it is ', solution_number)
+
+    phraseDigest = web3utils.soliditySha3(challenge_number, addressFrom, solution_number )
 
     var digestBytes32 = web3utils.hexToBytes(phraseDigest)
     var digestBigNumber = web3utils.toBN(phraseDigest)
