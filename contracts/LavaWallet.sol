@@ -444,8 +444,15 @@ contract LavaWallet is Owned {
  }
 
  function toBytesAddress(uint256 x) constant returns (bytes b) {
+        //b = new bytes(20);
+        //assembly { mstore(add(b, 20), x) }
+
         b = new bytes(20);
-        assembly { mstore(add(b, 20), x) }
+       for (uint i = 0; i < 20; i++) {
+           b[i] = byte(uint8(x / (2**(8*(19 - i)))));
+       }
+
+
     }
 
 
