@@ -44,7 +44,6 @@ contract Ownable {
 
   address public owner;
 
-
   /**
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
    * account.
@@ -111,6 +110,9 @@ contract MintHelper is Ownable {
 
   using SafeMath for uint;
 
+    string public name;
+
+
     address public mintableToken;
 
     address public payoutsWallet;
@@ -119,7 +121,7 @@ contract MintHelper is Ownable {
     uint public minterFeePercent;
 
 
-    function MintHelper(address mToken, address pWallet, address mWallet)
+    constructor(address mToken, address pWallet, address mWallet)
     {
       mintableToken = mToken;
       payoutsWallet = pWallet;
@@ -160,10 +162,16 @@ contract MintHelper is Ownable {
       return true;
     }
 
-
+    function setName(string newName)
+    public onlyOwner
+    returns (bool)
+    {
+      name = newName;
+      return true;
+    }
 
     function proxyMint(uint256 nonce, bytes32 challenge_digest )
-//    public onlyOwner  //does not need to be only owner, owner will get paid 
+//    public onlyOwner  //does not need to be only owner, owner will get paid
     returns (bool)
     {
       //identify the rewards that will be won and how to split them up

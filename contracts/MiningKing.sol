@@ -61,7 +61,7 @@ contract MiningKing   {
    event TransferKing(address from, address to);
 
    // 0xBTC is 0xb6ed7644c69416d67b522e20bc294a9a9b405b31;
-  function MiningKing(address mintableToken) public  {
+  constructor(address mintableToken) public  {
     minedToken = mintableToken;
   }
 
@@ -97,30 +97,28 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
    function mintForwarder(uint256 nonce, bytes32 challenge_digest, address proxyMinter) returns (bool)
    {
 
-     bytes memory nonceBytes = toBytesAddress(nonce);
+      bytes memory nonceBytes = uintToBytesForAddress(nonce);
 
-     address newKing = bytesToAddress(nonceBytes);
+      address newKing = bytesToAddress(nonceBytes);
 
       uint previousEpochCount = ERC918Interface(minedToken).epochCount();
 
-    // uint totalReward = ERC918Interface(minedToken).getMiningReward();
-     require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));//pool's owned  mint contract
+      //Forward to another contract, typically a pool's owned  mint contract
+      require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));
 
-     //make sure that the minedToken really was proxy minted
-     require(  ERC918Interface(minedToken).epochCount() == previousEpochCount + 1 );
+     //make sure that the minedToken really was proxy minted through the proxyMint delegate call chain
+      require(  ERC918Interface(minedToken).epochCount() == previousEpochCount.add(1) );
 
-     miningKing = newKing;
+      miningKing = newKing;
 
-     return true;
+      return true;
    }
 
 
 
- function toBytesAddress(uint256 x) constant returns (bytes b) {
-        //b = new bytes(20);
-        //assembly { mstore(add(b, 20), x) }
+ function uintToBytesForAddress(uint256 x) constant returns (bytes b) {
 
-        b = new bytes(20);
+      b = new bytes(20);
       for (uint i = 0; i < 20; i++) {
           b[i] = byte(uint8(x / (2**(8*(31 - i)))));
       }
