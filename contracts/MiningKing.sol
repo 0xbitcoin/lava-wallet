@@ -82,6 +82,12 @@ contract MiningKing   {
 
    }
 
+
+/**
+Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit mining nonce 
+
+
+**/
    function proxyMintWithKing(uint256 nonce, bytes32 challenge_digest) returns (bool)
    {
 
