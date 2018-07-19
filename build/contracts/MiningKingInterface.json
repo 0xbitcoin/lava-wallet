@@ -1,66 +1,46 @@
 {
-  "contractName": "Owned",
+  "contractName": "MiningKingInterface",
   "abi": [
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "owner",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "newOwner",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
     {
       "anonymous": false,
       "inputs": [
         {
-          "indexed": true,
-          "name": "_from",
+          "indexed": false,
+          "name": "from",
           "type": "address"
         },
         {
-          "indexed": true,
-          "name": "_to",
+          "indexed": false,
+          "name": "to",
           "type": "address"
         }
       ],
-      "name": "OwnershipTransferred",
+      "name": "TransferKing",
       "type": "event"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "getMiningKing",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
       "constant": false,
       "inputs": [
         {
-          "name": "_newOwner",
+          "name": "newKing",
           "type": "address"
         }
       ],
-      "name": "transferOwnership",
+      "name": "transferKing",
       "outputs": [],
       "payable": false,
       "stateMutability": "nonpayable",
@@ -68,18 +48,32 @@
     },
     {
       "constant": false,
-      "inputs": [],
-      "name": "acceptOwnership",
-      "outputs": [],
+      "inputs": [
+        {
+          "name": "nonce",
+          "type": "uint256"
+        },
+        {
+          "name": "challenge_digest",
+          "type": "bytes32"
+        }
+      ],
+      "name": "proxyMintWithKing",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
     }
   ],
-  "bytecode": "0x608060405234801561001057600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550610424806100606000396000f300608060405260043610610062576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806379ba5097146100675780638da5cb5b1461007e578063d4ee1d90146100d5578063f2fde38b1461012c575b600080fd5b34801561007357600080fd5b5061007c61016f565b005b34801561008a57600080fd5b5061009361030e565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b3480156100e157600080fd5b506100ea610333565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34801561013857600080fd5b5061016d600480360381019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610359565b005b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156101cb57600080fd5b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e060405160405180910390a3600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff166000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506000600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156103b457600080fd5b80600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550505600a165627a7a723058206fffbb598636812926d42ce9f0c2ff71a0dc8b549c4d8f1108704763399d10030029",
-  "deployedBytecode": "0x608060405260043610610062576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806379ba5097146100675780638da5cb5b1461007e578063d4ee1d90146100d5578063f2fde38b1461012c575b600080fd5b34801561007357600080fd5b5061007c61016f565b005b34801561008a57600080fd5b5061009361030e565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b3480156100e157600080fd5b506100ea610333565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34801561013857600080fd5b5061016d600480360381019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610359565b005b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156101cb57600080fd5b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e060405160405180910390a3600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff166000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506000600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156103b457600080fd5b80600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550505600a165627a7a723058206fffbb598636812926d42ce9f0c2ff71a0dc8b549c4d8f1108704763399d10030029",
-  "sourceMap": "1947:613:1:-;;;2105:61;8:9:-1;5:2;;;30:1;27;20:12;5:2;2105:61:1;2148:10;2140:5;;:18;;;;;;;;;;;;;;;;;;1947:613;;;;;;",
-  "deployedSourceMap": "1947:613:1:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;2366:191;;8:9:-1;5:2;;;30:1;27;20:12;5:2;2366:191:1;;;;;;1969:20;;8:9:-1;5:2;;;30:1;27;20:12;5:2;1969:20:1;;;;;;;;;;;;;;;;;;;;;;;;;;;1996:23;;8:9:-1;5:2;;;30:1;27;20:12;5:2;1996:23:1;;;;;;;;;;;;;;;;;;;;;;;;;;;2258:102;;8:9:-1;5:2;;;30:1;27;20:12;5:2;2258:102:1;;;;;;;;;;;;;;;;;;;;;;;;;;;;2366:191;2433:8;;;;;;;;;;;2419:22;;:10;:22;;;2411:31;;;;;;;;2481:8;;;;;;;;;;;2453:37;;2474:5;;;;;;;;;;;2453:37;;;;;;;;;;;;2509:8;;;;;;;;;;;2501:5;;:16;;;;;;;;;;;;;;;;;;2547:1;2528:8;;:21;;;;;;;;;;;;;;;;;;2366:191::o;1969:20::-;;;;;;;;;;;;;:::o;1996:23::-;;;;;;;;;;;;;:::o;2258:102::-;2225:5;;;;;;;;;;;2211:19;;:10;:19;;;2203:28;;;;;;;;2343:9;2332:8;;:20;;;;;;;;;;;;;;;;;;2258:102;:::o",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.18;\n\nimport \"./ECRecovery.sol\";\n\nimport \"./SafeMath.sol\";\n\n\n/*\n\nThis is a token wallet contract\n\nStore your tokens in this contract to give them super powers\n\nTokens can be spent from the contract with only an ecSignature from the owner - onchain approve is not needed\n\n\n*/\n\ncontract ERC20Interface {\n    function totalSupply() public constant returns (uint);\n    function balanceOf(address tokenOwner) public constant returns (uint balance);\n    function allowance(address tokenOwner, address spender) public constant returns (uint remaining);\n    function transfer(address to, uint tokens) public returns (bool success);\n    function approve(address spender, uint tokens) public returns (bool success);\n    function transferFrom(address from, address to, uint tokens) public returns (bool success);\n\n    event Transfer(address indexed from, address indexed to, uint tokens);\n    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);\n}\ncontract ERC918Interface {\n  function totalSupply() public constant returns (uint);\n  function getMiningDifficulty() public constant returns (uint);\n  function getMiningTarget() public constant returns (uint);\n  function getMiningReward() public constant returns (uint);\n  function balanceOf(address tokenOwner) public constant returns (uint balance);\n\n  function mint(uint256 nonce, bytes32 challenge_digest) public returns (bool success);\n\n  event Mint(address indexed from, uint reward_amount, uint epochCount, bytes32 newChallengeNumber);\n\n}\n\ncontract MiningKingInterface {\n    function getMiningKing() public returns (address);\n    function transferKing(address newKing) public;\n    function proxyMintWithKing(uint256 nonce, bytes32 challenge_digest) returns (bool);\n\n    event TransferKing(address from, address to);\n}\n\ncontract ApproveAndCallFallBack {\n\n    function receiveApproval(address from, uint256 tokens, address token, bytes data) public;\n\n}\n\n\n\ncontract Owned {\n\n    address public owner;\n\n    address public newOwner;\n\n\n    event OwnershipTransferred(address indexed _from, address indexed _to);\n\n\n    function Owned() public {\n\n        owner = msg.sender;\n\n    }\n\n\n    modifier onlyOwner {\n\n        require(msg.sender == owner);\n\n        _;\n\n    }\n\n\n    function transferOwnership(address _newOwner) public onlyOwner {\n\n        newOwner = _newOwner;\n\n    }\n\n    function acceptOwnership() public {\n\n        require(msg.sender == newOwner);\n\n        OwnershipTransferred(owner, newOwner);\n\n        owner = newOwner;\n\n        newOwner = address(0);\n\n    }\n\n}\n\n\n\n\n\ncontract LavaWallet is Owned {\n\n\n  using SafeMath for uint;\n\n  // balances[tokenContractAddress][EthereumAccountAddress] = 0\n   mapping(address => mapping (address => uint256)) balances;\n\n   //token => owner => spender : amount\n   mapping(address => mapping (address => mapping (address => uint256))) allowed;\n\n   mapping(address => uint256) depositedTokens;\n\n   mapping(bytes32 => uint256) burnedSignatures;\n\n\n   address relayKingContract;\n\n\n\n  event Deposit(address token, address user, uint amount, uint balance);\n  event Withdraw(address token, address user, uint amount, uint balance);\n  event Transfer(address indexed from, address indexed to,address token, uint tokens);\n  event Approval(address indexed tokenOwner, address indexed spender,address token, uint tokens);\n\n  function LavaWallet(address relayKingContractAddress ) public  {\n    relayKingContract = relayKingContractAddress;\n  }\n\n\n  //do not allow ether to enter\n  function() public payable {\n      revert();\n  }\n\n\n   //Remember you need pre-approval for this - nice with ApproveAndCall\n  function depositTokens(address from, address token, uint256 tokens ) public returns (bool success)\n  {\n      //we already have approval so lets do a transferFrom - transfer the tokens into this contract\n\n      if(!ERC20Interface(token).transferFrom(from, this, tokens)) revert();\n\n\n      balances[token][from] = balances[token][from].add(tokens);\n      depositedTokens[token] = depositedTokens[token].add(tokens);\n\n      Deposit(token, from, tokens, balances[token][from]);\n\n      return true;\n  }\n\n\n  //No approve needed, only from msg.sender\n  function withdrawTokens(address token, uint256 tokens) public returns (bool success){\n    balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);\n    depositedTokens[token] = depositedTokens[token].sub(tokens);\n\n    if(!ERC20Interface(token).transfer(msg.sender, tokens)) revert();\n\n\n     Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);\n     return true;\n  }\n\n  //Requires approval so it can be public\n  function withdrawTokensFrom( address from, address to,address token,  uint tokens) public returns (bool success) {\n      balances[token][from] = balances[token][from].sub(tokens);\n      depositedTokens[token] = depositedTokens[token].sub(tokens);\n      allowed[token][from][to] = allowed[token][from][to].sub(tokens);\n\n      if(!ERC20Interface(token).transfer(to, tokens)) revert();\n\n\n      Withdraw(token, from, tokens, balances[token][from]);\n      return true;\n  }\n\n\n  function balanceOf(address token,address user) public constant returns (uint) {\n       return balances[token][user];\n   }\n\n\n\n  //Can also be used to remove approval by using a 'tokens' value of 0\n  function approveTokens(address spender, address token, uint tokens) public returns (bool success) {\n      allowed[token][msg.sender][spender] = tokens;\n      Approval(msg.sender, token, spender, tokens);\n      return true;\n  }\n\n  ///transfer tokens within the lava balances\n  //No approve needed, only from msg.sender\n   function transferTokens(address to, address token, uint tokens) public returns (bool success) {\n        balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);\n        balances[token][to] = balances[token][to].add(tokens);\n        Transfer(msg.sender, token, to, tokens);\n        return true;\n    }\n\n\n    ///transfer tokens within the lava balances\n    //Can be public because it requires approval\n   function transferTokensFrom( address from, address to,address token,  uint tokens) public returns (bool success) {\n       balances[token][from] = balances[token][from].sub(tokens);\n       allowed[token][from][to] = allowed[token][from][to].sub(tokens);\n       balances[token][to] = balances[token][to].add(tokens);\n       Transfer(token, from, to, tokens);\n       return true;\n   }\n\n   //Nonce is the same thing as a 'check number'\n   //EIP 712\n   function getLavaTypedDataHash(bytes methodname, address from, address to, address token, uint256 tokens, uint256 relayerReward,\n                                     uint256 expires, uint256 nonce) public constant returns (bytes32)\n   {\n         bytes32 hardcodedSchemaHash = 0x8fd4f9177556bbc74d0710c8bdda543afd18cc84d92d64b5620d5f1881dceb37; //with methodname\n\n\n        bytes32 typedDataHash = sha3(\n            hardcodedSchemaHash,\n            sha3(methodname,from,to,this,token,tokens,relayerReward,expires,nonce)\n          );\n\n        return typedDataHash;\n   }\n\n\n   function tokenApprovalWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,\n                                     uint256 expires, bytes32 sigHash, bytes signature) internal returns (bool success)\n   {\n\n       address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);\n\n       //make sure the signer is the depositor of the tokens\n       if(from != recoveredSignatureSigner) revert();\n       if(msg.sender != getRelayingKing()) revert();  // you must be the 'king of the hill' to relay\n\n       //make sure the signature has not expired\n       if(block.number > expires) revert();\n\n       uint burnedSignature = burnedSignatures[sigHash];\n       burnedSignatures[sigHash] = 0x1; //spent\n       if(burnedSignature != 0x0 ) revert();\n\n       //approve the relayer reward\n       allowed[token][from][msg.sender] = relayerReward;\n       Approval(from, token, msg.sender, relayerReward);\n\n       //transferRelayerReward\n       if(!transferTokensFrom(from, msg.sender, token, relayerReward)) revert();\n\n       //approve transfer of tokens\n       allowed[token][from][to] = tokens;\n       Approval(from, token, to, tokens);\n\n\n       return true;\n   }\n\n   function approveTokensWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,\n                                     uint256 expires, uint256 nonce, bytes signature) public returns (bool success)\n   {\n\n\n       bytes32 sigHash = getLavaTypedDataHash('approve',from,to,token,tokens,relayerReward,expires,nonce);\n\n       if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();\n\n\n       return true;\n   }\n\n   //the tokens remain in lava wallet\n  function transferTokensFromWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,\n                                    uint256 expires, uint256 nonce, bytes signature) public returns (bool success)\n  {\n\n\n      //check to make sure that signature == ecrecover signature\n\n      bytes32 sigHash = getLavaTypedDataHash('transfer',from,to,token,tokens,relayerReward,expires,nonce);\n\n      if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();\n\n      //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though\n      if(!transferTokensFrom( from, to, token, tokens)) revert();\n\n\n      return true;\n\n  }\n\n   //The tokens are withdrawn from the lava wallet and transferred into the To account\n  function withdrawTokensFromWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,\n                                    uint256 expires, uint256 nonce, bytes signature) public returns (bool success)\n  {\n\n      //check to make sure that signature == ecrecover signature\n\n      bytes32 sigHash = getLavaTypedDataHash('withdraw',from,to,token,tokens,relayerReward,expires,nonce);\n\n      if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();\n\n      //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though\n      if(!withdrawTokensFrom( from, to, token, tokens)) revert();\n\n\n      return true;\n\n  }\n\n\n\n\n    function tokenAllowance(address token, address tokenOwner, address spender) public constant returns (uint remaining) {\n\n        return allowed[token][tokenOwner][spender];\n\n    }\n\n\n\n     function burnSignature(bytes methodname, address from, address to, address token, uint256 tokens, uint256 relayerReward, uint256 expires, uint256 nonce,  bytes signature) public returns (bool success)\n     {\n\n        bytes32 sigHash = getLavaTypedDataHash(methodname,from,to,token,tokens,relayerReward,expires,nonce);\n\n\n         address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);\n\n         //make sure the invalidator is the signer\n         if(recoveredSignatureSigner != from) revert();\n\n         //only the original packet owner can burn signature, not a relay\n         if(from != msg.sender) revert();\n\n         //make sure this signature has never been used\n         uint burnedSignature = burnedSignatures[sigHash];\n         burnedSignatures[sigHash] = 0x2; //invalidated\n         if(burnedSignature != 0x0 ) revert();\n\n         return true;\n     }\n\n\n     //2 is burned\n     //1 is redeemed\n     function signatureBurnStatus(bytes32 digest) public view returns (uint)\n     {\n       return (burnedSignatures[digest]);\n     }\n\n\n\n\n       /*\n         Receive approval to spend tokens and perform any action all in one transaction\n       */\n     function receiveApproval(address from, uint256 tokens, address token, bytes data) public returns (bool success) {\n\n\n       return depositTokens(from, token, tokens );\n\n     }\n\n     /*\n      Approve lava tokens for a smart contract and call the contracts receiveApproval method all in one fell swoop\n\n      One issue: the data is not being signed and so it could be manipulated\n      */\n     function approveAndCall(bytes methodname, address from, address to, address token, uint256 tokens, uint256 relayerReward,\n                                       uint256 expires, uint256 nonce, bytes signature ) public returns (bool success) {\n\n\n\n            bytes32 sigHash = getLavaTypedDataHash(methodname,from,to,token,tokens,relayerReward,expires,nonce);\n\n\n\n          if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();\n\n          ApproveAndCallFallBack(to).receiveApproval(from, tokens, token, methodname);\n\n         return true;\n\n     }\n\n     function getRelayingKing() public returns (address)\n     {\n       return MiningKingInterface(relayKingContract).getMiningKing();\n     }\n\n\n\n // ------------------------------------------------------------------------\n\n // Owner can transfer out any accidentally sent ERC20 tokens\n // Owner CANNOT transfer out tokens which were purposefully deposited\n\n // ------------------------------------------------------------------------\n\n function transferAnyERC20Token(address tokenAddress, uint tokens) public onlyOwner returns (bool success) {\n\n    //find actual balance of the contract\n     uint tokenBalance = ERC20Interface(tokenAddress).balanceOf(this);\n\n     //find number of accidentally deposited tokens (actual - purposefully deposited)\n     uint undepositedTokens = tokenBalance.sub(depositedTokens[tokenAddress]);\n\n     //only allow withdrawing of accidentally deposited tokens\n     assert(tokens <= undepositedTokens);\n\n     if(!ERC20Interface(tokenAddress).transfer(owner, tokens)) revert();\n\n\n\n     return true;\n\n }\n\n\n\n}\n",
   "sourcePath": "/home/andy/dev/lava-wallet/contracts/LavaWallet.sol",
   "ast": {
@@ -34576,5 +34570,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-07-19T05:27:17.576Z"
+  "updatedAt": "2018-07-19T05:27:17.499Z"
 }

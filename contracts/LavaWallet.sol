@@ -40,7 +40,13 @@ contract ERC918Interface {
 
 }
 
+contract MiningKingInterface {
+    function getMiningKing() public returns (address);
+    function transferKing(address newKing) public;
+    function proxyMintWithKing(uint256 nonce, bytes32 challenge_digest) returns (bool);
 
+    event TransferKing(address from, address to);
+}
 
 contract ApproveAndCallFallBack {
 
@@ -115,10 +121,9 @@ contract LavaWallet is Owned {
 
    mapping(bytes32 => uint256) burnedSignatures;
 
-   address public relayingKing;
 
+   address relayKingContract;
 
-   address public mintableToken = 0xb6ed7644c69416d67b522e20bc294a9a9b405b31;
 
 
   event Deposit(address token, address user, uint amount, uint balance);
@@ -126,8 +131,8 @@ contract LavaWallet is Owned {
   event Transfer(address indexed from, address indexed to,address token, uint tokens);
   event Approval(address indexed tokenOwner, address indexed spender,address token, uint tokens);
 
-  function LavaWallet() public  {
-
+  function LavaWallet(address relayKingContractAddress ) public  {
+    relayKingContract = relayKingContractAddress;
   }
 
 
@@ -238,7 +243,7 @@ contract LavaWallet is Owned {
 
        //make sure the signer is the depositor of the tokens
        if(from != recoveredSignatureSigner) revert();
-       if(msg.sender != relayingKing) revert();  // you must be the 'king of the hill' to relay
+       if(msg.sender != getRelayingKing()) revert();  // you must be the 'king of the hill' to relay
 
        //make sure the signature has not expired
        if(block.number > expires) revert();
@@ -390,29 +395,9 @@ contract LavaWallet is Owned {
 
      }
 
-
-     function transferKing(address newKing) public   {
-
-         require(msg.sender == relayingKing);
-
-         relayingKing = newKing;
-
-     }
-
-     function proxyMintWithKing(uint256 nonce, bytes32 challenge_digest) returns (bool)
+     function getRelayingKing() public returns (address)
      {
-
-       bytes memory nonceBytes = toBytesAddress(nonce);
-
-       address newKing = bytesToAddress(nonceBytes);
-
-       uint totalReward = ERC918Interface(mintableToken).getMiningReward();
-       require(ERC918Interface(mintableToken).mint(nonce, challenge_digest));
-       require(ERC20Interface(mintableToken).transfer(msg.sender, totalReward));
-
-       relayingKing = newKing;
-
-       return true;
+       return MiningKingInterface(relayKingContract).getMiningKing();
      }
 
 
@@ -442,37 +427,6 @@ contract LavaWallet is Owned {
      return true;
 
  }
-
- function toBytesAddress(uint256 x) constant returns (bytes b) {
-        //b = new bytes(20);
-        //assembly { mstore(add(b, 20), x) }
-
-        b = new bytes(20);
-       for (uint i = 0; i < 20; i++) {
-           b[i] = byte(uint8(x / (2**(8*(19 - i)))));
-       }
-
-
-    }
-
-
- function bytesToAddress (bytes b) constant returns (address) {
-     uint result = 0;
-     for (uint i = 0; i < b.length; i++) {
-         uint c = uint(b[i]);
-         if (c >= 48 && c <= 57) {
-             result = result * 16 + (c - 48);
-         }
-         if(c >= 65 && c<= 90) {
-             result = result * 16 + (c - 55);
-         }
-         if(c >= 97 && c<= 122) {
-             result = result * 16 + (c - 87);
-         }
-     }
-     return address(result);
- }
-
 
 
 
