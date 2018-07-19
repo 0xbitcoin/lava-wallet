@@ -245,8 +245,8 @@ contract('LavaWallet', function(accounts) {
 
   console.log(solution_number)
 
-  var checkDigest = await mintHelperContract.setMinterWallet(test_account.address)
-  var checkDigest = await mintHelperContract.setPayoutsWallet(test_account.address)
+   await mintHelperContract.setMinterWallet(test_account.address)
+    await mintHelperContract.setPayoutsWallet(test_account.address)
 
   var checkDigest = await tokenContract.getMintDigest.call(solution_number,phraseDigest,challenge_number, {from: addressFrom});
 
@@ -264,7 +264,10 @@ contract('LavaWallet', function(accounts) {
 
   await printBalance(test_account.address,tokenContract)
 
-//  assert.equal(checkDigest, phraseDigest ); //initialized
+  var king = await kingContract.getKing.call()
+  console.log('king is ', king )
+
+   assert.equal(king, test_account.address ); //initialized
 
 });
 

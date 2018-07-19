@@ -6,12 +6,9 @@ import "./SafeMath.sol";
 
 /*
 
-This is a token wallet contract
+This is a King Of The Hill contract which requires Proof of Work (hashpower) to set the king
 
-Store your tokens in this contract to give them super powers
-
-Tokens can be spent from the contract with only an ecSignature from the owner - onchain approve is not needed
-
+This global non-owned contract proxy-mints 0xBTC through a personally-owned mintHelper contract (MintHelper.sol)
 
 */
 
@@ -58,11 +55,12 @@ contract MiningKing   {
 
    address public miningKing;
 
-   address public minedToken; // = 0xb6ed7644c69416d67b522e20bc294a9a9b405b31;
+   address public minedToken;
 
 
    event TransferKing(address from, address to);
 
+   // 0xBTC is 0xb6ed7644c69416d67b522e20bc294a9a9b405b31;
   function MiningKing(address mintableToken) public  {
     minedToken = mintableToken;
   }
@@ -73,7 +71,7 @@ contract MiningKing   {
       revert();
   }
 
-  function getMiningKing() public returns (address king)
+  function getKing() public returns (address king)
   {
     return miningKing;
   }
@@ -109,7 +107,7 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
      require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));//pool's owned  mint contract
 
      //make sure that the minedToken really was proxy minted
-    require(  ERC918Interface(minedToken).epochCount() == previousEpochCount + 1 );
+     require(  ERC918Interface(minedToken).epochCount() == previousEpochCount + 1 );
 
      miningKing = newKing;
 
@@ -123,27 +121,20 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
         //assembly { mstore(add(b, 20), x) }
 
         b = new bytes(20);
-       for (uint i = 0; i < 20; i++) {
-           b[i] = byte(uint8(x / (2**(8*(19 - i)))));
-       }
+      for (uint i = 0; i < 20; i++) {
+          b[i] = byte(uint8(x / (2**(8*(31 - i)))));
+      }
 
-
+      return b;
     }
 
 
  function bytesToAddress (bytes b) constant returns (address) {
      uint result = 0;
-     for (uint i = 0; i < b.length; i++) {
-         uint c = uint(b[i]);
-         if (c >= 48 && c <= 57) {
-             result = result * 16 + (c - 48);
-         }
-         if(c >= 65 && c<= 90) {
-             result = result * 16 + (c - 55);
-         }
-         if(c >= 97 && c<= 122) {
-             result = result * 16 + (c - 87);
-         }
+     for (uint i = b.length-1; i+1 > 0; i--) {
+       uint c = uint(b[i]);
+       uint to_inc = c * ( 16 ** ((b.length - i-1) * 2));
+       result += to_inc;
      }
      return address(result);
  }
