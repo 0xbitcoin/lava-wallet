@@ -1,28 +1,127 @@
 {
-  "contractName": "ApproveAndCallFallBack",
+  "contractName": "ERC918Interface",
   "abi": [
     {
-      "constant": false,
+      "anonymous": false,
       "inputs": [
         {
+          "indexed": true,
           "name": "from",
           "type": "address"
         },
         {
-          "name": "tokens",
+          "indexed": false,
+          "name": "reward_amount",
           "type": "uint256"
         },
         {
-          "name": "token",
-          "type": "address"
+          "indexed": false,
+          "name": "epochCount",
+          "type": "uint256"
         },
         {
-          "name": "data",
-          "type": "bytes"
+          "indexed": false,
+          "name": "newChallengeNumber",
+          "type": "bytes32"
         }
       ],
-      "name": "receiveApproval",
-      "outputs": [],
+      "name": "Mint",
+      "type": "event"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getMiningDifficulty",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getMiningTarget",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getMiningReward",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "tokenOwner",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "name": "balance",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "nonce",
+          "type": "uint256"
+        },
+        {
+          "name": "challenge_digest",
+          "type": "bytes32"
+        }
+      ],
+      "name": "mint",
+      "outputs": [
+        {
+          "name": "success",
+          "type": "bool"
+        }
+      ],
       "payable": false,
       "stateMutability": "nonpayable",
       "type": "function"
@@ -38746,5 +38845,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-07-19T05:10:03.682Z"
+  "updatedAt": "2018-07-19T05:10:03.658Z"
 }

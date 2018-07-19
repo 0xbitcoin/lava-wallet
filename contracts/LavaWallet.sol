@@ -27,6 +27,18 @@ contract ERC20Interface {
     event Transfer(address indexed from, address indexed to, uint tokens);
     event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
 }
+contract ERC918Interface {
+  function totalSupply() public constant returns (uint);
+  function getMiningDifficulty() public constant returns (uint);
+  function getMiningTarget() public constant returns (uint);
+  function getMiningReward() public constant returns (uint);
+  function balanceOf(address tokenOwner) public constant returns (uint balance);
+
+  function mint(uint256 nonce, bytes32 challenge_digest) public returns (bool success);
+
+  event Mint(address indexed from, uint reward_amount, uint epochCount, bytes32 newChallengeNumber);
+
+}
 
 
 
@@ -102,6 +114,11 @@ contract LavaWallet is Owned {
    mapping(address => uint256) depositedTokens;
 
    mapping(bytes32 => uint256) burnedSignatures;
+
+   address public relayingKing;
+
+
+   address public mintableToken = 0xb6ed7644c69416d67b522e20bc294a9a9b405b31;
 
 
   event Deposit(address token, address user, uint amount, uint balance);
@@ -221,6 +238,7 @@ contract LavaWallet is Owned {
 
        //make sure the signer is the depositor of the tokens
        if(from != recoveredSignatureSigner) revert();
+       if(msg.sender != relayingKing) revert();  // you must be the 'king of the hill' to relay
 
        //make sure the signature has not expired
        if(block.number > expires) revert();
@@ -373,6 +391,31 @@ contract LavaWallet is Owned {
      }
 
 
+     function transferKing(address newKing) public   {
+
+         require(msg.sender == relayingKing);
+
+         relayingKing = newKing;
+
+     }
+
+     function proxyMintWithKing(uint256 nonce, bytes32 challenge_digest) returns (bool)
+     {
+
+       bytes memory nonceBytes = toBytesAddress(nonce);
+
+       address newKing = bytesToAddress(nonceBytes);
+
+       uint totalReward = ERC918Interface(mintableToken).getMiningReward();
+       require(ERC918Interface(mintableToken).mint(nonce, challenge_digest));
+       require(ERC20Interface(mintableToken).transfer(msg.sender, totalReward));
+
+       relayingKing = newKing;
+
+       return true;
+     }
+
+
 
  // ------------------------------------------------------------------------
 
@@ -398,6 +441,29 @@ contract LavaWallet is Owned {
 
      return true;
 
+ }
+
+ function toBytesAddress(uint256 x) constant returns (bytes b) {
+        b = new bytes(20);
+        assembly { mstore(add(b, 20), x) }
+    }
+
+
+ function bytesToAddress (bytes b) constant returns (address) {
+     uint result = 0;
+     for (uint i = 0; i < b.length; i++) {
+         uint c = uint(b[i]);
+         if (c >= 48 && c <= 57) {
+             result = result * 16 + (c - 48);
+         }
+         if(c >= 65 && c<= 90) {
+             result = result * 16 + (c - 55);
+         }
+         if(c >= 97 && c<= 122) {
+             result = result * 16 + (c - 87);
+         }
+     }
+     return address(result);
  }
 
 
