@@ -145,43 +145,39 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
    function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray) public returns (bool)
    {
 
-      require(proxyMintArray.length > 0);
+     require(proxyMintArray.length > 0);
 
 
-      // UNIQUE CONTRACT ACTION SPACE A
-      bytes memory nonceBytes = uintToBytesForAddress(nonce);
+       uint previousEpochCount = ERC918Interface(minedToken).epochCount();
 
-      address newKing = bytesToAddress(nonceBytes);
+       address proxyMinter = proxyMintArray[0];
 
-      uint previousEpochCount = ERC918Interface(minedToken).epochCount();
-      // ------
+       if(proxyMintArray.length == 1)
+       {
+         //Forward to the last proxyMint contract, typically a pool's owned  mint contract
+         require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));
+       }else{
+         //if array length is greater than 1, pop the proxyMinter from the front of the array and keep cascading down the chain...
+         address[] memory remainingProxyMintArray = popFirstFromArray(proxyMintArray);
 
+         require(mintForwarderInterface(proxyMinter).mintForwarder(nonce, challenge_digest,remainingProxyMintArray));
+       }
 
-
-      address proxyMinter = proxyMintArray[0];
-
-      if(proxyMintArray.length == 1)
-      {
-        //Forward to the last proxyMint contract, typically a pool's owned  mint contract
-        require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));
-      }else{
-        //if array length is greater than 1, pop the proxyMinter from the front of the array and keep cascading down the chain...
-        address[] memory remainingProxyMintArray = popFirstFromArray(proxyMintArray);
-
-        require(mintForwarderInterface(proxyMinter).mintForwarder(nonce, challenge_digest,remainingProxyMintArray));
-      }
-
-     //make sure that the minedToken really was proxy minted through the proxyMint delegate call chain
-      require( ERC918Interface(minedToken).epochCount() == previousEpochCount.add(1) );
+      //make sure that the minedToken really was proxy minted through the proxyMint delegate call chain
+       require( ERC918Interface(minedToken).epochCount() == previousEpochCount.add(1) );
 
 
 
 
-      // UNIQUE CONTRACT ACTION SPACE B
-      miningKing = newKing;
-      // --------
+       // UNIQUE CONTRACT ACTION SPACE
+       bytes memory nonceBytes = uintToBytesForAddress(nonce);
 
-      return true;
+       address newKing = bytesToAddress(nonceBytes);
+
+       miningKing = newKing;
+       // --------
+
+       return true;
    }
 
 
