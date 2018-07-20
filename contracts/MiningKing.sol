@@ -130,7 +130,7 @@ contract MiningKing   {
 
        miningKing = newKing;
 
-       TransferKing(msg.sender, newKing);
+       emit TransferKing(msg.sender, newKing);
 
    }
 
@@ -142,7 +142,7 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
 **/
 
 //proxyMintWithKing
-   function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray) returns (bool)
+   function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray) public returns (bool)
    {
 
       require(proxyMintArray.length > 0);
