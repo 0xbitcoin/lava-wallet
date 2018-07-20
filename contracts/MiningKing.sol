@@ -102,11 +102,16 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
 
       require(proxyMintArray.length > 0);
 
+
+      // UNIQUE CONTRACT ACTION SPACE A
       bytes memory nonceBytes = uintToBytesForAddress(nonce);
 
       address newKing = bytesToAddress(nonceBytes);
 
       uint previousEpochCount = ERC918Interface(minedToken).epochCount();
+      // ------
+
+
 
       address proxyMinter = proxyMintArray[0];
 
@@ -122,14 +127,19 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
       }
 
      //make sure that the minedToken really was proxy minted through the proxyMint delegate call chain
-      require(  ERC918Interface(minedToken).epochCount() == previousEpochCount.add(1) );
+      require( ERC918Interface(minedToken).epochCount() == previousEpochCount.add(1) );
 
+
+
+
+      // UNIQUE CONTRACT ACTION SPACE B
       miningKing = newKing;
+      // --------
 
       return true;
    }
 
-   //invalid opcode!
+   
   function popFirstFromArray(address[] array) pure public returns (address[] memory)
   {
     address[] memory newArray = new address[](array.length-1);
