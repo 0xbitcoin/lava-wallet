@@ -31,8 +31,8 @@ var lavaSignature;
 
 //generate with ganache-cli
 var test_account= {
-    'address': '0x1ebfe3fb57f96e7328e7658c391db517d81da06d',
-    'privateKey': '4656a9bd9bd52c8ef37cae75528a5cf8eaf6bb90fd6395cd48471dea50b7a082'
+    'address': '0xdeae5ebe29f3b5e776e83bf2c33160ad89cce0f3',
+    'privateKey': 'd870a7ce17551e28e2a7e0b17bd03fc288fc7f1254cb31b19a151e6d2417f360'
 }
 
 contract('LavaWallet', function(accounts) {
@@ -1058,10 +1058,10 @@ async function getBalance (account ,tokenContract)
                 type: 'bytes32',
                 name: 'challenge_digest'
             },{
-                type: 'address',
-                name: 'proxyMinter'
+                type: 'address[]',
+                name: 'proxyMintArray'
             }]
-        }, [nonce, digest,proxyMintContract.address]);
+        }, [nonce, digest,[forwardingContract.address,forwardingContract.address,forwardingContract.address,proxyMintContract.address]]);
 
 
 

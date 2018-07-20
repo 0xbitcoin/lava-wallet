@@ -39,7 +39,10 @@ contract ERC918Interface {
 
 }
 
-
+contract mintForwarderInterface
+{
+  function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray) public returns (bool success);
+}
 
 contract proxyMinterInterface
 {
@@ -71,7 +74,7 @@ contract MiningKing   {
       revert();
   }
 
-  function getKing() public returns (address king)
+  function getKing() view public returns (address king)
   {
     return miningKing;
   }
@@ -94,8 +97,10 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
 **/
 
 //proxyMintWithKing
-   function mintForwarder(uint256 nonce, bytes32 challenge_digest, address proxyMinter) returns (bool)
+   function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray) returns (bool)
    {
+
+      require(proxyMintArray.length > 0);
 
       bytes memory nonceBytes = uintToBytesForAddress(nonce);
 
@@ -103,8 +108,17 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
 
       uint previousEpochCount = ERC918Interface(minedToken).epochCount();
 
-      //Forward to another contract, typically a pool's owned  mint contract
-      require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));
+      address proxyMinter = proxyMintArray[0];
+
+      if(proxyMintArray.length == 1)
+      {
+        //Forward to another contract, typically a pool's owned  mint contract
+        require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));
+      }else{ //greater than 1, pop the proxyMinter from the end of the array
+        address[] memory remainingProxyMintArray = popFirstFromArray(proxyMintArray);
+
+        require(mintForwarderInterface(proxyMinter).mintForwarder(nonce, challenge_digest,remainingProxyMintArray));
+      }
 
      //make sure that the minedToken really was proxy minted through the proxyMint delegate call chain
       require(  ERC918Interface(minedToken).epochCount() == previousEpochCount.add(1) );
@@ -114,9 +128,19 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
       return true;
    }
 
+   //invalid opcode!
+  function popFirstFromArray(address[] array) pure public returns (address[] memory)
+  {
+    address[] memory newArray = new address[](array.length-1);
 
+    for (uint i=0; i< array.length-1; i++) {
+      newArray[i] =  array[i+1]  ;
+    }
 
- function uintToBytesForAddress(uint256 x) constant returns (bytes b) {
+    return newArray;
+  }
+
+ function uintToBytesForAddress(uint256 x) pure public returns (bytes b) {
 
       b = new bytes(20);
       for (uint i = 0; i < 20; i++) {
@@ -127,7 +151,7 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
     }
 
 
- function bytesToAddress (bytes b) constant returns (address) {
+ function bytesToAddress (bytes b) pure public returns (address) {
      uint result = 0;
      for (uint i = b.length-1; i+1 > 0; i--) {
        uint c = uint(b[i]);
