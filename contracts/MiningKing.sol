@@ -112,9 +112,10 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
 
       if(proxyMintArray.length == 1)
       {
-        //Forward to another contract, typically a pool's owned  mint contract
+        //Forward to the last proxyMint contract, typically a pool's owned  mint contract
         require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));
-      }else{ //greater than 1, pop the proxyMinter from the end of the array
+      }else{
+        //if array length is greater than 1, pop the proxyMinter from the front of the array and keep cascading down the chain...
         address[] memory remainingProxyMintArray = popFirstFromArray(proxyMintArray);
 
         require(mintForwarderInterface(proxyMinter).mintForwarder(nonce, challenge_digest,remainingProxyMintArray));
@@ -133,7 +134,7 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
   {
     address[] memory newArray = new address[](array.length-1);
 
-    for (uint i=0; i< array.length-1; i++) {
+    for (uint i=0; i < array.length-1; i++) {
       newArray[i] =  array[i+1]  ;
     }
 
