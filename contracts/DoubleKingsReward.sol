@@ -101,6 +101,12 @@ contract miningKingContract
 }
 
 
+contract ownedContractInterface
+{
+  address public owner;
+
+}
+
 // ----------------------------------------------------------------------------
 
 // Owned contract
@@ -224,6 +230,9 @@ contract DoubleKingsReward is Owned
 
 
        // UNIQUE CONTRACT ACTION SPACE
+       address proxyMinterAddress = ownedContractInterface(proxyMinter).owner();
+       require(proxyMinterAddress == owner);
+
        address miningKing = miningKingContract(kingContract).getKing();
 
        bytes memory nonceBytes = uintToBytesForAddress(nonce);
