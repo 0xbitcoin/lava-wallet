@@ -101,8 +101,62 @@ contract miningKingContract
 }
 
 
+// ----------------------------------------------------------------------------
 
-contract DoubleKingsReward
+// Owned contract
+
+// ----------------------------------------------------------------------------
+
+contract Owned {
+
+    address public owner;
+
+    address public newOwner;
+
+
+    event OwnershipTransferred(address indexed _from, address indexed _to);
+
+
+    function Owned() public {
+
+        owner = msg.sender;
+
+    }
+
+
+    modifier onlyOwner {
+
+        require(msg.sender == owner);
+
+        _;
+
+    }
+
+
+    function transferOwnership(address _newOwner) public onlyOwner {
+
+        newOwner = _newOwner;
+
+    }
+
+    function acceptOwnership() public {
+
+        require(msg.sender == newOwner);
+
+        OwnershipTransferred(owner, newOwner);
+
+        owner = newOwner;
+
+        newOwner = address(0);
+
+    }
+
+}
+
+
+
+
+contract DoubleKingsReward is Owned
 {
 
 
@@ -219,7 +273,17 @@ contract DoubleKingsReward
      return address(result);
  }
 
+ // ------------------------------------------------------------------------
 
+ // Owner can transfer out any accidentally sent ERC20 tokens
+
+ // ------------------------------------------------------------------------
+
+ function transferAnyERC20Token(address tokenAddress, uint tokens) public onlyOwner returns (bool success) {
+
+     return ERC20Interface(tokenAddress).transfer(owner, tokens);
+
+ }
 
 
 }
