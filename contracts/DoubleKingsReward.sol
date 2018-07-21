@@ -113,7 +113,7 @@ contract DoubleKingsReward
 
    address public minedToken;
 
- 
+
 
    // 0xBTC is 0xb6ed7644c69416d67b522e20bc294a9a9b405b31;
   constructor(address mintableToken, address miningKingContract) public  {
@@ -122,10 +122,17 @@ contract DoubleKingsReward
   }
 
 
+  function getBalance() view public returns (uint)
+  {
+    return ERC20Interface(minedToken).balanceOf(this);
+  }
+
   //do not allow ether to enter
   function() public payable {
       revert();
   }
+
+
 
 
 

@@ -1051,10 +1051,9 @@ async function getBalance (account ,tokenContract)
 
 
    var cascadeArray = [
-     forwardingContract.address,
-     forwardingContract.address,
-     forwardingContract.address,
+
      doubleKingsRewardContract.address,
+     forwardingContract.address,
      proxyMintContract.address
    ];
 
