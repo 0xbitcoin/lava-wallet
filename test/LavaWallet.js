@@ -1054,7 +1054,7 @@ async function getBalance (account ,tokenContract)
      forwardingContract.address,
      forwardingContract.address,
      forwardingContract.address,
-     doubleKingsRewardContract.addess,
+     doubleKingsRewardContract.address,
      proxyMintContract.address
    ];
 
