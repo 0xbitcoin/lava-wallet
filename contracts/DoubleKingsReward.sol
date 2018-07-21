@@ -170,9 +170,9 @@ contract DoubleKingsReward is Owned
 
 
    // 0xBTC is 0xb6ed7644c69416d67b522e20bc294a9a9b405b31;
-  constructor(address mintableToken, address miningKingContract) public  {
-    minedToken = mintableToken;
-    kingContract = miningKingContract;
+  constructor(address mToken, address mkContract) public  {
+    minedToken = mToken;
+    kingContract = mkContract;
   }
 
 
