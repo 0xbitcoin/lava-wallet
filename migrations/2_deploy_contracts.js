@@ -10,6 +10,8 @@ var MintHelper = artifacts.require("./MintHelper.sol");
 
 var LavaWallet = artifacts.require("./LavaWallet.sol");
 
+var DoubleKingsReward = artifacts.require("./DoubleKingsReward.sol")
+
 module.exports = function(deployer) {
 
   deployer.deploy(ECRecovery);
@@ -23,10 +25,17 @@ module.exports = function(deployer) {
     return deployer.deploy(MintHelper, _0xBitcoinToken.address, 0, 0 ).then(function(){
         return deployer.deploy(MiningKing, _0xBitcoinToken.address).then(function(){
             console.log('deploy 2 ',  MiningKing.address)
-          return deployer.deploy(LavaWallet, MiningKing.address).then(function(){
-              console.log('deploy 3 ',  LavaWallet.address)
-               return LavaWallet.deployed()
-        });
+
+            return deployer.deploy(DoubleKingsReward, _0xBitcoinToken.address,  MiningKing.address).then(function(){
+
+              return deployer.deploy(LavaWallet, MiningKing.address).then(function(){
+                  console.log('deploy 3 ',  LavaWallet.address)
+                   return LavaWallet.deployed()
+            });
+
+          });
+
+
       });
     });
 

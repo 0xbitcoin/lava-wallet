@@ -1,5 +1,5 @@
 {
-  "contractName": "Owned",
+  "contractName": "ownedContractInterface",
   "abi": [
     {
       "constant": true,
@@ -14,72 +14,12 @@
       "payable": false,
       "stateMutability": "view",
       "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "newOwner",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "_from",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "name": "_to",
-          "type": "address"
-        }
-      ],
-      "name": "OwnershipTransferred",
-      "type": "event"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "transferOwnership",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [],
-      "name": "acceptOwnership",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
     }
   ],
-  "bytecode": "0x608060405234801561001057600080fd5b50336000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550610424806100606000396000f300608060405260043610610062576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806379ba5097146100675780638da5cb5b1461007e578063d4ee1d90146100d5578063f2fde38b1461012c575b600080fd5b34801561007357600080fd5b5061007c61016f565b005b34801561008a57600080fd5b5061009361030e565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b3480156100e157600080fd5b506100ea610333565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34801561013857600080fd5b5061016d600480360381019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610359565b005b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156101cb57600080fd5b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e060405160405180910390a3600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff166000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506000600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156103b457600080fd5b80600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550505600a165627a7a723058206705067aa570365385ed0648e2b8f97b3c1ef394ce32529ec3951fd69112f91b0029",
-  "deployedBytecode": "0x608060405260043610610062576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff16806379ba5097146100675780638da5cb5b1461007e578063d4ee1d90146100d5578063f2fde38b1461012c575b600080fd5b34801561007357600080fd5b5061007c61016f565b005b34801561008a57600080fd5b5061009361030e565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b3480156100e157600080fd5b506100ea610333565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b34801561013857600080fd5b5061016d600480360381019080803573ffffffffffffffffffffffffffffffffffffffff169060200190929190505050610359565b005b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156101cb57600080fd5b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff166000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e060405160405180910390a3600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff166000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055506000600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1681565b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff163373ffffffffffffffffffffffffffffffffffffffff161415156103b457600080fd5b80600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff160217905550505600a165627a7a723058206705067aa570365385ed0648e2b8f97b3c1ef394ce32529ec3951fd69112f91b0029",
-  "sourceMap": "3244:613:0:-;;;3402:61;8:9:-1;5:2;;;30:1;27;20:12;5:2;3402:61:0;3445:10;3437:5;;:18;;;;;;;;;;;;;;;;;;3244:613;;;;;;",
-  "deployedSourceMap": "3244:613:0:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;3663:191;;8:9:-1;5:2;;;30:1;27;20:12;5:2;3663:191:0;;;;;;3266:20;;8:9:-1;5:2;;;30:1;27;20:12;5:2;3266:20:0;;;;;;;;;;;;;;;;;;;;;;;;;;;3293:23;;8:9:-1;5:2;;;30:1;27;20:12;5:2;3293:23:0;;;;;;;;;;;;;;;;;;;;;;;;;;;3555:102;;8:9:-1;5:2;;;30:1;27;20:12;5:2;3555:102:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;3663:191;3730:8;;;;;;;;;;;3716:22;;:10;:22;;;3708:31;;;;;;;;3778:8;;;;;;;;;;;3750:37;;3771:5;;;;;;;;;;;3750:37;;;;;;;;;;;;3806:8;;;;;;;;;;;3798:5;;:16;;;;;;;;;;;;;;;;;;3844:1;3825:8;;:21;;;;;;;;;;;;;;;;;;3663:191::o;3266:20::-;;;;;;;;;;;;;:::o;3293:23::-;;;;;;;;;;;;;:::o;3555:102::-;3522:5;;;;;;;;;;;3508:19;;:10;:19;;;3500:28;;;;;;;;3640:9;3629:8;;:20;;;;;;;;;;;;;;;;;;3555:102;:::o",
+  "bytecode": "0x608060405234801561001057600080fd5b5060e98061001f6000396000f300608060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680638da5cb5b146044575b600080fd5b348015604f57600080fd5b5060566098565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a72305820e49f047e957c552adbdc7a4167f7aeffb8fa0dd08acb63978a645a65951921810029",
+  "deployedBytecode": "0x608060405260043610603f576000357c0100000000000000000000000000000000000000000000000000000000900463ffffffff1680638da5cb5b146044575b600080fd5b348015604f57600080fd5b5060566098565b604051808273ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff16815260200191505060405180910390f35b6000809054906101000a900473ffffffffffffffffffffffffffffffffffffffff16815600a165627a7a72305820e49f047e957c552adbdc7a4167f7aeffb8fa0dd08acb63978a645a65951921810029",
+  "sourceMap": "3001:60:0:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;3001:60:0;;;;;;;",
+  "deployedSourceMap": "3001:60:0:-;;;;;;;;;;;;;;;;;;;;;;;;3037:20;;8:9:-1;5:2;;;30:1;27;20:12;5:2;3037:20:0;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::o",
   "source": "pragma solidity ^0.4.18;\n\n\n\n/**\n * @title SafeMath\n * @dev Math operations with safety checks that throw on error\n */\nlibrary SafeMath {\n\n  /**\n  * @dev Multiplies two numbers, throws on overflow.\n  */\n  function mul(uint256 a, uint256 b) internal pure returns (uint256) {\n    if (a == 0) {\n      return 0;\n    }\n    uint256 c = a * b;\n    assert(c / a == b);\n    return c;\n  }\n\n  /**\n  * @dev Integer division of two numbers, truncating the quotient.\n  */\n  function div(uint256 a, uint256 b) internal pure returns (uint256) {\n    // assert(b > 0); // Solidity automatically throws when dividing by 0\n    uint256 c = a / b;\n    // assert(a == b * c + a % b); // There is no case in which this doesn't hold\n    return c;\n  }\n\n  /**\n  * @dev Substracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).\n  */\n  function sub(uint256 a, uint256 b) internal pure returns (uint256) {\n    assert(b <= a);\n    return a - b;\n  }\n\n  /**\n  * @dev Adds two numbers, throws on overflow.\n  */\n  function add(uint256 a, uint256 b) internal pure returns (uint256) {\n    uint256 c = a + b;\n    assert(c >= a);\n    return c;\n  }\n}\n\n\n/*\n\nWhen executed after the Kings contract, the entire token balance inside the contract will be transferred to the minter if they becomes the king which they are already the king.\n\n\n*/\n\n\ncontract ERC20Interface {\n    function totalSupply() public constant returns (uint);\n    function balanceOf(address tokenOwner) public constant returns (uint balance);\n    function allowance(address tokenOwner, address spender) public constant returns (uint remaining);\n    function transfer(address to, uint tokens) public returns (bool success);\n    function approve(address spender, uint tokens) public returns (bool success);\n    function transferFrom(address from, address to, uint tokens) public returns (bool success);\n\n    event Transfer(address indexed from, address indexed to, uint tokens);\n    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);\n}\n\ncontract ERC918Interface {\n\n  function epochCount() public constant returns (uint);\n\n  function totalSupply() public constant returns (uint);\n  function getMiningDifficulty() public constant returns (uint);\n  function getMiningTarget() public constant returns (uint);\n  function getMiningReward() public constant returns (uint);\n  function balanceOf(address tokenOwner) public constant returns (uint balance);\n\n  function mint(uint256 nonce, bytes32 challenge_digest) public returns (bool success);\n\n  event Mint(address indexed from, uint reward_amount, uint epochCount, bytes32 newChallengeNumber);\n\n}\n\ncontract mintForwarderInterface\n{\n  function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray) public returns (bool success);\n}\n\ncontract proxyMinterInterface\n{\n  function proxyMint(uint256 nonce, bytes32 challenge_digest) public returns (bool success);\n}\n\ncontract miningKingContract\n{\n  function getKing() public returns (address king);\n}\n\n\ncontract ownedContractInterface\n{\n  address public owner;\n\n}\n\n// ----------------------------------------------------------------------------\n\n// Owned contract\n\n// ----------------------------------------------------------------------------\n\ncontract Owned {\n\n    address public owner;\n\n    address public newOwner;\n\n\n    event OwnershipTransferred(address indexed _from, address indexed _to);\n\n\n    function Owned() public {\n\n        owner = msg.sender;\n\n    }\n\n\n    modifier onlyOwner {\n\n        require(msg.sender == owner);\n\n        _;\n\n    }\n\n\n    function transferOwnership(address _newOwner) public onlyOwner {\n\n        newOwner = _newOwner;\n\n    }\n\n    function acceptOwnership() public {\n\n        require(msg.sender == newOwner);\n\n        OwnershipTransferred(owner, newOwner);\n\n        owner = newOwner;\n\n        newOwner = address(0);\n\n    }\n\n}\n\n\n\n\ncontract DoubleKingsReward is Owned\n{\n\n\n  using SafeMath for uint;\n\n\n   address public kingContract;\n\n   address public minedToken;\n\n\n\n   // 0xBTC is 0xb6ed7644c69416d67b522e20bc294a9a9b405b31;\n  constructor(address mToken, address mkContract) public  {\n    minedToken = mToken;\n    kingContract = mkContract;\n  }\n\n\n  function getBalance() view public returns (uint)\n  {\n    return ERC20Interface(minedToken).balanceOf(this);\n  }\n\n  //do not allow ether to enter\n  function() public payable {\n      revert();\n  }\n\n\n\n\n\n\n/**\n Pay out the token balance if the king becomes the king twice in a row\n**/\n\n//proxyMintWithKing\n   function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray) public returns (bool)\n   {\n\n       require(proxyMintArray.length > 0);\n\n\n       uint previousEpochCount = ERC918Interface(minedToken).epochCount();\n\n       address proxyMinter = proxyMintArray[0];\n\n       if(proxyMintArray.length == 1)\n       {\n         //Forward to the last proxyMint contract, typically a pool's owned  mint contract\n         require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));\n       }else{\n         //if array length is greater than 1, pop the proxyMinter from the front of the array and keep cascading down the chain...\n         address[] memory remainingProxyMintArray = popFirstFromArray(proxyMintArray);\n\n         require(mintForwarderInterface(proxyMinter).mintForwarder(nonce, challenge_digest,remainingProxyMintArray));\n       }\n\n      //make sure that the minedToken really was proxy minted through the proxyMint delegate call chain\n       require( ERC918Interface(minedToken).epochCount() == previousEpochCount.add(1) );\n\n\n\n\n       // UNIQUE CONTRACT ACTION SPACE\n       address proxyMinterAddress = ownedContractInterface(proxyMinter).owner();\n       require(proxyMinterAddress == owner);\n\n       address miningKing = miningKingContract(kingContract).getKing();\n\n       bytes memory nonceBytes = uintToBytesForAddress(nonce);\n\n       address newKing = bytesToAddress(nonceBytes);\n\n       if(miningKing == newKing)\n       {\n         uint balance = ERC20Interface(minedToken).balanceOf(this);\n         require(ERC20Interface(minedToken).transfer(newKing,balance));\n       }\n       // --------\n\n       return true;\n   }\n\n\n  function popFirstFromArray(address[] array) pure public returns (address[] memory)\n  {\n    address[] memory newArray = new address[](array.length-1);\n\n    for (uint i=0; i < array.length-1; i++) {\n      newArray[i] =  array[i+1]  ;\n    }\n\n    return newArray;\n  }\n\n function uintToBytesForAddress(uint256 x) pure public returns (bytes b) {\n\n      b = new bytes(20);\n      for (uint i = 0; i < 20; i++) {\n          b[i] = byte(uint8(x / (2**(8*(31 - i)))));\n      }\n\n      return b;\n    }\n\n\n function bytesToAddress (bytes b) pure public returns (address) {\n     uint result = 0;\n     for (uint i = b.length-1; i+1 > 0; i--) {\n       uint c = uint(b[i]);\n       uint to_inc = c * ( 16 ** ((b.length - i-1) * 2));\n       result += to_inc;\n     }\n     return address(result);\n }\n\n // ------------------------------------------------------------------------\n\n // Owner can transfer out any accidentally sent ERC20 tokens\n\n // ------------------------------------------------------------------------\n\n function transferAnyERC20Token(address tokenAddress, uint tokens) public onlyOwner returns (bool success) {\n\n     return ERC20Interface(tokenAddress).transfer(owner, tokens);\n\n }\n\n\n}\n",
   "sourcePath": "/home/andy/dev/lava-wallet/contracts/DoubleKingsReward.sol",
   "ast": {
@@ -18102,5 +18042,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-07-31T12:27:11.824Z"
+  "updatedAt": "2018-07-31T12:27:11.747Z"
 }

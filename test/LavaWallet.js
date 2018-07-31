@@ -8,6 +8,8 @@ var wEthToken = artifacts.require("./WETH9.sol");
 
 var MiningKing = artifacts.require("./MiningKing.sol");
 
+var DoubleKingsReward = artifacts.require("./DoubleKingsReward.sol")
+
 var MintHelper = artifacts.require("./MintHelper.sol");
 
 var LavaWallet = artifacts.require("./LavaWallet.sol");
@@ -31,8 +33,8 @@ var lavaSignature;
 
 //generate with ganache-cli
 var test_account= {
-    'address': '0xdeae5ebe29f3b5e776e83bf2c33160ad89cce0f3',
-    'privateKey': 'd870a7ce17551e28e2a7e0b17bd03fc288fc7f1254cb31b19a151e6d2417f360'
+    'address': '0xea1bc7d721ec2710cc45a1d7af8485a2ec412a83',
+    'privateKey': '1b8b805412db21445325a20c7468bc043fa6f43a8274c2791d1eb8a52065b35b'
 }
 
 contract('LavaWallet', function(accounts) {
@@ -41,6 +43,7 @@ contract('LavaWallet', function(accounts) {
   var tokenContract;
   var kingContract;
   var mintHelperContract;
+  var doubleKingsRewardContract;
 
     it("can deploy ", async function () {
 
@@ -48,6 +51,7 @@ contract('LavaWallet', function(accounts) {
 
          mintHelperContract = await MintHelper.deployed( );
          kingContract = await MiningKing.deployed( );
+         doubleKingsRewardContract = await DoubleKingsReward.deployed();
 
          walletContract = await LavaWallet.deployed();
 
@@ -258,7 +262,7 @@ contract('LavaWallet', function(accounts) {
 
  //  await submitMintingSolution(tokenContract, solution_number,phraseDigest,test_account);
 
-   await submitMintingSolutionToForwarder(kingContract, mintHelperContract, solution_number,phraseDigest,test_account);
+   await submitMintingSolutionToForwarder(kingContract, doubleKingsRewardContract, mintHelperContract, solution_number,phraseDigest,test_account);
   //await submitMintingSolutionToProxy( mintHelperContract, solution_number,phraseDigest,test_account);
 
 
@@ -1026,7 +1030,7 @@ async function getBalance (account ,tokenContract)
 
 
 
- async function submitMintingSolutionToForwarder(forwardingContract, proxyMintContract,  nonce,digest, account)
+ async function submitMintingSolutionToForwarder(forwardingContract, doubleKingsRewardContract, proxyMintContract,  nonce,digest, account)
  {
 
 //   console.log('tokenContract',tokenContract);
@@ -1046,6 +1050,10 @@ async function getBalance (account ,tokenContract)
    }
 
 
+   var cascadeArray = [
+     doubleKingsRewardContract.address,
+     proxyMintContract.address
+   ];
 
 
     var txData =  web3.eth.abi.encodeFunctionCall({
@@ -1061,7 +1069,7 @@ async function getBalance (account ,tokenContract)
                 type: 'address[]',
                 name: 'proxyMintArray'
             }]
-        }, [nonce, digest,[forwardingContract.address,forwardingContract.address,forwardingContract.address,proxyMintContract.address]]);
+        }, [nonce, digest,cascadeArray]);
 
 
 

@@ -101,6 +101,15 @@ contract proxyMinterInterface
 contract MintingProxy
 {
 
+  using SafeMath for uint;
+  
+  address public minedToken;
+
+  constructor(address mintableToken) public  {
+    minedToken = mintableToken;
+  }
+
+
 
   //do not allow ether to enter
   function() public payable {
@@ -122,7 +131,7 @@ contract MintingProxy
         require(proxyMintArray.length > 0);
 
 
-
+        uint previousEpochCount = ERC918Interface(minedToken).epochCount();
 
 
         address proxyMinter = proxyMintArray[0];
@@ -142,13 +151,13 @@ contract MintingProxy
         require( ERC918Interface(minedToken).epochCount() == previousEpochCount.add(1) );
 
 
-        require(_performAction( nonce, challenge_digest ))
+        require(_performAction( nonce, challenge_digest ));
 
 
         return true;
      }
 
-     function _performAction internal returns (bool)
+     function _performAction(uint256 nonce, bytes32 challenge_digest) internal returns (bool)
     {
 
 
@@ -202,12 +211,12 @@ contract MintingProxy
 contract MiningKing is MintingProxy  {
 
 
-  using SafeMath for uint;
+
 
 
    address public miningKing;
 
-   address public minedToken;
+
 
 
    event TransferKing(address from, address to);
@@ -236,13 +245,13 @@ contract MiningKing is MintingProxy  {
    }
 
 
-   function _performAction internal returns (bool)
+   function _performAction(uint256 nonce, bytes32 challenge_digest) internal returns (bool)
   {
+
+
     bytes memory nonceBytes = uintToBytesForAddress(nonce);
 
     address newKing = bytesToAddress(nonceBytes);
-
-    uint previousEpochCount = ERC918Interface(minedToken).epochCount();
 
     miningKing = newKing;
 
