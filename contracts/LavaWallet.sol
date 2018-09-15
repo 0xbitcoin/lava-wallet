@@ -218,14 +218,27 @@ contract LavaWallet {
        return true;
    }
 
-   function approveTokensWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,
+   function approveTokensFromAnyWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,
                                      uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
    {
 
 
-       bytes32 sigHash = getLavaTypedDataHash('approve',from,to,token,tokens,relayerReward,expires,nonce);
+       bytes32 sigHash = getLavaTypedDataHash('openApprove',from,to,token,tokens,relayerReward,expires,nonce);
 
-       if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
+       if(!tokenApprovalWithSignature(false,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
+
+
+       return true;
+   }
+
+   function approveTokensFromKingWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,
+                                     uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
+   {
+
+
+       bytes32 sigHash = getLavaTypedDataHash('kingApprove',from,to,token,tokens,relayerReward,expires,nonce);
+
+       if(!tokenApprovalWithSignature(true,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
 
        return true;
@@ -269,6 +282,45 @@ contract LavaWallet {
       return true;
 
   }
+
+  //the tokens remain in lava wallet
+ function withdrawTokensFromAnyWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
+                                   uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
+ {
+
+
+     //check to make sure that signature == ecrecover signature
+
+     bytes32 sigHash = getLavaTypedDataHash('openWithdraw',from,to,token,tokens,relayerReward,expires,nonce);
+
+     if(!tokenApprovalWithSignature(false,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
+
+     //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
+     if(!withdrawTokensFrom( from, to, token, tokens)) revert();
+
+
+     return true;
+
+ }
+
+  //The tokens are withdrawn from the lava wallet and transferred into the To account
+ function withdrawTokensFromKingWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
+                                   uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
+ {
+
+     //check to make sure that signature == ecrecover signature
+
+     bytes32 sigHash = getLavaTypedDataHash('kingWithdraw',from,to,token,tokens,relayerReward,expires,nonce);
+
+     if(!tokenApprovalWithSignature(true,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
+
+     //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
+     if(!withdrawTokensFrom( from, to, token, tokens)) revert();
+
+
+     return true;
+
+ }
 
 
 
@@ -330,19 +382,18 @@ contract LavaWallet {
       One issue: the data is not being signed and so it could be manipulated
       */
      function approveAndCall(bytes methodname, address from, address to, address token, uint256 tokens, uint256 relayerReward,
-                                       uint256 expires, uint256 nonce, bytes signature ) public returns (bool success) {
+                                       uint256 expires, uint256 nonce, bytes signature ) public   {
 
 
 
-            bytes32 sigHash = getLavaTypedDataHash(methodname,from,to,token,tokens,relayerReward,expires,nonce);
+          bytes32 sigHash = getLavaTypedDataHash(methodname,from,to,token,tokens,relayerReward,expires,nonce);
 
+          bool requiresKing = getRequiresKing(methodname);
 
-
-          if(!tokenApprovalWithSignature(from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
+          if(!tokenApprovalWithSignature(requiresKing,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
           ApproveAndCallFallBack(to).receiveApproval(from, tokens, token, methodname);
 
-         return true;
 
      }
 
@@ -351,6 +402,23 @@ contract LavaWallet {
        return MiningKingInterface(relayKingContract).getMiningKing();
      }
 
+
+
+     function getRequiresKing(bytes methodname) pure internal returns (bool)
+    {
+      return (bytesEqual(methodname,'kingTransfer') || bytesEqual(methodname,'kingWithdraw') || bytesEqual(methodname,'kingApprove'));
+    }
+
+    function bytesEqual(bytes b1,bytes b2) pure internal returns (bool)
+    {
+      if(b1.length != b2.length) return false;
+
+      for (uint i=0; i<b1.length; i++) {
+        if(b1[i] != b2[i]) return false;
+      }
+
+      return true;
+    }
 
 
 
