@@ -5,6 +5,13 @@
 
 
 
+The Lava Wallet app uses EIP 721:
+https://github.com/ethereum/EIPs/blob/master/assets/eip-712/Example.js
+
+
+
+
+
 ### Usecases
 
 1. Pool sends tokens here.  Pays people using offchain codes which the miners redeem, miners pay the gas (ETH)
@@ -40,6 +47,13 @@ TO VERIFY:
 4. Used the new Beta validator with the FULL flat file, point at the ecrecovery lib by address as well
 
 
+### Published on MainNet
+ECRecover
+0xf532bd0ef20914ea1f78763f0e22495b326ee3a2
+
+LavaWallet
+0xe4af56a674df3da83b22a04eeeaf983d40a9e1ab
+
 
 ### Published on Ropsten (old)
 ECRecover
@@ -50,12 +64,6 @@ LavaWallet
 
 
 
-### Published on MainNet
-ECRecover
-0x1bf797219482a29013d804ad96d1c6f84fba4c45
-
-LavaWallet
-0xf226b12c03514571c5a473b2627f5528da46d263
 
 ### Published on MainNet (legacy)
 ECRecover
