@@ -112,7 +112,6 @@ contract LavaWallet {
   //No approve needed, only from msg.sender
   function withdrawTokens(address token, uint256 tokens) public returns (bool success){
     balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
-    //depositedTokens[token] = depositedTokens[token].sub(tokens);
 
     if(!ERC20Interface(token).transfer(msg.sender, tokens)) revert();
 
@@ -124,8 +123,7 @@ contract LavaWallet {
   //Requires approval so it can be public
   function withdrawTokensFrom( address from, address to,address token,  uint tokens) public returns (bool success) {
       balances[token][from] = balances[token][from].sub(tokens);
-    //  depositedTokens[token] = depositedTokens[token].sub(tokens);
-      allowed[token][from][to] = allowed[token][from][to].sub(tokens);
+       allowed[token][from][to] = allowed[token][from][to].sub(tokens);
 
       if(!ERC20Interface(token).transfer(to, tokens)) revert();
 
@@ -138,6 +136,15 @@ contract LavaWallet {
   function balanceOf(address token,address user) public constant returns (uint) {
        return balances[token][user];
    }
+
+
+
+   function allowance(address token, address tokenOwner, address spender) public constant returns (uint remaining) {
+
+       return allowed[token][tokenOwner][spender];
+
+   }
+
 
 
 
@@ -223,7 +230,7 @@ contract LavaWallet {
    {
 
 
-       bytes32 sigHash = getLavaTypedDataHash('openApprove',from,to,token,tokens,relayerReward,expires,nonce);
+       bytes32 sigHash = getLavaTypedDataHash('anyApprove',from,to,token,tokens,relayerReward,expires,nonce);
 
        if(!tokenApprovalWithSignature(false,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
@@ -252,7 +259,7 @@ contract LavaWallet {
 
       //check to make sure that signature == ecrecover signature
 
-      bytes32 sigHash = getLavaTypedDataHash('openTransfer',from,to,token,tokens,relayerReward,expires,nonce);
+      bytes32 sigHash = getLavaTypedDataHash('anyTransfer',from,to,token,tokens,relayerReward,expires,nonce);
 
       if(!tokenApprovalWithSignature(false,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
@@ -291,7 +298,7 @@ contract LavaWallet {
 
      //check to make sure that signature == ecrecover signature
 
-     bytes32 sigHash = getLavaTypedDataHash('openWithdraw',from,to,token,tokens,relayerReward,expires,nonce);
+     bytes32 sigHash = getLavaTypedDataHash('anyWithdraw',from,to,token,tokens,relayerReward,expires,nonce);
 
      if(!tokenApprovalWithSignature(false,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
@@ -323,13 +330,6 @@ contract LavaWallet {
  }
 
 
-
-
-    function tokenAllowance(address token, address tokenOwner, address spender) public constant returns (uint remaining) {
-
-        return allowed[token][tokenOwner][spender];
-
-    }
 
 
 
