@@ -132,6 +132,7 @@ contract LavaWallet is ECRecovery{
 
 
   struct LavaPacket {
+    bytes methodname;
     address from;
     address to;
     address wallet;  //this contract address
@@ -147,7 +148,7 @@ contract LavaWallet is ECRecovery{
   );
 
   bytes32 constant LAVAPACKET_TYPEHASH = keccak256(
-      "LavaPacket(address from,address to,address wallet,address token,uint256 tokens,uint256 relayerReward,uint256 expires,uint256 nonce)"
+      "LavaPacket(string methodname,address from,address to,address wallet,address token,uint256 tokens,uint256 relayerReward,uint256 expires,uint256 nonce)"
   );
 
 
@@ -162,14 +163,15 @@ contract LavaWallet is ECRecovery{
     function hash(LavaPacket packet) internal pure returns (bytes32) {
         return keccak256(abi.encode(
             LAVAPACKET_TYPEHASH,
-            person.from,
-            person.to,
-            person.wallet,
-            person.token,
-            person.tokens,
-            person.relayerReward,
-            person.expires,
-            person.nonce
+            keccak256(bytes(packet.methodname)),
+            packet.from,
+            packet.to,
+            packet.wallet,
+            packet.token,
+            packet.tokens,
+            packet.relayerReward,
+            packet.expires,
+            packet.nonce
         ));
     }
 
@@ -183,7 +185,7 @@ contract LavaWallet is ECRecovery{
     DOMAIN_SEPARATOR = hash(EIP712Domain({
            name: "Lava Wallet",
            //contract: this,
-           contract: 0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC //comment this out
+           verifyingContract: 0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC //comment this out
        }));
   }
 
@@ -283,7 +285,10 @@ contract LavaWallet is ECRecovery{
 
    //This replaces getLavaTypedDataHash .. how to handle Methodname?
 
-   function verifyPacketSignature(bytes methodname, LavaPacket packet, uint8 v, bytes32 r, bytes32 s) internal constant returns (bytes32) {
+   function getLavaTypedDataHash(bytes methodname, LavaPacket packet) internal constant returns (bytes32) {
+
+          packet.methodname = methodname;
+
           // Note: we need to use `encodePacked` here instead of `encode`.
           bytes32 digest = keccak256(abi.encodePacked(
               "\x19\x01",
@@ -297,7 +302,7 @@ contract LavaWallet is ECRecovery{
 
    //Nonce is the same thing as a 'check number'
    //EIP 712
-   function getLavaTypedDataHash(bytes methodname, LavaPacket packet ) public constant returns (bytes32)
+/*   function getLavaTypedDataHash(bytes methodname, LavaPacket packet ) public constant returns (bytes32)
    {
 
 
@@ -310,7 +315,7 @@ contract LavaWallet is ECRecovery{
           );
 
         return typedDataHash;
-   }
+   }*/
 
 
 
