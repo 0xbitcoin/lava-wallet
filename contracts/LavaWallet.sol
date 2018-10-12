@@ -1,8 +1,51 @@
 pragma solidity ^0.4.18;
 
-import "./ECRecovery.sol";
+pragma experimental ABIEncoderV2;
 
 import "./SafeMath.sol";
+
+
+
+
+contract ECRecovery {
+
+  /**
+   * @dev Recover signer address from a message by using their signature
+   * @param hash bytes32 message, the hash is the signed message. What is recovered is the signer address.
+   * @param sig bytes signature, the signature is generated using web3.eth.sign()
+   */
+  function recover(bytes32 hash, bytes sig) internal  pure returns (address) {
+    bytes32 r;
+    bytes32 s;
+    uint8 v;
+
+    //Check the signature length
+    if (sig.length != 65) {
+      return (address(0));
+    }
+
+    // Divide the signature in r, s and v variables
+    assembly {
+      r := mload(add(sig, 32))
+      s := mload(add(sig, 64))
+      v := byte(0, mload(add(sig, 96)))
+    }
+
+    // Version of signature should be 27 or 28, but 0 and 1 are also possible versions
+    if (v < 27) {
+      v += 27;
+    }
+
+    // If the version is correct return the signer address
+    if (v != 27 && v != 28) {
+      return (address(0));
+    } else {
+      return ecrecover(hash, v, r, s);
+    }
+  }
+
+}
+
 
 
 /*
@@ -59,8 +102,7 @@ contract ApproveAndCallFallBack {
 
 
 
-contract LavaWallet {
-
+contract LavaWallet is ECRecovery{
 
   using SafeMath for uint;
 
@@ -80,6 +122,21 @@ contract LavaWallet {
   event Withdraw(address token, address user, uint amount, uint balance);
   event Transfer(address indexed from, address indexed to,address token, uint tokens);
   event Approval(address indexed tokenOwner, address indexed spender,address token, uint tokens);
+
+
+  struct LavaPacket {
+    address from;
+    address to;
+    address token;
+    uint256 tokens;
+    uint256 relayerReward;
+    uint256 expires;
+    uint256 nonce;
+    //bytes signature;
+  }
+
+
+
 
   function LavaWallet(address relayKingContractAddress ) public  {
     relayKingContract = relayKingContractAddress;
@@ -177,94 +234,89 @@ contract LavaWallet {
 
    //Nonce is the same thing as a 'check number'
    //EIP 712
-   function getLavaTypedDataHash(bytes methodname, address from, address to, address token, uint256 tokens, uint256 relayerReward,
-                                     uint256 expires, uint256 nonce) public constant returns (bytes32)
+   function getLavaTypedDataHash(bytes methodname, LavaPacket packet ) public constant returns (bytes32)
    {
+
+
          bytes32 hardcodedSchemaHash = 0x8fd4f9177556bbc74d0710c8bdda543afd18cc84d92d64b5620d5f1881dceb37; //with methodname
 
 
         bytes32 typedDataHash = sha3(
             hardcodedSchemaHash,
-            sha3(methodname,from,to,this,token,tokens,relayerReward,expires,nonce)
+            sha3(methodname,packet.from,packet.to,this,packet.token,packet.tokens,packet.relayerReward,packet.expires,packet.nonce)
           );
 
         return typedDataHash;
    }
 
 
-   function tokenApprovalWithSignature(bool requiresKing, address from, address to, address token, uint256 tokens, uint256 relayerReward,
-                                     uint256 expires, bytes32 sigHash, bytes signature) internal returns (bool success)
+   function tokenApprovalWithSignature(bool requiresKing, LavaPacket packet, bytes32 sigHash, bytes signature) internal returns (bool success)
    {
+     //address from, address to, address token, uint256 tokens, uint256 relayerReward,   uint256 expires
 
-       address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
+       address recoveredSignatureSigner = recover(sigHash,signature);
 
        //make sure the signer is the depositor of the tokens
-       if(from != recoveredSignatureSigner) revert();
+       if(packet.from != recoveredSignatureSigner) revert();
 
        if(msg.sender != getRelayingKing() && requiresKing ) revert();  // you must be the 'king of the hill' to relay
 
        //make sure the signature has not expired
-       if(block.number > expires) revert();
+       if(block.number > packet.expires) revert();
 
        uint burnedSignature = burnedSignatures[sigHash];
        burnedSignatures[sigHash] = 0x1; //spent
        if(burnedSignature != 0x0 ) revert();
 
        //approve the relayer reward
-       allowed[token][from][msg.sender] = relayerReward;
-       Approval(from, token, msg.sender, relayerReward);
+       allowed[packet.token][packet.from][msg.sender] = packet.relayerReward;
+       Approval(packet.from, packet.token, msg.sender, packet.relayerReward);
 
        //transferRelayerReward
-       if(!transferTokensFrom(from, msg.sender, token, relayerReward)) revert();
+       if(!transferTokensFrom(packet.from, msg.sender, packet.token, packet.relayerReward)) revert();
 
        //approve transfer of tokens
-       allowed[token][from][to] = tokens;
-       Approval(from, token, to, tokens);
+       allowed[packet.token][packet.from][packet.to] = packet.tokens;
+       Approval(packet.from, packet.token, packet.to, packet.tokens);
 
 
        return true;
    }
 
-   function approveTokensFromAnyWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,
-                                     uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
+   function approveTokensFromAnyWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
    {
 
 
-       bytes32 sigHash = getLavaTypedDataHash('anyApprove',from,to,token,tokens,relayerReward,expires,nonce);
+       bytes32 sigHash = getLavaTypedDataHash('anyApprove',packet);
 
-       if(!tokenApprovalWithSignature(false,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
+       if(!tokenApprovalWithSignature(false,packet,sigHash,signature)) revert();
 
 
        return true;
    }
 
-   function approveTokensFromKingWithSignature(address from, address to, address token, uint256 tokens, uint256 relayerReward,
-                                     uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
+   function approveTokensFromKingWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
    {
 
 
-       bytes32 sigHash = getLavaTypedDataHash('kingApprove',from,to,token,tokens,relayerReward,expires,nonce);
+       bytes32 sigHash = getLavaTypedDataHash('kingApprove',packet);
 
-       if(!tokenApprovalWithSignature(true,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
-
+       if(!tokenApprovalWithSignature(true,packet,sigHash,signature)) revert();
 
        return true;
    }
 
    //the tokens remain in lava wallet
-  function transferTokensFromAnyWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
-                                    uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
+  function transferTokensFromAnyWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
   {
 
-
       //check to make sure that signature == ecrecover signature
+      bytes32 sigHash = getLavaTypedDataHash('anyTransfer',packet);
 
-      bytes32 sigHash = getLavaTypedDataHash('anyTransfer',from,to,token,tokens,relayerReward,expires,nonce);
-
-      if(!tokenApprovalWithSignature(false,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
+      if(!tokenApprovalWithSignature(false,packet,sigHash,signature)) revert();
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
-      if(!transferTokensFrom( from, to, token, tokens)) revert();
+      if(!transferTokensFrom( packet.from, packet.to, packet.token, packet.tokens)) revert();
 
 
       return true;
@@ -272,18 +324,16 @@ contract LavaWallet {
   }
 
    //The tokens are withdrawn from the lava wallet and transferred into the To account
-  function transferTokensFromKingWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
-                                    uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
+  function transferTokensFromKingWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
   {
 
       //check to make sure that signature == ecrecover signature
+      bytes32 sigHash = getLavaTypedDataHash('kingTransfer',packet);
 
-      bytes32 sigHash = getLavaTypedDataHash('kingTransfer',from,to,token,tokens,relayerReward,expires,nonce);
-
-      if(!tokenApprovalWithSignature(true,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
+      if(!tokenApprovalWithSignature(true,packet,sigHash,signature)) revert();
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
-      if(!transferTokensFrom( from, to, token, tokens)) revert();
+      if(!transferTokensFrom( packet.from, packet.to, packet.token, packet.tokens)) revert();
 
 
       return true;
@@ -291,19 +341,18 @@ contract LavaWallet {
   }
 
   //the tokens remain in lava wallet
- function withdrawTokensFromAnyWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
-                                   uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
+ function withdrawTokensFromAnyWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
  {
 
 
      //check to make sure that signature == ecrecover signature
+     bytes32 sigHash = getLavaTypedDataHash('anyWithdraw',packet);
 
-     bytes32 sigHash = getLavaTypedDataHash('anyWithdraw',from,to,token,tokens,relayerReward,expires,nonce);
+     if(!tokenApprovalWithSignature(false,packet,sigHash,signature)) revert();
 
-     if(!tokenApprovalWithSignature(false,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
      //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
-     if(!withdrawTokensFrom( from, to, token, tokens)) revert();
+     if(!withdrawTokensFrom( packet.from, packet.to, packet.token, packet.tokens)) revert();
 
 
      return true;
@@ -311,18 +360,17 @@ contract LavaWallet {
  }
 
   //The tokens are withdrawn from the lava wallet and transferred into the To account
- function withdrawTokensFromKingWithSignature(address from, address to,  address token, uint256 tokens,  uint256 relayerReward,
-                                   uint256 expires, uint256 nonce, bytes signature) public returns (bool success)
+ function withdrawTokensFromKingWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
  {
 
      //check to make sure that signature == ecrecover signature
+     bytes32 sigHash = getLavaTypedDataHash('kingWithdraw',packet);
 
-     bytes32 sigHash = getLavaTypedDataHash('kingWithdraw',from,to,token,tokens,relayerReward,expires,nonce);
+     if(!tokenApprovalWithSignature(true,packet,sigHash,signature)) revert();
 
-     if(!tokenApprovalWithSignature(true,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
      //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
-     if(!withdrawTokensFrom( from, to, token, tokens)) revert();
+     if(!withdrawTokensFrom( packet.from, packet.to, packet.token, packet.tokens)) revert();
 
 
      return true;
@@ -333,19 +381,19 @@ contract LavaWallet {
 
 
 
-     function burnSignature(bytes methodname, address from, address to, address token, uint256 tokens, uint256 relayerReward, uint256 expires, uint256 nonce,  bytes signature) public returns (bool success)
+     function burnSignature(bytes methodname, LavaPacket packet,  bytes signature) public returns (bool success)
      {
 
-        bytes32 sigHash = getLavaTypedDataHash(methodname,from,to,token,tokens,relayerReward,expires,nonce);
 
+        bytes32 sigHash = getLavaTypedDataHash(methodname,packet);
 
-         address recoveredSignatureSigner = ECRecovery.recover(sigHash,signature);
+         address recoveredSignatureSigner = recover(sigHash,signature);
 
          //make sure the invalidator is the signer
-         if(recoveredSignatureSigner != from) revert();
+         if(recoveredSignatureSigner != packet.from) revert();
 
          //only the original packet owner can burn signature, not a relay
-         if(from != msg.sender) revert();
+         if(packet.from != msg.sender) revert();
 
          //make sure this signature has never been used
          uint burnedSignature = burnedSignatures[sigHash];
@@ -379,18 +427,18 @@ contract LavaWallet {
 
       One issue: the data is not being signed and so it could be manipulated
       */
-     function approveAndCall(bytes methodname, address from, address to, address token, uint256 tokens, uint256 relayerReward,
-                                       uint256 expires, uint256 nonce, bytes signature ) public   {
+     function approveAndCall(bytes methodname, LavaPacket packet, bytes signature ) public   {
 
+      // address from, address to, address token, uint256 tokens, uint256 relayerReward,  uint256 expires, uint256 nonce
 
-
-          bytes32 sigHash = getLavaTypedDataHash(methodname,from,to,token,tokens,relayerReward,expires,nonce);
+        bytes32 sigHash = getLavaTypedDataHash(methodname,packet);
 
           bool requiresKing = getRequiresKing(methodname);
 
-          if(!tokenApprovalWithSignature(requiresKing,from,to,token,tokens,relayerReward,expires,sigHash,signature)) revert();
 
-          ApproveAndCallFallBack(to).receiveApproval(from, tokens, token, methodname);
+        if(!tokenApprovalWithSignature(true,packet,sigHash,signature)) revert();
+
+        ApproveAndCallFallBack(packet.to).receiveApproval(packet.from, packet.tokens, packet.token, methodname);
 
 
      }
