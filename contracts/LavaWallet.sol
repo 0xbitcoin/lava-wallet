@@ -427,7 +427,7 @@ contract LavaWallet is ECRecovery{
 
       One issue: the data is not being signed and so it could be manipulated
       */
-     function approveAndCall(bytes methodname, LavaPacket packet, bytes signature ) public   {
+     function approveAndCall(bytes methodname, LavaPacket packet, bytes signature ) public returns (bool success)   {
 
       // address from, address to, address token, uint256 tokens, uint256 relayerReward,  uint256 expires, uint256 nonce
 
@@ -440,7 +440,7 @@ contract LavaWallet is ECRecovery{
 
         ApproveAndCallFallBack(packet.to).receiveApproval(packet.from, packet.tokens, packet.token, methodname);
 
-
+        return true;
      }
 
      function getRelayingKing() public returns (address)
