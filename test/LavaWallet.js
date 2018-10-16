@@ -33,8 +33,8 @@ var lavaSignature;
 
 //generate with ganache-cli
 var test_account= {
-    'address': '0xe42a6e5d579cffcbbcdf92ccd61df440c4e9c575',
-    'privateKey': 'c65a3940672b5301f2589e4965b2adda5c002fb8a265b3d72bfbf2b9b678add2'
+    'address': '0x087964cd8b33ea47c01fbe48b70113ce93481e01',
+    'privateKey': 'dca672104f895219692175d87b04483d31f53af8caad1d7348d269b35e21c3df'
 }
 
 contract('LavaWallet', function(accounts) {

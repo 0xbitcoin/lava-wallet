@@ -229,7 +229,7 @@ contract LavaWallet is ECRecovery{
 
     DOMAIN_SEPARATOR = hash(EIP712Domain({
            name: "Lava Wallet",
-           verifyingContract: this,
+           verifyingContract: this
           // verifyingContract: 0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC //comment this out
        }));
   }
@@ -252,7 +252,7 @@ contract LavaWallet is ECRecovery{
       balances[token][from] = balances[token][from].add(tokens);
   //    depositedTokens[token] = depositedTokens[token].add(tokens);
 
-      Deposit(token, from, tokens, balances[token][from]);
+      emit Deposit(token, from, tokens, balances[token][from]);
 
       return true;
   }
@@ -265,7 +265,7 @@ contract LavaWallet is ECRecovery{
     if(!ERC20Interface(token).transfer(msg.sender, tokens)) revert();
 
 
-     Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);
+     emit Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);
      return true;
   }
 
@@ -277,7 +277,7 @@ contract LavaWallet is ECRecovery{
       if(!ERC20Interface(token).transfer(to, tokens)) revert();
 
 
-      Withdraw(token, from, tokens, balances[token][from]);
+      emit Withdraw(token, from, tokens, balances[token][from]);
       return true;
   }
 
@@ -309,7 +309,7 @@ contract LavaWallet is ECRecovery{
    function transferTokens(address to, address token, uint tokens) public returns (bool success) {
         balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
         balances[token][to] = balances[token][to].add(tokens);
-        Transfer(msg.sender, token, to, tokens);
+        emit Transfer(msg.sender, token, to, tokens);
         return true;
     }
 
@@ -320,7 +320,7 @@ contract LavaWallet is ECRecovery{
        balances[token][from] = balances[token][from].sub(tokens);
        allowed[token][from][to] = allowed[token][from][to].sub(tokens);
        balances[token][to] = balances[token][to].add(tokens);
-       Transfer(token, from, to, tokens);
+       emit Transfer(token, from, to, tokens);
        return true;
    }
 

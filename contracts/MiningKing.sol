@@ -95,128 +95,15 @@ contract proxyMinterInterface
 }
 
 
+contract MiningKing   {
 
-
-
-contract MintingProxy
-{
 
   using SafeMath for uint;
-  
-  address public minedToken;
-
-  constructor(address mintableToken) public  {
-    minedToken = mintableToken;
-  }
-
-
-
-  //do not allow ether to enter
-  function() public payable {
-      revert();
-  }
-
-
-
-  /**
-  Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit mining nonce
-
-
-  **/
-
-
-     function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray) returns (bool)
-     {
-
-        require(proxyMintArray.length > 0);
-
-
-        uint previousEpochCount = ERC918Interface(minedToken).epochCount();
-
-
-        address proxyMinter = proxyMintArray[0];
-
-        if(proxyMintArray.length == 1)
-        {
-          //Forward to the last proxyMint contract, typically a pool's owned  mint contract
-          require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));
-        }else{
-          //if array length is greater than 1, pop the proxyMinter from the front of the array and keep cascading down the chain...
-          address[] memory remainingProxyMintArray = popFirstFromArray(proxyMintArray);
-
-          require(mintForwarderInterface(proxyMinter).mintForwarder(nonce, challenge_digest,remainingProxyMintArray));
-        }
-
-       //make sure that the minedToken really was proxy minted through the proxyMint delegate call chain
-        require( ERC918Interface(minedToken).epochCount() == previousEpochCount.add(1) );
-
-
-        require(_performAction( nonce, challenge_digest ));
-
-
-        return true;
-     }
-
-     function _performAction(uint256 nonce, bytes32 challenge_digest) internal returns (bool)
-    {
-
-
-      return true;
-    }
-
-
-    function popFirstFromArray(address[] array) pure public returns (address[] memory)
-    {
-      address[] memory newArray = new address[](array.length-1);
-
-      for (uint i=0; i < array.length-1; i++) {
-        newArray[i] =  array[i+1]  ;
-      }
-
-      return newArray;
-    }
-
-   function uintToBytesForAddress(uint256 x) pure public returns (bytes b) {
-
-        b = new bytes(20);
-        for (uint i = 0; i < 20; i++) {
-            b[i] = byte(uint8(x / (2**(8*(31 - i)))));
-        }
-
-        return b;
-      }
-
-
-   function bytesToAddress (bytes b) pure public returns (address) {
-       uint result = 0;
-       for (uint i = b.length-1; i+1 > 0; i--) {
-         uint c = uint(b[i]);
-         uint to_inc = c * ( 16 ** ((b.length - i-1) * 2));
-         result += to_inc;
-       }
-       return address(result);
-   }
-
-
-
-}
-
-
-
-
-
-
-
-
-contract MiningKing is MintingProxy  {
-
-
-
 
 
    address public miningKing;
 
-
+   address public minedToken;
 
 
    event TransferKing(address from, address to);
@@ -227,7 +114,10 @@ contract MiningKing is MintingProxy  {
   }
 
 
-
+  //do not allow ether to enter
+  function() public payable {
+      revert();
+  }
 
   function getKing() view public returns (address king)
   {
@@ -240,23 +130,90 @@ contract MiningKing is MintingProxy  {
 
        miningKing = newKing;
 
-       TransferKing(msg.sender, newKing);
+       emit TransferKing(msg.sender, newKing);
 
    }
 
 
-   function _performAction(uint256 nonce, bytes32 challenge_digest) internal returns (bool)
+/**
+Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit mining nonce
+
+
+**/
+
+//proxyMintWithKing
+   function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray) public returns (bool)
+   {
+
+      require(proxyMintArray.length > 0);
+
+
+      uint previousEpochCount = ERC918Interface(minedToken).epochCount();
+
+      address proxyMinter = proxyMintArray[0];
+
+      if(proxyMintArray.length == 1)
+      {
+        //Forward to the last proxyMint contract, typically a pool's owned  mint contract
+        require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));
+      }else{
+        //if array length is greater than 1, pop the proxyMinter from the front of the array and keep cascading down the chain...
+        address[] memory remainingProxyMintArray = popFirstFromArray(proxyMintArray);
+
+        require(mintForwarderInterface(proxyMinter).mintForwarder(nonce, challenge_digest,remainingProxyMintArray));
+      }
+
+     //make sure that the minedToken really was proxy minted through the proxyMint delegate call chain
+      require( ERC918Interface(minedToken).epochCount() == previousEpochCount.add(1) );
+
+
+
+
+      // UNIQUE CONTRACT ACTION SPACE
+      bytes memory nonceBytes = uintToBytesForAddress(nonce);
+
+      address newKing = bytesToAddress(nonceBytes);
+
+      miningKing = newKing;
+      // --------
+
+      return true;
+   }
+
+
+  function popFirstFromArray(address[] array) pure public returns (address[] memory)
   {
+    address[] memory newArray = new address[](array.length-1);
 
+    for (uint i=0; i < array.length-1; i++) {
+      newArray[i] =  array[i+1]  ;
+    }
 
-    bytes memory nonceBytes = uintToBytesForAddress(nonce);
-
-    address newKing = bytesToAddress(nonceBytes);
-
-    miningKing = newKing;
-
-    return true;
+    return newArray;
   }
+
+ function uintToBytesForAddress(uint256 x) pure public returns (bytes b) {
+
+      b = new bytes(20);
+      for (uint i = 0; i < 20; i++) {
+          b[i] = byte(uint8(x / (2**(8*(31 - i)))));
+      }
+
+      return b;
+    }
+
+
+ function bytesToAddress (bytes b) pure public returns (address) {
+     uint result = 0;
+     for (uint i = b.length-1; i+1 > 0; i--) {
+       uint c = uint(b[i]);
+       uint to_inc = c * ( 16 ** ((b.length - i-1) * 2));
+       result += to_inc;
+     }
+     return address(result);
+ }
+
+
 
 
 }
