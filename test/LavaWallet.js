@@ -1,4 +1,4 @@
-
+var EIP712Helper = require("./EIP712Helper");
 var LavaTestUtils = require("./LavaTestUtils");
 
 var ethSigUtil = require('eth-sig-util')
@@ -21,6 +21,7 @@ var web3utils =  require('web3-utils');
 
 const Tx = require('ethereumjs-tx')
 var lavaTestUtils = new LavaTestUtils();
+var eip712Helper = new LavaTestUtils();
 
 const Web3 = require('web3')
 // Instantiate new web3 object pointing toward an Ethereum node.
@@ -49,6 +50,9 @@ contract('LavaWallet', function(accounts) {
 
       console.log( 'deploying wallet' )
 
+        tokenContract = await _0xBitcoinToken.deployed( );
+
+
          mintHelperContract = await MintHelper.deployed( );
          kingContract = await MiningKing.deployed( );
          doubleKingsRewardContract = await DoubleKingsReward.deployed();
@@ -62,6 +66,70 @@ contract('LavaWallet', function(accounts) {
 
     it("find schemahash", async function () {
 
+
+      //https://github.com/ethereum/EIPs/blob/master/assets/eip-712/Example.js
+
+      const typedData = {
+              types: {
+                  EIP712Domain: [
+                      { name: 'name', type: 'string' },
+                      { name: 'verifyingContract', type: 'address' }
+                  ],
+                  LavaPacket: [
+                      { name: 'methodname', type: 'bytes' },  //?
+                      { name: 'from', type: 'address' },
+                      { name: 'to', type: 'address' },
+                      { name: 'wallet', type: 'address' },
+                      { name: 'token', type: 'address' },
+                      { name: 'tokens', type: 'uint256' },
+                      { name: 'relayerReward', type: 'uint256' },
+                      { name: 'expires', type: 'uint256' },
+                      { name: 'nonce', type: 'uint256' }
+                  ],
+              },
+              primaryType: 'LavaPacket',
+              domain: {
+                  name: 'Lava Wallet',
+                  verifyingContract: walletContract.address,
+              },
+              packet: {   //what is word supposed to be ??
+                  methodname: 'anyTransfer',
+                  from: test_account.address,
+                  to: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+                  wallet: walletContract.address,
+                  token: tokenContract.address,
+                  tokens: 0,
+                  relayerReward: 0,
+                  expires: 999999999,
+                  nonce: 0,
+              },
+          };
+
+          const types = typedData.types;
+
+
+
+
+
+
+
+          // signHash() {
+              var typedDataHash = ethUtil.sha3(
+                  Buffer.concat([
+                      Buffer.from('1901', 'hex'),
+                      EIP712Helper.structHash('EIP712Domain', typedData.domain, types),
+                      EIP712Helper.structHash(typedData.primaryType, typedData.packet, types),
+                  ]),
+              );
+
+              const sig = ethUtil.ecsign(typedDataHash , Buffer.from(test_account.privateKey, 'hex') );
+
+              //assert.equal(ethUtil.bufferToHex(typedDataHash), '0xa5b19006c219117816a77e959d656b48f0f21e037fc152224d97a5c016b63692' )
+              assert.equal(sig.v,28 )
+
+
+
+          /*
 
       var  hardcodedSchemaHash = '0x8fd4f9177556bbc74d0710c8bdda543afd18cc84d92d64b5620d5f1881dceb37' ;
 
@@ -111,11 +179,11 @@ contract('LavaWallet', function(accounts) {
            name: 'nonce',
            value: 0
          }
-       ]
+       ]*/
 
 
 
-
+       /*
         const error = new Error('Expect argument to be non-empty array')
         if (typeof typedParams !== 'object' || !typedParams.length) throw error
 
@@ -156,6 +224,10 @@ contract('LavaWallet', function(accounts) {
           ]
         ))
 
+        assert.equal(hash,hardcodedSchemaHash )
+
+        */
+
 
         /*return ethAbi.soliditySHA3(
           ['bytes32', 'bytes32'],
@@ -168,7 +240,7 @@ contract('LavaWallet', function(accounts) {
 
 
 
-        assert.equal(hash,hardcodedSchemaHash )
+
     });
 
 
