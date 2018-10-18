@@ -176,6 +176,7 @@ contract LavaWallet is ECRecovery{
 
   struct LavaPacket {
     bytes methodname;
+    bool requireKingRelay; //only allow kings to relay the packet
     address from;
     address to;
     address wallet;  //this contract address
@@ -207,6 +208,7 @@ contract LavaWallet is ECRecovery{
         return keccak256(abi.encode(
             LAVAPACKET_TYPEHASH,
             keccak256(bytes(packet.methodname)),
+            packet.requireKingRelay,
             packet.from,
             packet.to,
             packet.wallet,
@@ -367,7 +369,7 @@ contract LavaWallet is ECRecovery{
 
 
 
-   function tokenApprovalWithSignature(bool requiresKing, LavaPacket packet, bytes32 sigHash, bytes signature) internal returns (bool success)
+   function _tokenApprovalWithSignature(  LavaPacket packet, bytes32 sigHash, bytes signature) internal returns (bool success)
    {
 
        address recoveredSignatureSigner = recover(sigHash,signature);
@@ -375,7 +377,7 @@ contract LavaWallet is ECRecovery{
        //make sure the signer is the depositor of the tokens
        if(packet.from != recoveredSignatureSigner) revert();
 
-       if(msg.sender != getRelayingKing() && requiresKing ) revert();  // you must be the 'king of the hill' to relay
+       if(msg.sender != getRelayingKing() && packet.requireKingRelay ) revert();  // you must be the 'king of the hill' to relay
 
        //make sure the signature has not expired
        if(block.number > packet.expires) revert();
@@ -399,37 +401,27 @@ contract LavaWallet is ECRecovery{
        return true;
    }
 
-   function approveTokensFromAnyWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
+   function approveTokensWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
    {
 
 
-       bytes32 sigHash = getLavaTypedDataHash('anyApprove',packet);
+       bytes32 sigHash = getLavaTypedDataHash('approve',packet);
 
-       if(!tokenApprovalWithSignature(false,packet,sigHash,signature)) revert();
+       if(!_tokenApprovalWithSignature(packet,sigHash,signature)) revert();
 
 
        return true;
    }
 
-   function approveTokensFromKingWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
-   {
-
-
-       bytes32 sigHash = getLavaTypedDataHash('kingApprove',packet);
-
-       if(!tokenApprovalWithSignature(true,packet,sigHash,signature)) revert();
-
-       return true;
-   }
 
    //the tokens remain in lava wallet
-  function transferTokensFromAnyWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
+  function transferTokensWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
   {
 
       //check to make sure that signature == ecrecover signature
-      bytes32 sigHash = getLavaTypedDataHash('anyTransfer',packet);
+      bytes32 sigHash = getLavaTypedDataHash('transfer',packet);
 
-      if(!tokenApprovalWithSignature(false,packet,sigHash,signature)) revert();
+      if(!_tokenApprovalWithSignature(packet,sigHash,signature)) revert();
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
       if(!transferTokensFrom( packet.from, packet.to, packet.token, packet.tokens)) revert();
@@ -439,32 +431,16 @@ contract LavaWallet is ECRecovery{
 
   }
 
-   //The tokens are withdrawn from the lava wallet and transferred into the To account
-  function transferTokensFromKingWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
-  {
-
-      //check to make sure that signature == ecrecover signature
-      bytes32 sigHash = getLavaTypedDataHash('kingTransfer',packet);
-
-      if(!tokenApprovalWithSignature(true,packet,sigHash,signature)) revert();
-
-      //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
-      if(!transferTokensFrom( packet.from, packet.to, packet.token, packet.tokens)) revert();
-
-
-      return true;
-
-  }
 
   //the tokens remain in lava wallet
- function withdrawTokensFromAnyWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
+ function withdrawTokensWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
  {
 
 
      //check to make sure that signature == ecrecover signature
-     bytes32 sigHash = getLavaTypedDataHash('anyWithdraw',packet);
+     bytes32 sigHash = getLavaTypedDataHash('withdraw',packet);
 
-     if(!tokenApprovalWithSignature(false,packet,sigHash,signature)) revert();
+     if(!_tokenApprovalWithSignature(packet,sigHash,signature)) revert();
 
 
      //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
@@ -475,23 +451,6 @@ contract LavaWallet is ECRecovery{
 
  }
 
-  //The tokens are withdrawn from the lava wallet and transferred into the To account
- function withdrawTokensFromKingWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
- {
-
-     //check to make sure that signature == ecrecover signature
-     bytes32 sigHash = getLavaTypedDataHash('kingWithdraw',packet);
-
-     if(!tokenApprovalWithSignature(true,packet,sigHash,signature)) revert();
-
-
-     //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
-     if(!withdrawTokensFrom( packet.from, packet.to, packet.token, packet.tokens)) revert();
-
-
-     return true;
-
- }
 
 
 
@@ -549,10 +508,9 @@ contract LavaWallet is ECRecovery{
 
         bytes32 sigHash = getLavaTypedDataHash(methodname,packet);
 
-          bool requiresKing = getRequiresKing(methodname);
 
 
-        if(!tokenApprovalWithSignature(true,packet,sigHash,signature)) revert();
+        if(!_tokenApprovalWithSignature(packet,sigHash,signature)) revert();
 
         ApproveAndCallFallBack(packet.to).receiveApproval(packet.from, packet.tokens, packet.token, methodname);
 
@@ -564,23 +522,7 @@ contract LavaWallet is ECRecovery{
        return MiningKingInterface(relayKingContract).getMiningKing();
      }
 
-
-
-     function getRequiresKing(bytes methodname) pure internal returns (bool)
-    {
-      return (bytesEqual(methodname,'kingTransfer') || bytesEqual(methodname,'kingWithdraw') || bytesEqual(methodname,'kingApprove'));
-    }
-
-    function bytesEqual(bytes b1,bytes b2) pure internal returns (bool)
-    {
-      if(b1.length != b2.length) return false;
-
-      for (uint i=0; i<b1.length; i++) {
-        if(b1[i] != b2[i]) return false;
-      }
-
-      return true;
-    }
+  
 
 
 
