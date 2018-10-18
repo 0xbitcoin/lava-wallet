@@ -118,4 +118,130 @@ contract("LavaWallet", (accounts) => {
 
             });
 
+
+
+
+
+
+
+
+
+
+            it("can approveTokensWithSignature ", async function () {
+
+
+                await printBalance(test_account.address,tokenContract)
+
+
+
+
+                var addressFrom = test_account.address;
+
+                console.log( addressFrom )
+
+                //var msg = '0x8CbaC5e4d803bE2A3A5cd3DbE7174504c6DD0c1C'
+                var requestRecipient = test_account.address;
+                var requestQuantity = 500;
+
+
+
+                 var requestNonce = web3utils.randomHex(32);
+
+                 var privateKey = test_account.privateKey;
+
+
+                 var methodname = 'approve'
+                 var requiresKing = false
+                 var from= addressFrom
+                 var to= "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c"
+                 var walletAddress=walletContract.options.address
+                 var tokenAddress=tokenContract.options.address
+                 var tokenAmount=2000000
+                 var relayerReward=1000000
+                 var expires=336504400
+                 var nonce='0xc18f687c56f1b2749af7d6151fa351'
+                 //var expectedSignature="0x8ef27391a81f77244bf95df58737eecac386ab9a47acd21bdb63757adf71ddf878169c18e4ab7b71d60f333c870258a0644ac7ade789d59c53b0ab75dbcc87d11b"
+
+                  //add new code here !!
+
+                 var typedData = lavaTestUtils.getLavaTypedDataFromParams(
+                   methodname,
+                   requiresKing,
+                   from,
+                   to,
+                   walletAddress,
+                   tokenAddress,
+                   tokenAmount,
+                   relayerReward,
+                   expires,
+                   nonce);
+
+
+                    const types = typedData.types;
+
+
+                const typedDataHash = lavaTestUtils.getLavaTypedDataHash(typedData,types);
+
+                  var privKey = Buffer.from(privateKey, 'hex')
+
+                const sig = ethUtil.ecsign(typedDataHash , privKey );
+
+
+                  console.log('@@ walletContract',  walletContract.options.address)
+
+                  //https://github.com/ethers-io/ethers.js/issues/46/
+
+                  var lavaPacketStruct =   typedData.packet
+
+
+                  var tuple = [
+                  web3utils.fromAscii(  methodname ),
+                  requiresKing,
+                  from,
+                  to,
+                  walletAddress,
+                  tokenAddress,
+                  tokenAmount,
+                  relayerReward,
+                  expires,
+                  nonce];
+
+                    console.log('  tuple   ',   tuple  )
+
+
+                var methodBytes = web3utils.fromAscii('approve') ;
+
+                ///msg hash signed is 0x9201073a01df85b87dab83ad2498bf5b2190bf62cb03b2a407ba7d77279a4ceb
+                var lavaMsgHash = await walletContract.methods.getLavaTypedDataHash( methodBytes, tuple ).call({from: test_account.address})
+                console.log('lavaMsgHash',lavaMsgHash)
+
+                assert.equal(lavaMsgHash, '0x' + typedDataHash.toString('hex') ); //initialized
+
+
+
+
+                  });
+
 })
+
+
+
+
+async function getBalance (account ,tokenContract)
+{
+      var balance_eth = await (web3.eth.getBalance(account ));
+     var balance_token = await tokenContract.methods.balanceOf(account).call({from: account });
+
+     return {ether: web3utils.fromWei(balance_eth.toString(), 'ether'), token: balance_token  };
+
+ }
+
+ async function printBalance (account ,tokenContract)
+ {
+       var balance_eth = await (web3.eth.getBalance(account ));
+      var balance_token = await tokenContract.methods.balanceOf(account).call( {from: account });
+
+
+      console.log('acct balance', account, web3utils.fromWei(balance_eth.toString() , 'ether')  , balance_token )
+
+  }
