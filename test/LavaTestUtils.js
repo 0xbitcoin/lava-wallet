@@ -78,58 +78,63 @@ function typedSignatureHash(typedData) {
     return hardcodedSchemaHash;
  }
 
- getLavaParamsFromData(method,from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
+ getLavaTypedDataHash(typedData)
  {
-     var params = [
+   var typedDataHash = ethUtil.sha3(
+       Buffer.concat([
+           Buffer.from('1901', 'hex'),
+           EIP712Helper.structHash('EIP712Domain', typedData.domain, types),
+           EIP712Helper.structHash(typedData.primaryType, typedData.packet, types),
+       ]),
+   );
 
-      {
-        type: 'bytes',
-        name: 'method',
-        value: method
-      },
-       {
-         type: 'address',
-         name: 'from',
-         value: from
-       },
-       {
-         type: 'address',
-         name: 'to',
-         value: to
-       },
-       {
-         type: 'address',
-         name: 'walletAddress',
-         value: walletAddress
-       },
-       {
-         type: 'address',
-         name: 'tokenAddress',
-         value: tokenAddress
-       },
-       {
-         type: 'uint256',
-         name: 'tokenAmount',
-         value: tokenAmount
-       },
-       {
-         type: 'uint256',
-         name: 'relayerReward',
-         value: relayerReward
-       },
-       {
-         type: 'uint256',
-         name: 'expires',
-         value: expires
-       },
-       {
-         type: 'uint256',
-         name: 'nonce',
-         value: nonce
-       },
-     ]
+   return typedDataHash;
+ }
 
-     return params;
+ getLavaTypedDataFromParams(method,requiresKing,from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
+ {
+   const typedData = {
+           types: {
+               EIP712Domain: [
+                   { name: 'name', type: 'string' },
+                   { name: 'verifyingContract', type: 'address' }
+               ],
+               LavaPacket: [
+                   { name: 'methodname', type: 'bytes' },  //?
+                   { name: 'from', type: 'address' },
+                   { name: 'to', type: 'address' },
+                   { name: 'wallet', type: 'address' },
+                   { name: 'token', type: 'address' },
+                   { name: 'tokens', type: 'uint256' },
+                   { name: 'relayerReward', type: 'uint256' },
+                   { name: 'expires', type: 'uint256' },
+                   { name: 'nonce', type: 'uint256' }
+               ],
+           },
+           primaryType: 'LavaPacket',
+           domain: {
+               name: 'Lava Wallet',
+               verifyingContract: walletContract.address,
+           },
+           packet: {   //what is word supposed to be ??
+               methodname: 'anyTransfer',
+               requireKingRelay: false,
+               from: test_account.address,
+               to: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
+               wallet: walletContract.address,
+               token: tokenContract.address,
+               tokens: 0,
+               relayerReward: 0,
+               expires: 999999999,
+               nonce: 0,
+           },
+       };
+
+       const types = typedData.types;
+
+
+
+     return typedData;
  }
 
   /*
