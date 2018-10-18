@@ -326,11 +326,11 @@ contract LavaWallet is ECRecovery{
 
 
 
-
+  // function getLavaPacket(address from,)
 
    //This replaces getLavaTypedDataHash .. how to handle Methodname?
 
-   function getLavaTypedDataHash(bytes methodname, LavaPacket packet) internal constant returns (bytes32) {
+   function getLavaTypedDataHash(bytes methodname, LavaPacket packet) public  constant returns (bytes32) {
 
           packet.methodname = methodname;
 
@@ -522,7 +522,7 @@ contract LavaWallet is ECRecovery{
        return MiningKingInterface(relayKingContract).getMiningKing();
      }
 
-  
+
 
 
 

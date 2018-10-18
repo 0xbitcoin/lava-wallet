@@ -2,6 +2,9 @@
 var web3utils = require('web3-utils')
 const ethUtil = require('ethereumjs-util')
 var ethSigUtil = require('eth-sig-util')
+var EIP712Helper = require("./EIP712Helper");
+
+
 /*
 
   1) signTypedData - accepts data and signs it with the private key just like Metamask
@@ -78,7 +81,7 @@ function typedSignatureHash(typedData) {
     return hardcodedSchemaHash;
  }
 
- getLavaTypedDataHash(typedData)
+ getLavaTypedDataHash(typedData,types)
  {
    var typedDataHash = ethUtil.sha3(
        Buffer.concat([
@@ -114,23 +117,23 @@ function typedSignatureHash(typedData) {
            primaryType: 'LavaPacket',
            domain: {
                name: 'Lava Wallet',
-               verifyingContract: walletContract.address,
+               verifyingContract: walletAddress,
            },
-           packet: {   //what is word supposed to be ??
-               methodname: 'anyTransfer',
-               requireKingRelay: false,
-               from: test_account.address,
-               to: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
-               wallet: walletContract.address,
-               token: tokenContract.address,
-               tokens: 0,
-               relayerReward: 0,
-               expires: 999999999,
-               nonce: 0,
+           packet: {
+               methodname: method,
+               requireKingRelay: requiresKing,
+               from: from,
+               to: to,
+               wallet: walletAddress,
+               token: tokenAddress,
+               tokens: tokenAmount,
+               relayerReward: relayerReward,
+               expires: expires,
+               nonce: nonce,
            },
        };
 
-       const types = typedData.types;
+      
 
 
 

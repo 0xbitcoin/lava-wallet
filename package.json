@@ -38,6 +38,7 @@
     "web3": "^1.0.0-beta.27"
   },
   "devDependencies": {
+    "ethers": "^4.0.7",
     "truffle-flattener": "^1.2.9"
   }
 }

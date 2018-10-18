@@ -15,6 +15,9 @@ var MintHelper = artifacts.require("./MintHelper.sol");
 var LavaWallet = artifacts.require("./LavaWallet.sol");
 
 
+import {Wallet, Contract, providers} from "ethers";
+
+
 const ethAbi = require('ethereumjs-abi')
 var ethUtil =  require('ethereumjs-util');
 var web3utils =  require('web3-utils');
@@ -490,7 +493,8 @@ it("can approveTokensWithSignature ", async function () {
 
       //add new code here !!
 
-     var typedData = lavaTestUtils.getLavaTypedDataFromParams(methodname,
+     var typedData = lavaTestUtils.getLavaTypedDataFromParams(
+       methodname,
        requiresKing,
        from,
        to,
@@ -499,22 +503,29 @@ it("can approveTokensWithSignature ", async function () {
        tokenAmount,
        relayerReward,
        expires,
-       nonce)
+       nonce);
 
 
-  //need to format the   params properly
+        const types = typedData.types;
 
 
-    const typedDataHash = lavaTestUtils.getLavaTypedDataHash(typedData);
+    const typedDataHash = lavaTestUtils.getLavaTypedDataHash(typedData,types);
 
       var privKey = Buffer.from(privateKey, 'hex')
 
     const sig = ethUtil.ecsign(typedDataHash , privKey );
 
 
+      console.log('@@ walletContract',  walletContract.address)
+
+      //https://github.com/ethers-io/ethers.js/issues/46/
+
+      var lavaPacketStruct =   typedData.packet
+      console.log('  lavaPacketStruct   ',   lavaPacketStruct  )
+
 
     ///msg hash signed is 0x9201073a01df85b87dab83ad2498bf5b2190bf62cb03b2a407ba7d77279a4ceb
-    var lavaMsgHash = await walletContract.getLavaTypedDataHash.call('approve',typedData.packet)
+    var lavaMsgHash = await walletContract.getLavaTypedDataHash.call('approve', lavaPacketStruct )
     console.log('lavaMsgHash',lavaMsgHash)
 
     assert.equal(lavaMsgHash, msgHash ); //initialized
