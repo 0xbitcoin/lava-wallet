@@ -94,6 +94,7 @@ contract('LavaWallet', function(accounts) {
               },
               packet: {   //what is word supposed to be ??
                   methodname: 'anyTransfer',
+                  requireKingRelay: false,
                   from: test_account.address,
                   to: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
                   wallet: walletContract.address,
@@ -106,10 +107,6 @@ contract('LavaWallet', function(accounts) {
           };
 
           const types = typedData.types;
-
-
-
-
 
 
 
@@ -473,13 +470,15 @@ it("can approveTokensWithSignature ", async function () {
     var requestQuantity = 500;
 
 
-     var requestToken = tokenContract.address;
 
      var requestNonce = web3utils.randomHex(32);
 
      var privateKey = test_account.privateKey;
 
-     var from= addressFrom;
+
+     var methodname = 'approve'
+     var requiresKing = false
+     var from= addressFrom
      var to= "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c"
      var walletAddress=walletContract.address
      var tokenAddress=tokenContract.address
@@ -489,29 +488,33 @@ it("can approveTokensWithSignature ", async function () {
      var nonce='0xc18f687c56f1b2749af7d6151fa351'
      //var expectedSignature="0x8ef27391a81f77244bf95df58737eecac386ab9a47acd21bdb63757adf71ddf878169c18e4ab7b71d60f333c870258a0644ac7ade789d59c53b0ab75dbcc87d11b"
 
+      //add new code here !!
 
-
-      //add new code here !! 
-
-
-
-
-     var params = lavaTestUtils.getLavaParamsFromData('approve',from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
+     var typedData = lavaTestUtils.getLavaTypedDataFromParams(methodname,
+       requiresKing,
+       from,
+       to,
+       walletAddress,
+       tokenAddress,
+       tokenAmount,
+       relayerReward,
+       expires,
+       nonce)
 
 
   //need to format the   params properly
 
 
-    var msgParams = {data: params}
+    const typedDataHash = lavaTestUtils.getLavaTypedDataHash(typedData);
 
-    var privKey = Buffer.from(privateKey, 'hex')
+      var privKey = Buffer.from(privateKey, 'hex')
+
+    const sig = ethUtil.ecsign(typedDataHash , privKey );
 
 
-
-   const msgHash = ethSigUtil.typedSignatureHash(msgParams.data)
 
     ///msg hash signed is 0x9201073a01df85b87dab83ad2498bf5b2190bf62cb03b2a407ba7d77279a4ceb
-    var lavaMsgHash = await walletContract.getLavaTypedDataHash.call('approve',from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
+    var lavaMsgHash = await walletContract.getLavaTypedDataHash.call('approve',typedData.packet)
     console.log('lavaMsgHash',lavaMsgHash)
 
     assert.equal(lavaMsgHash, msgHash ); //initialized
@@ -533,12 +536,7 @@ it("can approveTokensWithSignature ", async function () {
     assert.equal(recoveredAddress, test_account.address ); //initialized
 
 
-
-
-
-    var result = await walletContract.getLavaTypedDataHash.call('approve',from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce )
-
-    console.log('result1', result )
+    console.log('result1', lavaMsgHash )
 
 
     console.log('addressFrom',addressFrom)
@@ -555,32 +553,8 @@ it("can approveTokensWithSignature ", async function () {
             type: 'function',
             inputs: [
               {
-                "name": "from",
-                "type": "address"
-              },
-              {
-                "name": "to",
-                "type": "address"
-              },
-              {
-                "name": "token",
-                "type": "address"
-              },
-              {
-                "name": "tokens",
-                "type": "uint256"
-              },
-              {
-                "name": "relayerReward",
-                "type": "uint256"
-              },
-              {
-                "name": "expires",
-                "type": "uint256"
-              },
-              {
-                "name": "nonce",
-                "type": "uint256"
+                "name": "packet",
+                "type": "LavaPacket"
               },
               {
                 "name": "signature",
@@ -593,7 +567,7 @@ it("can approveTokensWithSignature ", async function () {
                   "type": "bool"
                 }
             ]
-        }, [from,to,tokenAddress,tokenAmount,relayerReward,expires,nonce,signature]);
+        }, [typedData.packet,signature]);
 
 
       try{
