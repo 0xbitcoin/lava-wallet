@@ -104,6 +104,7 @@ function typedSignatureHash(typedData) {
                ],
                LavaPacket: [
                    { name: 'methodname', type: 'bytes' },  //?
+                   { name: 'requireKingRelay', type: 'bool' },
                    { name: 'from', type: 'address' },
                    { name: 'to', type: 'address' },
                    { name: 'wallet', type: 'address' },
@@ -133,7 +134,7 @@ function typedSignatureHash(typedData) {
            },
        };
 
-      
+
 
 
 
