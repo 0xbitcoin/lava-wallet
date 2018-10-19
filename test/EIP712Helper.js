@@ -35,10 +35,11 @@ module.exports = class EIP712Helper{
         for (let type of deps) {
             result += `${type}(${types[type].map(({ name, type }) => `${type} ${name}`).join(',')})`;
         }
+        console.log("MEEP RESULT", result )
         return result;
     }
 
-    static  typeHash(primaryType, types) {
+    static typeHash(primaryType, types) {
         return ethUtil.sha3(EIP712Helper.encodeType(primaryType, types));
     }
 

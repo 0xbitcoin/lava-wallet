@@ -94,7 +94,7 @@ function typedSignatureHash(typedData) {
    return typedDataHash;
  }
 
- getLavaTypedDataFromParams(method,requiresKing,from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
+ getLavaTypedDataFromParams(method,relayMode,from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
  {
    const typedData = {
            types: {
@@ -103,8 +103,8 @@ function typedSignatureHash(typedData) {
                    { name: 'verifyingContract', type: 'address' }
                ],
                LavaPacket: [
-                   { name: 'methodname', type: 'bytes' },  //?
-                   { name: 'requireKingRelay', type: 'bool' },
+                   { name: 'methodName', type: 'bytes' },  //?
+                   { name: 'relayMode', type: 'string' },
                    { name: 'from', type: 'address' },
                    { name: 'to', type: 'address' },
                    { name: 'wallet', type: 'address' },
@@ -122,7 +122,7 @@ function typedSignatureHash(typedData) {
            },
            packet: {
                methodname: method,
-               requireKingRelay: requiresKing,
+               relayMode: relayMode,
                from: from,
                to: to,
                wallet: walletAddress,

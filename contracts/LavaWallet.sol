@@ -176,7 +176,7 @@ contract LavaWallet is ECRecovery{
 
   struct LavaPacket {
     bytes methodname;
-    bool requireKingRelay; //only allow kings to relay the packet
+    string relayMode; //only allow kings to relay the packet
     address from;
     address to;
     address wallet;  //this contract address
@@ -190,17 +190,30 @@ contract LavaWallet is ECRecovery{
 
   /*
       MUST update these if architecture changes !!
+      MAKE SURE there are no spaces !
   */
   bytes32 constant EIP712DOMAIN_TYPEHASH = keccak256(
       "EIP712Domain(string name,address verifyingContract)"
   );
 
   bytes32 constant LAVAPACKET_TYPEHASH = keccak256(
-      "LavaPacket(string methodname,bool requireKingRelay, address from,address to,address wallet,address token,uint256 tokens,uint256 relayerReward,uint256 expires,uint256 nonce)"
+      "LavaPacket(bytes methodName,string relayMode,address from,address to,address wallet,address token,uint256 tokens,uint256 relayerReward,uint256 expires,uint256 nonce)"
   );
 
 
-  function hash(EIP712Domain eip712Domain) internal pure returns (bytes32) {
+
+  function getDomainTypehash()   pure returns (bytes32) {
+      return EIP712DOMAIN_TYPEHASH;
+  }
+
+    function getLavaPacketTypehash()   pure returns (bytes32) {
+      return LAVAPACKET_TYPEHASH;
+  }
+
+
+
+
+  function getDomainHash(EIP712Domain eip712Domain) internal pure returns (bytes32) {
         return keccak256(abi.encode(
             EIP712DOMAIN_TYPEHASH,
             keccak256(bytes(eip712Domain.name)),
@@ -208,11 +221,11 @@ contract LavaWallet is ECRecovery{
         ));
     }
 
-    function hash(LavaPacket packet) internal pure returns (bytes32) {
+    function getLavaPacketHash(LavaPacket packet) internal pure returns (bytes32) {
         return keccak256(abi.encode(
             LAVAPACKET_TYPEHASH,
             keccak256(bytes(packet.methodname)),
-            packet.requireKingRelay,
+            keccak256(bytes(packet.relayMode)),
             packet.from,
             packet.to,
             packet.wallet,
@@ -231,7 +244,7 @@ contract LavaWallet is ECRecovery{
   function LavaWallet(address relayKingContractAddress ) public  {
     relayKingContract = relayKingContractAddress;
 
-    DOMAIN_SEPARATOR = hash(EIP712Domain({
+    DOMAIN_SEPARATOR = getDomainHash(EIP712Domain({
            name: "Lava Wallet",
            verifyingContract: this
           // verifyingContract: 0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC //comment this out
@@ -334,15 +347,14 @@ contract LavaWallet is ECRecovery{
 
    //This replaces getLavaTypedDataHash .. how to handle Methodname?
 
-   function getLavaTypedDataHash(bytes methodname, LavaPacket packet) public  constant returns (bytes32) {
+   function getLavaTypedDataHash(LavaPacket packet) public  constant returns (bytes32) {
 
-          packet.methodname = methodname;
 
           // Note: we need to use `encodePacked` here instead of `encode`.
           bytes32 digest = keccak256(abi.encodePacked(
               "\x19\x01",
               DOMAIN_SEPARATOR,
-              hash(packet)
+              getLavaPacketHash(packet)
           ));
           return digest;
       }
@@ -378,24 +390,29 @@ contract LavaWallet is ECRecovery{
 
        address recoveredSignatureSigner = recover(sigHash,signature);
 
-       //make sure the signer is the depositor of the tokens
-       if(packet.from != recoveredSignatureSigner) revert();
+       //relaymode must be either Any or King
+       require( bytesEqual(bytes(packet.relayMode) , 'any') || bytesEqual(bytes(packet.relayMode) , 'king')     );
 
-       if(msg.sender != getRelayingKing() && packet.requireKingRelay ) revert();  // you must be the 'king of the hill' to relay
+       bool requireKingRelay = bytesEqual(bytes(packet.relayMode) , 'king');
+
+       //make sure the signer is the depositor of the tokens
+       require(packet.from == recoveredSignatureSigner);
+
+       require(msg.sender == getRelayingKing() || !requireKingRelay);  // you must be the 'king of the hill' to relay
 
        //make sure the signature has not expired
-       if(block.number > packet.expires) revert();
+       require(block.number < packet.expires);
 
        uint burnedSignature = burnedSignatures[sigHash];
        burnedSignatures[sigHash] = 0x1; //spent
-       if(burnedSignature != 0x0 ) revert();
+       require(burnedSignature == 0x0 );
 
        //approve the relayer reward
        allowed[packet.token][packet.from][msg.sender] = packet.relayerReward;
        Approval(packet.from, packet.token, msg.sender, packet.relayerReward);
 
        //transferRelayerReward
-       if(!transferTokensFrom(packet.from, msg.sender, packet.token, packet.relayerReward)) revert();
+       require(transferTokensFrom(packet.from, msg.sender, packet.token, packet.relayerReward));
 
        //approve transfer of tokens
        allowed[packet.token][packet.from][packet.to] = packet.tokens;
@@ -405,13 +422,15 @@ contract LavaWallet is ECRecovery{
        return true;
    }
 
+
+
    function approveTokensWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
    {
+       require(bytesEqual('approve',packet.methodname));
 
+       bytes32 sigHash = getLavaTypedDataHash(packet);
 
-       bytes32 sigHash = getLavaTypedDataHash('approve',packet);
-
-       if(!_tokenApprovalWithSignature(packet,sigHash,signature)) revert();
+       require(_tokenApprovalWithSignature(packet,sigHash,signature));
 
 
        return true;
@@ -422,13 +441,15 @@ contract LavaWallet is ECRecovery{
   function transferTokensWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
   {
 
-      //check to make sure that signature == ecrecover signature
-      bytes32 sigHash = getLavaTypedDataHash('transfer',packet);
+      require(bytesEqual('transfer',packet.methodname));
 
-      if(!_tokenApprovalWithSignature(packet,sigHash,signature)) revert();
+      //check to make sure that signature == ecrecover signature
+      bytes32 sigHash = getLavaTypedDataHash(packet);
+
+      require(_tokenApprovalWithSignature(packet,sigHash,signature));
 
       //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
-      if(!transferTokensFrom( packet.from, packet.to, packet.token, packet.tokens)) revert();
+      require(transferTokensFrom( packet.from, packet.to, packet.token, packet.tokens));
 
 
       return true;
@@ -439,16 +460,15 @@ contract LavaWallet is ECRecovery{
   //the tokens remain in lava wallet
  function withdrawTokensWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
  {
-
+     require(bytesEqual('withdraw',packet.methodname));
 
      //check to make sure that signature == ecrecover signature
-     bytes32 sigHash = getLavaTypedDataHash('withdraw',packet);
+     bytes32 sigHash = getLavaTypedDataHash(packet);
 
-     if(!_tokenApprovalWithSignature(packet,sigHash,signature)) revert();
-
+     require(_tokenApprovalWithSignature(packet,sigHash,signature));
 
      //it can be requested that fewer tokens be sent that were approved -- the whole approval will be invalidated though
-     if(!withdrawTokensFrom( packet.from, packet.to, packet.token, packet.tokens)) revert();
+     require(withdrawTokensFrom( packet.from, packet.to, packet.token, packet.tokens));
 
 
      return true;
@@ -459,12 +479,11 @@ contract LavaWallet is ECRecovery{
 
 
 
-
-     function burnSignature(bytes methodname, LavaPacket packet,  bytes signature) public returns (bool success)
+     function burnSignature( LavaPacket packet,  bytes signature) public returns (bool success)
      {
 
 
-        bytes32 sigHash = getLavaTypedDataHash(methodname,packet);
+        bytes32 sigHash = getLavaTypedDataHash( packet);
 
          address recoveredSignatureSigner = recover(sigHash,signature);
 
@@ -506,17 +525,17 @@ contract LavaWallet is ECRecovery{
 
 
       */
-     function approveAndCall(bytes methodname, LavaPacket packet, bytes signature ) public returns (bool success)   {
+     function approveAndCall( LavaPacket packet, bytes signature ) public returns (bool success)   {
 
       // address from, address to, address token, uint256 tokens, uint256 relayerReward,  uint256 expires, uint256 nonce
 
-        bytes32 sigHash = getLavaTypedDataHash(methodname,packet);
+        bytes32 sigHash = getLavaTypedDataHash( packet);
 
 
 
-        if(!_tokenApprovalWithSignature(packet,sigHash,signature)) revert();
+        require(_tokenApprovalWithSignature(packet,sigHash,signature));
 
-        ApproveAndCallFallBack(packet.to).receiveApproval(packet.from, packet.tokens, packet.token, methodname);
+        ApproveAndCallFallBack(packet.to).receiveApproval(packet.from, packet.tokens, packet.token, packet.methodname);
 
         return true;
      }
@@ -528,7 +547,16 @@ contract LavaWallet is ECRecovery{
 
 
 
+     function bytesEqual(bytes b1,bytes b2) pure internal returns (bool)
+        {
+          if(b1.length != b2.length) return false;
 
+          for (uint i=0; i<b1.length; i++) {
+            if(b1[i] != b2[i]) return false;
+          }
+
+          return true;
+        }
 
 
 }
