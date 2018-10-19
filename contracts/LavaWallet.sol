@@ -187,12 +187,16 @@ contract LavaWallet is ECRecovery{
     uint256 nonce;
   }
 
+
+  /*
+      MUST update these if architecture changes !!
+  */
   bytes32 constant EIP712DOMAIN_TYPEHASH = keccak256(
       "EIP712Domain(string name,address verifyingContract)"
   );
 
   bytes32 constant LAVAPACKET_TYPEHASH = keccak256(
-      "LavaPacket(string methodname,address from,address to,address wallet,address token,uint256 tokens,uint256 relayerReward,uint256 expires,uint256 nonce)"
+      "LavaPacket(string methodname,bool requireKingRelay, address from,address to,address wallet,address token,uint256 tokens,uint256 relayerReward,uint256 expires,uint256 nonce)"
   );
 
 
