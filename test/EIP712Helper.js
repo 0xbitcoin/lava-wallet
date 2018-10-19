@@ -35,7 +35,7 @@ module.exports = class EIP712Helper{
         for (let type of deps) {
             result += `${type}(${types[type].map(({ name, type }) => `${type} ${name}`).join(',')})`;
         }
-        console.log("MEEP RESULT", result )
+
         return result;
     }
 
@@ -69,7 +69,7 @@ module.exports = class EIP712Helper{
                 encValues.push(value);
             }
         }
-
+        console.log('encValues',encValues)
         return abi.rawEncode(encTypes, encValues);
     }
 

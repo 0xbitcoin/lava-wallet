@@ -175,7 +175,7 @@ contract LavaWallet is ECRecovery{
 
 
   struct LavaPacket {
-    bytes methodname;
+    bytes methodName;
     string relayMode; //only allow kings to relay the packet
     address from;
     address to;
@@ -213,7 +213,7 @@ contract LavaWallet is ECRecovery{
 
 
 
-  function getDomainHash(EIP712Domain eip712Domain) internal pure returns (bytes32) {
+  function getDomainHash(EIP712Domain eip712Domain)  pure returns (bytes32) {
         return keccak256(abi.encode(
             EIP712DOMAIN_TYPEHASH,
             keccak256(bytes(eip712Domain.name)),
@@ -221,10 +221,10 @@ contract LavaWallet is ECRecovery{
         ));
     }
 
-    function getLavaPacketHash(LavaPacket packet) internal pure returns (bytes32) {
+    function getLavaPacketHash(LavaPacket packet)  pure returns (bytes32) {
         return keccak256(abi.encode(
             LAVAPACKET_TYPEHASH,
-            keccak256(bytes(packet.methodname)),
+            keccak256(bytes(packet.methodName)),
             keccak256(bytes(packet.relayMode)),
             packet.from,
             packet.to,
@@ -345,7 +345,7 @@ contract LavaWallet is ECRecovery{
 
   // function getLavaPacket(address from,)
 
-   //This replaces getLavaTypedDataHash .. how to handle Methodname?
+   //This replaces getLavaTypedDataHash .. how to handle methodName?
 
    function getLavaTypedDataHash(LavaPacket packet) public  constant returns (bytes32) {
 
@@ -363,16 +363,16 @@ contract LavaWallet is ECRecovery{
 
    //Nonce is the same thing as a 'check number'
    //EIP 712
-/*   function getLavaTypedDataHash(bytes methodname, LavaPacket packet ) public constant returns (bytes32)
+/*   function getLavaTypedDataHash(bytes methodName, LavaPacket packet ) public constant returns (bytes32)
    {
 
 
-         bytes32 hardcodedSchemaHash = 0x8fd4f9177556bbc74d0710c8bdda543afd18cc84d92d64b5620d5f1881dceb37; //with methodname
+         bytes32 hardcodedSchemaHash = 0x8fd4f9177556bbc74d0710c8bdda543afd18cc84d92d64b5620d5f1881dceb37; //with methodName
 
 
         bytes32 typedDataHash = sha3(
             hardcodedSchemaHash,
-            sha3(methodname,packet.from,packet.to,this,packet.token,packet.tokens,packet.relayerReward,packet.expires,packet.nonce)
+            sha3(methodName,packet.from,packet.to,this,packet.token,packet.tokens,packet.relayerReward,packet.expires,packet.nonce)
           );
 
         return typedDataHash;
@@ -426,7 +426,7 @@ contract LavaWallet is ECRecovery{
 
    function approveTokensWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
    {
-       require(bytesEqual('approve',packet.methodname));
+       require(bytesEqual('approve',bytes(packet.methodName)));
 
        bytes32 sigHash = getLavaTypedDataHash(packet);
 
@@ -441,7 +441,7 @@ contract LavaWallet is ECRecovery{
   function transferTokensWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
   {
 
-      require(bytesEqual('transfer',packet.methodname));
+      require(bytesEqual('transfer',bytes(packet.methodName)));
 
       //check to make sure that signature == ecrecover signature
       bytes32 sigHash = getLavaTypedDataHash(packet);
@@ -460,7 +460,7 @@ contract LavaWallet is ECRecovery{
   //the tokens remain in lava wallet
  function withdrawTokensWithSignature(LavaPacket packet, bytes signature) public returns (bool success)
  {
-     require(bytesEqual('withdraw',packet.methodname));
+     require(bytesEqual('withdraw',bytes(packet.methodName)));
 
      //check to make sure that signature == ecrecover signature
      bytes32 sigHash = getLavaTypedDataHash(packet);
@@ -535,7 +535,7 @@ contract LavaWallet is ECRecovery{
 
         require(_tokenApprovalWithSignature(packet,sigHash,signature));
 
-        ApproveAndCallFallBack(packet.to).receiveApproval(packet.from, packet.tokens, packet.token, packet.methodname);
+        ApproveAndCallFallBack(packet.to).receiveApproval(packet.from, packet.tokens, packet.token, bytes(packet.methodName));
 
         return true;
      }

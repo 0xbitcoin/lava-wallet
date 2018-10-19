@@ -66,8 +66,8 @@ contract("LavaWallet", (accounts) => {
                         { name: 'verifyingContract', type: 'address' }
                     ],
                     LavaPacket: [
-                        { name: 'methodname', type: 'bytes' },  //?
-                        { name: 'requireKingRelay', type: 'bool' },
+                        { name: 'methodName', type: 'bytes' },  //?
+                        { name: 'relayMethod', type: 'string' },
                         { name: 'from', type: 'address' },
                         { name: 'to', type: 'address' },
                         { name: 'wallet', type: 'address' },
@@ -84,8 +84,8 @@ contract("LavaWallet", (accounts) => {
                     verifyingContract: walletContract.options.address,
                 },
                 packet: {   //what is word supposed to be ??
-                    methodname: 'anyTransfer',
-                    requireKingRelay: false,
+                    methodname: 'approve',
+                    relayMode: 'any',
                     from: test_account.address,
                     to: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
                     wallet: walletContract.options.address,
@@ -127,12 +127,7 @@ contract("LavaWallet", (accounts) => {
 
 
 
-              assert.equal(domainTypehash, '0xee552a4f357a6d8ecee15fed74927d873616e6da31fd672327acf0916acc174a'   ); //initialized
-
-              assert.equal(lavaPacketTypehash, '0x7547230e904ff79a2bdc45587f15a93dffcddb853fdd4cc76c72e01ca596df73'   ); //initialized
-
-
-              var methodname = web3utils.fromAscii(  'approve' )  //convert to bytes
+              var methodName = web3utils.fromAscii('approve')   //convert to bytes
               var relayMode = 'any'
               var from= test_account.address
               var to= "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c"
@@ -147,7 +142,7 @@ contract("LavaWallet", (accounts) => {
                //add new code here !!
 
               var typedData = lavaTestUtils.getLavaTypedDataFromParams(
-                methodname,
+                methodName,
                 relayMode,
                 from,
                 to,
@@ -162,9 +157,40 @@ contract("LavaWallet", (accounts) => {
               var domainStructHash =  EIP712Helper.typeHash('EIP712Domain', typedData.types);
               var lavaPacketStructHash =  EIP712Helper.typeHash('LavaPacket', typedData.types);
 
-              assert.equal('0x' + domainStructHash.toString('hex'), '0xee552a4f357a6d8ecee15fed74927d873616e6da31fd672327acf0916acc174a'   ); //initialized
+              assert.equal(LavaTestUtils.bufferToHex(domainStructHash), domainTypehash    ); //initialized
 
-               assert.equal('0x' + lavaPacketStructHash.toString('hex'), '0x7547230e904ff79a2bdc45587f15a93dffcddb853fdd4cc76c72e01ca596df73'   ); //initialized
+               assert.equal(LavaTestUtils.bufferToHex(lavaPacketStructHash), lavaPacketTypehash  ); //initialized
+
+
+
+               var lavaPacketTuple = [methodName,
+                                       relayMode,
+                                       from,
+                                       to,
+                                       walletAddress,
+                                       tokenAddress,
+                                       tokenAmount,
+                                       relayerReward,
+                                       expires,
+                                       nonce]
+
+                console.log('lavaPacketTypehash ', lavaPacketTypehash)
+
+
+              console.log('lava packet tuple ', lavaPacketTuple)
+
+
+               var domainHash = await walletContract.methods.getDomainHash(["Lava Wallet",walletContract.options.address]).call()
+               var lavaPacketHash = await walletContract.methods.getLavaPacketHash(lavaPacketTuple).call()
+
+
+
+           assert.equal(domainHash, LavaTestUtils.bufferToHex( EIP712Helper.structHash('EIP712Domain', typedData.domain, typedData.types) )    );
+
+
+           //why is this failing on the values !?
+           assert.equal(lavaPacketHash, LavaTestUtils.bufferToHex( EIP712Helper.structHash('LavaPacket', typedData.packet, typedData.types) )     );
+
 
 
             });

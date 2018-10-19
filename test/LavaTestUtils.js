@@ -94,7 +94,7 @@ function typedSignatureHash(typedData) {
    return typedDataHash;
  }
 
- getLavaTypedDataFromParams(method,relayMode,from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
+ getLavaTypedDataFromParams(methodName,relayMode,from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
  {
    const typedData = {
            types: {
@@ -121,7 +121,7 @@ function typedSignatureHash(typedData) {
                verifyingContract: walletAddress,
            },
            packet: {
-               methodname: method,
+               methodName: methodName,
                relayMode: relayMode,
                from: from,
                to: to,
@@ -139,6 +139,12 @@ function typedSignatureHash(typedData) {
 
 
      return typedData;
+ }
+
+
+ static bufferToHex(buffer)
+ {
+    return '0x' + buffer.toString('hex')
  }
 
   /*
