@@ -150,7 +150,7 @@ contract("LavaWallet", (accounts) => {
                  var privateKey = test_account.privateKey;
 
 
-                 var methodname = 'approve'
+                 var methodname = web3utils.fromAscii(  'approve' )  //convert to bytes
                  var requiresKing = false
                  var from= addressFrom
                  var to= "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c"
@@ -195,7 +195,7 @@ contract("LavaWallet", (accounts) => {
 
 
                   var tuple = [
-                  web3utils.fromAscii(  methodname ),
+                    methodname  ,
                   requiresKing,
                   from,
                   to,
