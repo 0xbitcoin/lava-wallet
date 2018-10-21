@@ -241,7 +241,7 @@ contract LavaWallet is ECRecovery{
 
  bytes32 DOMAIN_SEPARATOR;
 
-  function LavaWallet(address relayKingContractAddress ) public  {
+constructor(address relayKingContractAddress )  {
     relayKingContract = relayKingContractAddress;
 
     DOMAIN_SEPARATOR = getDomainHash(EIP712Domain({
@@ -317,7 +317,7 @@ contract LavaWallet is ECRecovery{
   //Can also be used to remove approval by using a 'tokens' value of 0.  P.S. it makes no sense to do an ApproveTokensFrom
   function approveTokens(address spender, address token, uint tokens) public returns (bool success) {
       allowed[token][msg.sender][spender] = tokens;
-      Approval(msg.sender, token, spender, tokens);
+      emit Approval(msg.sender, token, spender, tokens);
       return true;
   }
 
@@ -409,14 +409,14 @@ contract LavaWallet is ECRecovery{
 
        //approve the relayer reward
        allowed[packet.token][packet.from][msg.sender] = packet.relayerReward;
-       Approval(packet.from, packet.token, msg.sender, packet.relayerReward);
+       emit Approval(packet.from, packet.token, msg.sender, packet.relayerReward);
 
        //transferRelayerReward
        require(transferTokensFrom(packet.from, msg.sender, packet.token, packet.relayerReward));
 
        //approve transfer of tokens
        allowed[packet.token][packet.from][packet.to] = packet.tokens;
-       Approval(packet.from, packet.token, packet.to, packet.tokens);
+      emit Approval(packet.from, packet.token, packet.to, packet.tokens);
 
 
        return true;
