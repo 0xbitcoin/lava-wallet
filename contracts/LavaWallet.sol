@@ -126,18 +126,20 @@ contract ERC918Interface {
 
 }
 
-contract MiningKingInterface {
+/*contract MiningKingInterface {
     function getMiningKing() public returns (address);
     function transferKing(address newKing) public;
     function mint(uint256 nonce, bytes32 challenge_digest) returns (bool);
 
     event TransferKing(address from, address to);
+}*/
+
+contract RelayAuthorityInterface {
+    function getRelayAuthority() public returns (address);
 }
 
 contract ApproveAndCallFallBack {
-
     function receiveApproval(address from, uint256 tokens, address token, bytes data) public;
-
 }
 
 
@@ -176,13 +178,14 @@ contract LavaWallet is ECRecovery{
 
   struct LavaPacket {
     bytes methodName;
-    string relayMode; //only allow kings to relay the packet
+    address relayAuthority; //either a contract or an account
     address from;
     address to;
     address wallet;  //this contract address
     address token;
     uint256 tokens;
-    uint256 relayerReward;
+    address relayerRewardToken;
+    uint256 relayerRewardAmount;
     uint256 expires;
     uint256 nonce;
   }
@@ -197,7 +200,7 @@ contract LavaWallet is ECRecovery{
   );
 
   bytes32 constant LAVAPACKET_TYPEHASH = keccak256(
-      "LavaPacket(bytes methodName,string relayMode,address from,address to,address wallet,address token,uint256 tokens,uint256 relayerReward,uint256 expires,uint256 nonce)"
+      "LavaPacket(bytes methodName,address relayAuthority,address from,address to,address wallet,address token,uint256 tokens,address relayerRewardToken,uint256 relayerRewardAmount,uint256 expires,uint256 nonce)"
   );
 
 
@@ -225,13 +228,14 @@ contract LavaWallet is ECRecovery{
         return keccak256(abi.encode(
             LAVAPACKET_TYPEHASH,
             keccak256(bytes(packet.methodName)),
-            keccak256(bytes(packet.relayMode)),
+            packet.relayAuthority,
             packet.from,
             packet.to,
             packet.wallet,
             packet.token,
             packet.tokens,
-            packet.relayerReward,
+            packet.relayerRewardToken,
+            packet.relayerRewardAmount,
             packet.expires,
             packet.nonce
         ));
@@ -388,17 +392,27 @@ constructor(address relayKingContractAddress )  {
    function _tokenApprovalWithSignature(  LavaPacket packet, bytes32 sigHash, bytes signature) internal returns (bool success)
    {
 
-       address recoveredSignatureSigner = recover(sigHash,signature);
+
+
+       require( packet.relayAuthority == 0x0
+         || (!addressContainsContract(packet.relayAuthority) && msg.sender == packet.relayAuthority)
+         || (addressContainsContract(packet.relayAuthority) && msg.sender == RelayAuthorityInterface(packet.relayAuthority).getRelayAuthority())  );
 
        //relaymode must be either Any or King
-       require( bytesEqual(bytes(packet.relayMode) , 'any') || bytesEqual(bytes(packet.relayMode) , 'king')     );
+    //   require( bytesEqual(bytes(packet.relayMode) , 'any') || bytesEqual(bytes(packet.relayMode) , 'king')     );
 
-       bool requireKingRelay = bytesEqual(bytes(packet.relayMode) , 'king');
+    //   bool requireKingRelay = bytesEqual(bytes(packet.relayMode) , 'king');
+
+
+   //  require(msg.sender == getRelayingKing() || !requireKingRelay);  // you must be the 'king of the hill' to relay
+
+
+      address recoveredSignatureSigner = recover(sigHash,signature);
+
 
        //make sure the signer is the depositor of the tokens
        require(packet.from == recoveredSignatureSigner);
 
-       require(msg.sender == getRelayingKing() || !requireKingRelay);  // you must be the 'king of the hill' to relay
 
        //make sure the signature has not expired
        require(block.number < packet.expires);
@@ -408,11 +422,11 @@ constructor(address relayKingContractAddress )  {
        require(burnedSignature == 0x0 );
 
        //approve the relayer reward
-       allowed[packet.token][packet.from][msg.sender] = packet.relayerReward;
-       emit Approval(packet.from, packet.token, msg.sender, packet.relayerReward);
+       allowed[packet.relayerRewardToken][packet.from][msg.sender] = packet.relayerRewardAmount;
+       emit Approval(packet.from, packet.relayerRewardToken, msg.sender, packet.relayerRewardAmount);
 
        //transferRelayerReward
-       require(transferTokensFrom(packet.from, msg.sender, packet.token, packet.relayerReward));
+       require(transferTokensFrom(packet.from, msg.sender, packet.relayerRewardToken, packet.relayerRewardAmount));
 
        //approve transfer of tokens
        allowed[packet.token][packet.from][packet.to] = packet.tokens;
@@ -540,11 +554,19 @@ constructor(address relayKingContractAddress )  {
         return true;
      }
 
-     function getRelayingKing() public returns (address)
-     {
-       return MiningKingInterface(relayKingContract).getMiningKing();
-     }
 
+
+     function addressContainsContract(address _to) view internal returns (bool)
+     {
+       uint codeLength;
+
+        assembly {
+            // Retrieve the size of the code on target address, this needs assembly .
+            codeLength := extcodesize(_to)
+        }
+
+         return (codeLength>0);
+     }
 
 
      function bytesEqual(bytes b1,bytes b2) pure internal returns (bool)

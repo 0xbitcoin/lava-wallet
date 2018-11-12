@@ -100,7 +100,7 @@ contract RelayAuthorityInterface {
 }
 
 
-contract MiningKing is  RelayAuthorityInterface {
+contract MiningDelegate is  RelayAuthorityInterface {
 
 
   using SafeMath for uint;
@@ -131,15 +131,15 @@ contract MiningKing is  RelayAuthorityInterface {
   }
 
 
-  function transferAuthority(address newAuthority) public   {
+   function transferAuthority(address newAuthority) public   {
 
-      require(msg.sender == miningAuthority);
+       require(msg.sender == miningAuthority);
 
-      miningAuthority = newAuthority;
+       miningAuthority = newAuthority;
 
-      emit TransferAuthority(msg.sender, miningAuthority);
+       emit TransferAuthority(msg.sender, miningAuthority);
 
-  }
+   }
 
 
 /**
@@ -149,7 +149,7 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
 **/
 
 //proxyMintWithKing
-   function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray) public returns (bool)
+   function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray, address newAuthority ) public returns (bool)
    {
 
       require(proxyMintArray.length > 0);
@@ -177,10 +177,7 @@ Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit
 
 
       // UNIQUE CONTRACT ACTION SPACE
-      bytes memory nonceBytes = uintToBytesForAddress(nonce);
-
-      miningAuthority = bytesToAddress(nonceBytes);
-
+      miningAuthority = newAuthority;
       // --------
 
       return true;
