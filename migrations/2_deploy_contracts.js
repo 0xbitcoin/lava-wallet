@@ -1,6 +1,6 @@
 var _0xBitcoinToken = artifacts.require("./_0xBitcoinToken.sol");
 
-var MiningKing = artifacts.require("./MiningKing.sol");
+var MiningDelegate = artifacts.require("./MiningDelegate.sol");
 
 var wEthToken = artifacts.require("./WETH9.sol");
 
@@ -25,19 +25,17 @@ module.exports = function(deployer) {
     return deployer.deploy(MintHelper, _0xBitcoinToken.address, 0, 0 ).then(function(){
       console.log('deploy x', _0xBitcoinToken.address)
 
-        return deployer.deploy(MiningKing, _0xBitcoinToken.address).then(function(){   //issue ??
-            console.log('deploy 2 ',  MiningKing.address)
+        return deployer.deploy(MiningDelegate, _0xBitcoinToken.address).then(function(){   //issue ??
+            console.log('deploy 2 ',  MiningDelegate.address)
 
 
 
-                        return deployer.deploy(DoubleKingsReward, _0xBitcoinToken.address,  MiningKing.address).then(function(){
 
-                          return deployer.deploy(LavaWallet, MiningKing.address).then(function(){
-                              console.log('deploy 3 ',  LavaWallet.address)
-                               return LavaWallet.deployed()
-                        });
+            return deployer.deploy(LavaWallet).then(function(){
+                console.log('deploy 3 ',  LavaWallet.address)
+                 return LavaWallet.deployed()
+          });
 
-                      });
 
 
       });
