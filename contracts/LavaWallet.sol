@@ -160,8 +160,7 @@ contract LavaWallet is ECRecovery{
    //mapping(address => uint256) depositedTokens;
 
    mapping(bytes32 => uint256) burnedSignatures;
-
-   address relayKingContract;
+ 
 
   event Deposit(address token, address user, uint amount, uint balance);
   event Withdraw(address token, address user, uint amount, uint balance);
@@ -245,8 +244,7 @@ contract LavaWallet is ECRecovery{
 
  bytes32 DOMAIN_SEPARATOR;
 
-constructor(address relayKingContractAddress )  {
-    relayKingContract = relayKingContractAddress;
+constructor(  )  {
 
     DOMAIN_SEPARATOR = getDomainHash(EIP712Domain({
            name: "Lava Wallet",
