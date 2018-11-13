@@ -267,8 +267,7 @@ constructor(address relayKingContractAddress )  {
   {
       //we already have approval so lets do a transferFrom - transfer the tokens into this contract
 
-      if(!ERC20Interface(token).transferFrom(from, this, tokens)) revert();
-
+      require(ERC20Interface(token).transferFrom(from, this, tokens));
 
       balances[token][from] = balances[token][from].add(tokens);
   //    depositedTokens[token] = depositedTokens[token].add(tokens);
@@ -281,9 +280,9 @@ constructor(address relayKingContractAddress )  {
 
   //No approve needed, only from msg.sender
   function withdrawTokens(address token, uint256 tokens) public returns (bool success){
-    balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
+     balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
 
-    if(!ERC20Interface(token).transfer(msg.sender, tokens)) revert();
+     require(ERC20Interface(token).transfer(msg.sender, tokens));
 
 
      emit Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);
@@ -292,10 +291,11 @@ constructor(address relayKingContractAddress )  {
 
   //Requires approval so it can be public
   function withdrawTokensFrom( address from, address to,address token,  uint tokens) public returns (bool success) {
-      balances[token][from] = balances[token][from].sub(tokens);
-       allowed[token][from][to] = allowed[token][from][to].sub(tokens);
 
-      if(!ERC20Interface(token).transfer(to, tokens)) revert();
+       allowed[token][from][to] = allowed[token][from][to].sub(tokens);
+       balances[token][from] = balances[token][from].sub(tokens);
+
+      require(ERC20Interface(token).transfer(to, tokens));
 
 
       emit Withdraw(token, from, tokens, balances[token][from]);
@@ -392,19 +392,16 @@ constructor(address relayKingContractAddress )  {
    function _tokenApprovalWithSignature(  LavaPacket packet, bytes32 sigHash, bytes signature) internal returns (bool success)
    {
 
-
+       /*
+        Always allow relaying if the specified relayAuthority is 0.
+        If the authority address is not a contract, allow it to relay
+        If the authority address is a contract, allow its defined 'getAuthority()' delegate to relay
+       */
 
        require( packet.relayAuthority == 0x0
          || (!addressContainsContract(packet.relayAuthority) && msg.sender == packet.relayAuthority)
          || (addressContainsContract(packet.relayAuthority) && msg.sender == RelayAuthorityInterface(packet.relayAuthority).getRelayAuthority())  );
 
-       //relaymode must be either Any or King
-    //   require( bytesEqual(bytes(packet.relayMode) , 'any') || bytesEqual(bytes(packet.relayMode) , 'king')     );
-
-    //   bool requireKingRelay = bytesEqual(bytes(packet.relayMode) , 'king');
-
-
-   //  require(msg.sender == getRelayingKing() || !requireKingRelay);  // you must be the 'king of the hill' to relay
 
 
       address recoveredSignatureSigner = recover(sigHash,signature);
@@ -502,15 +499,15 @@ constructor(address relayKingContractAddress )  {
          address recoveredSignatureSigner = recover(sigHash,signature);
 
          //make sure the invalidator is the signer
-         if(recoveredSignatureSigner != packet.from) revert();
+         require(recoveredSignatureSigner == packet.from);
 
          //only the original packet owner can burn signature, not a relay
-         if(packet.from != msg.sender) revert();
+         require(packet.from == msg.sender);
 
          //make sure this signature has never been used
          uint burnedSignature = burnedSignatures[sigHash];
          burnedSignatures[sigHash] = 0x2; //invalidated
-         if(burnedSignature != 0x0 ) revert();
+         require(burnedSignature == 0x0);
 
          return true;
      }

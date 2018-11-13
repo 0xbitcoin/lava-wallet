@@ -142,13 +142,12 @@ contract MiningDelegate is  RelayAuthorityInterface {
    }
 
 
-/**
-Set the king to the Ethereum Address which is encoded as 160 bits of the 256 bit mining nonce
+    /**
+    Set the authority to the address specified as a parameter 
+
+    **/
 
 
-**/
-
-//proxyMintWithKing
    function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray, address newAuthority ) public returns (bool)
    {
 
