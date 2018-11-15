@@ -158,7 +158,7 @@ contract StakingDelegate is  RelayAuthorityInterface {
   function stopStaking(uint stakerIndex)
   {
     require( amountStaked[stakerIndex] >= tokens );
-    require( stakers[stakerIndex] = msg.sender );
+    require( stakers[stakerIndex] == msg.sender );
     require( stakerIndex < numberOfStakers );    
     require( getEpochNumber() > stakingLockBlock[stakerIndex]); 
   
@@ -174,7 +174,7 @@ contract StakingDelegate is  RelayAuthorityInterface {
 
 
   /*
-  Remember this number is only psuedorandom and can be manipulated
+  Rotate through the staker authorities 
   */
   function getRelayAuthority() view public returns (address king)
   {    
@@ -218,8 +218,9 @@ function depositTokens(address from,  uint256 tokens ) public returns (bool succ
 
 
   function receiveApproval(address from, uint256 tokens, address token, bytes data) public returns (bool success) { 
-
-       return depositTokens(from, token, tokens );
+       require(token == minedToken);
+        
+       return depositTokens(from,   tokens );
 
 }
  
