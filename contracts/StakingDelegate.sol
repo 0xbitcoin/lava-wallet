@@ -103,22 +103,30 @@ contract RelayAuthorityInterface {
 contract StakingDelegate is  RelayAuthorityInterface {
 
 
-  using SafeMath for uint;
+    using SafeMath for uint;
+  
+  
 
-   //there are 50 slots, can overwrite one by staking enough tokens
-   address[] stakers ;
-   mapping(uint => uint) amountStaked;
-
+   //There are 50 slots, can overwrite one by staking enough tokens
+   address[] stakers;
+   address[] stakerAuthorities;
+   mapping(uint => uint) amountStaked; 
+   
+   uint[] stakingLockBlock; //The block at which the staker is allowed to withdraw their stake 
+   
+   public uint numberOfStakers = 15;  //A constant 
 
    mapping(address => uint) balances;
 
 
-   //address public miningAuthority;
-
+  
    address public minedToken;
 
 
-   //event TransferAuthority(address from, address to);
+
+    event Deposit(address token, address user, uint amount, uint balance);
+    event Withdraw(address token, address user, uint amount, uint balance);
+
 
    // 0xBTC is 0xb6ed7644c69416d67b522e20bc294a9a9b405b31;
   constructor(address mintableToken) public  {
@@ -132,16 +140,18 @@ contract StakingDelegate is  RelayAuthorityInterface {
   }
 
 
-  function startStaking(uint tokens , uint stakerIndex)
+  function startStaking(uint tokens , uint stakerIndex, address authority)
   {
     require( amountStaked[stakerIndex] < tokens);
-    require( stakerIndex < 50 );
+    require( stakerIndex < numberOfStakers );
     stakers[stakerIndex] != msg.sender;
-
-    balances[msg.sender] = balances[msg.sender].sub( 0.1 * 10 ** ERC918Interface(mintableToken).decimals ); //burn each time staker is set
+    
+    stakingLockBlock[stakerIndex] = getEpochNumber() + 100;
+     
     balances[msg.sender] = balances[msg.sender].sub(tokens);
     amountStaked[stakerIndex] = amountStaked[msg.sender].add(tokens);
     stakers[stakerIndex] = msg.sender;
+    stakerAuthorities[stakerIndex] = authority;
 
     return true;
   }
@@ -150,11 +160,13 @@ contract StakingDelegate is  RelayAuthorityInterface {
   {
     require( amountStaked[stakerIndex] >= tokens );
     require( stakers[stakerIndex] = msg.sender );
-    require( stakerIndex < 50 );
+    require( stakerIndex < numberOfStakers );    
+    require( getEpochNumber() > stakingLockBlock[stakerIndex]); 
 
     amountStaked[stakerIndex] = amountStaked[msg.sender].sub(tokens);
     stakers[stakerIndex] = 0x0;
-    balances[msg.sender] = balances[msg.sender].add(tokens);
+    stakerAuthorities[stakerIndex] = 0x0;
+    balances[msg.sender] = balances[msg.sender].add(tokens);    
 
     return true;
   }
@@ -164,99 +176,55 @@ contract StakingDelegate is  RelayAuthorityInterface {
   Remember this number is only psuedorandom and can be manipulated
   */
   function getRelayAuthority() view public returns (address king)
+  {    
+    uint stakerIndex = getEpochNumber() % numberOfStakers;
+
+    return stakerAuthorities[stakerIndex];
+  }
+  
+  
+  function getEpochNumber() view public returns (uint count)
   {
-
-    uint epochNumber = ERC918Interface(mintableToken).epochCount;
-    uint stakerIndex = epochNumber % 50;
-
-    return stakers[stakerIndex];
+    return  ERC918Interface(mintableToken).epochCount;
   }
 
 
-  /* function transferAuthority(address newAuthority) public   {
 
-       require(msg.sender == miningAuthority);
+function depositTokens(address from, address token, uint256 tokens ) public returns (bool success)
+  {
+      //we already have approval so lets do a transferFrom - transfer the tokens into this contract
 
-       miningAuthority = newAuthority;
+      require(ERC20Interface(token).transferFrom(from, this, tokens));
 
-       emit TransferAuthority(msg.sender, miningAuthority);
-
-   }*/
-
-
-    /**
-    Set the authority to the address specified as a parameter
-
-    **/
-
-/*
-   function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray, address newAuthority ) public returns (bool)
-   {
-
-      require(proxyMintArray.length > 0);
-
-
-      uint previousEpochCount = ERC918Interface(minedToken).epochCount();
-
-      address proxyMinter = proxyMintArray[0];
-
-      if(proxyMintArray.length == 1)
-      {
-        //Forward to the last proxyMint contract, typically a pool's owned  mint contract
-        require(proxyMinterInterface(proxyMinter).proxyMint(nonce, challenge_digest));
-      }else{
-        //if array length is greater than 1, pop the proxyMinter from the front of the array and keep cascading down the chain...
-        address[] memory remainingProxyMintArray = popFirstFromArray(proxyMintArray);
-
-        require(mintForwarderInterface(proxyMinter).mintForwarder(nonce, challenge_digest,remainingProxyMintArray));
-      }
-
-     //make sure that the minedToken really was proxy minted through the proxyMint delegate call chain
-      require( ERC918Interface(minedToken).epochCount() == previousEpochCount.add(1) );
-
-
-
-
-      // UNIQUE CONTRACT ACTION SPACE
-      miningAuthority = newAuthority;
-      // --------
+      balances[token][from] = balances[token][from].add(tokens);
+   
+      emit Deposit(token, from, tokens, balances[token][from]);
 
       return true;
-   }*/
-
-
-  function popFirstFromArray(address[] array) pure public returns (address[] memory)
-  {
-    address[] memory newArray = new address[](array.length-1);
-
-    for (uint i=0; i < array.length-1; i++) {
-      newArray[i] =  array[i+1]  ;
-    }
-
-    return newArray;
   }
 
- function uintToBytesForAddress(uint256 x) pure public returns (bytes b) {
 
-      b = new bytes(20);
-      for (uint i = 0; i < 20; i++) {
-          b[i] = byte(uint8(x / (2**(8*(31 - i)))));
-      }
+  //No approve needed, only from msg.sender
+  function withdrawTokens(address token, uint256 tokens) public returns (bool success){
+     balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
 
-      return b;
-    }
+     require(ERC20Interface(token).transfer(msg.sender, tokens));
 
 
- function bytesToAddress (bytes b) pure public returns (address) {
-     uint result = 0;
-     for (uint i = b.length-1; i+1 > 0; i--) {
-       uint c = uint(b[i]);
-       uint to_inc = c * ( 16 ** ((b.length - i-1) * 2));
-       result += to_inc;
-     }
-     return address(result);
- }
+     emit Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);
+     return true;
+}
 
+
+  function receiveApproval(address from, uint256 tokens, address token, bytes data) public returns (bool success) { 
+
+       return depositTokens(from, token, tokens );
+
+}
+ 
+
+  
+ 
 
 
 
