@@ -97,15 +97,15 @@ contract StakingDelegate is  RelayAuthorityInterface {
   
 
    //There are slots, can overwrite one by staking enough tokens
-   address[] stakers;
-   address[] stakerAuthorities;
-   mapping(uint => uint) amountStaked; 
+   public address[] stakers;
+   public address[] stakerAuthorities;
+   public uint[] amountStaked; 
    
-   uint[] stakingLockBlock; //The block at which the staker is allowed to withdraw their stake 
+   public uint[] stakingLockBlock; //The block at which the staker is allowed to withdraw their stake 
    
    public uint numberOfStakers = 15;  //A constant 
 
-   mapping(address => uint) balances;
+   public mapping(address => uint) balances;
 
 
   
@@ -134,6 +134,7 @@ contract StakingDelegate is  RelayAuthorityInterface {
     require( amountStaked[stakerIndex].mul(1.05) < tokens );
     require( stakerIndex < numberOfStakers );
     require( stakers[stakerIndex] != msg.sender );
+    require( getEpochNumber() > stakingLockBlock[stakerIndex]); 
     
     stakingLockBlock[stakerIndex] = getEpochNumber() + 100;
     
@@ -183,6 +184,11 @@ contract StakingDelegate is  RelayAuthorityInterface {
     return stakerAuthorities[stakerIndex];
   }
   
+  
+  function isSlotOpen(uint stakerIndex) view public returns (uint count)
+  {
+    return ( getEpochNumber() > stakingLockBlock[stakerIndex] ); 
+  }
   
   function getEpochNumber() view public returns (uint count)
   {
