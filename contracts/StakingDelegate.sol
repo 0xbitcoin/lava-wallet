@@ -135,9 +135,10 @@ contract StakingDelegate is  RelayAuthorityInterface {
   function startStaking(uint tokens , uint stakerIndex)
   {
     require( amountStaked[stakerIndex] < tokens);
+    require( stakerIndex < 50 );
     stakers[stakerIndex] != msg.sender;
 
-    balances[msg.sender] = balances[msg.sender].sub( 0.1 * 10 ** ERC918Interface(mintableToken).decimals ); //burn each time staker is set 
+    balances[msg.sender] = balances[msg.sender].sub( 0.1 * 10 ** ERC918Interface(mintableToken).decimals ); //burn each time staker is set
     balances[msg.sender] = balances[msg.sender].sub(tokens);
     amountStaked[stakerIndex] = amountStaked[msg.sender].add(tokens);
     stakers[stakerIndex] = msg.sender;
@@ -149,6 +150,7 @@ contract StakingDelegate is  RelayAuthorityInterface {
   {
     require( amountStaked[stakerIndex] >= tokens );
     require( stakers[stakerIndex] = msg.sender );
+    require( stakerIndex < 50 );
 
     amountStaked[stakerIndex] = amountStaked[msg.sender].sub(tokens);
     stakers[stakerIndex] = 0x0;
