@@ -51,9 +51,8 @@ library SafeMath {
 
 /*
 
-This is a King Of The Hill contract which requires Proof of Work (hashpower) to set the king
-
-This global non-owned contract proxy-mints 0xBTC through a personally-owned mintHelper contract (MintHelper.sol)
+This is a King Of The Hill Aurhority contract which requires Proof of Stake to set the king
+ 
 
 */
 
@@ -142,9 +141,9 @@ contract StakingDelegate is  RelayAuthorityInterface {
 
   function startStaking(uint tokens , uint stakerIndex, address authority)
   {
-    require( amountStaked[stakerIndex] < tokens);
+    require( amountStaked[stakerIndex].mul(1.2) < tokens );
     require( stakerIndex < numberOfStakers );
-    stakers[stakerIndex] != msg.sender;
+    require( stakers[stakerIndex] != msg.sender );
     
     stakingLockBlock[stakerIndex] = getEpochNumber() + 100;
      
