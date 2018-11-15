@@ -82,17 +82,7 @@ contract ERC918Interface {
   event Mint(address indexed from, uint reward_amount, uint epochCount, bytes32 newChallengeNumber);
 
 }
-
-contract mintForwarderInterface
-{
-  function mintForwarder(uint256 nonce, bytes32 challenge_digest, address[] proxyMintArray) public returns (bool success);
-}
-
-contract proxyMinterInterface
-{
-  function proxyMint(uint256 nonce, bytes32 challenge_digest) public returns (bool success);
-}
-
+ 
 
 contract RelayAuthorityInterface {
     function getRelayAuthority() view public returns (address);
@@ -141,7 +131,7 @@ contract StakingDelegate is  RelayAuthorityInterface {
 
   function startStaking(uint tokens , uint stakerIndex, address authority)
   {
-    require( amountStaked[stakerIndex].mul(1.2) < tokens );
+    require( amountStaked[stakerIndex].mul(1.05) < tokens );
     require( stakerIndex < numberOfStakers );
     require( stakers[stakerIndex] != msg.sender );
     
