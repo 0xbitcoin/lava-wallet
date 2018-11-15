@@ -146,26 +146,38 @@ contract StakingDelegate is  RelayAuthorityInterface {
     require( stakers[stakerIndex] != msg.sender );
     
     stakingLockBlock[stakerIndex] = getEpochNumber() + 100;
+    
+    address originalStaker = stakers[stakerIndex];
+    uint originalAmountStaked = amountStaked[stakerIndex];
+    address originalAuthority = stakerAuthorities[stakerIndex];
+    
      
     balances[msg.sender] = balances[msg.sender].sub(tokens);
     amountStaked[stakerIndex] = amountStaked[msg.sender].add(tokens);
     stakers[stakerIndex] = msg.sender;
     stakerAuthorities[stakerIndex] = authority;
+    
+    if(originalAmountStaked>0)
+    {
+      balances[originalStaker] = balances[originalStaker].add(originalAmountStaked);
+    }
 
     return true;
   }
 
-  function stopStaking(uint tokens , uint stakerIndex)
+  function stopStaking(uint stakerIndex)
   {
     require( amountStaked[stakerIndex] >= tokens );
     require( stakers[stakerIndex] = msg.sender );
     require( stakerIndex < numberOfStakers );    
     require( getEpochNumber() > stakingLockBlock[stakerIndex]); 
-
-    amountStaked[stakerIndex] = amountStaked[msg.sender].sub(tokens);
+  
+    uint originalAmountStaked = amountStaked[stakerIndex];
+    
+    amountStaked[stakerIndex] = 0;
     stakers[stakerIndex] = 0x0;
     stakerAuthorities[stakerIndex] = 0x0;
-    balances[msg.sender] = balances[msg.sender].add(tokens);    
+    balances[msg.sender] = balances[msg.sender].add(originalAmountStaked);    
 
     return true;
   }
