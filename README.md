@@ -47,7 +47,18 @@ TO VERIFY:
 4. Used the new Beta validator with the FULL flat file, point at the ecrecovery lib by address as well
 
 
-### Published on MainNet
+### Published on MainNet  
+
+
+--
+
+### Published on Ropsten  
+
+LavaWallet
+0xdc2d3b72ec62e3c7f3c4225857069044df40bc54
+
+
+### Published on MainNet (legacy)
 ECRecover
 0xf532bd0ef20914ea1f78763f0e22495b326ee3a2
 
@@ -55,17 +66,7 @@ LavaWallet
 0xe4af56a674df3da83b22a04eeeaf983d40a9e1ab
 
 
-### Published on Ropsten (old)
-ECRecover
-0x9add22cd7e6567d7ff979f3d1f77f5b949124792
-
-LavaWallet
-0x1d0d66272025d7c59c40257813fc0d7ddf2c4826
-
-
-
-
-### Published on MainNet (legacy)
+### Published on MainNet (legacy) (legacy)
 ECRecover
 0x82e91b7967ca55eb1c4cb3d58aa5c91cb8df436b
 
