@@ -185,7 +185,7 @@ contract StakingDelegate is  RelayAuthorityInterface {
   }
   
   
-  function isSlotOpen(uint stakerIndex) view public returns (uint count)
+  function isSlotOpen(uint stakerIndex) view public returns (bool open)
   {
     return ( getEpochNumber() > stakingLockBlock[stakerIndex] ); 
   }
