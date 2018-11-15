@@ -96,7 +96,7 @@ contract StakingDelegate is  RelayAuthorityInterface {
   
   
 
-   //There are 50 slots, can overwrite one by staking enough tokens
+   //There are slots, can overwrite one by staking enough tokens
    address[] stakers;
    address[] stakerAuthorities;
    mapping(uint => uint) amountStaked; 
@@ -186,33 +186,33 @@ contract StakingDelegate is  RelayAuthorityInterface {
   
   function getEpochNumber() view public returns (uint count)
   {
-    return  ERC918Interface(mintableToken).epochCount;
+    return  ERC918Interface(minedToken).epochCount;
   }
 
 
 
-function depositTokens(address from, address token, uint256 tokens ) public returns (bool success)
+function depositTokens(address from,  uint256 tokens ) public returns (bool success)
   {
       //we already have approval so lets do a transferFrom - transfer the tokens into this contract
 
-      require(ERC20Interface(token).transferFrom(from, this, tokens));
+      require(ERC20Interface(minedToken).transferFrom(from, this, tokens));
 
-      balances[token][from] = balances[token][from].add(tokens);
+      balances[token][from] = balances[minedToken][from].add(tokens);
    
-      emit Deposit(token, from, tokens, balances[token][from]);
+      emit Deposit(token, from, tokens, balances[minedToken][from]);
 
       return true;
   }
 
 
   //No approve needed, only from msg.sender
-  function withdrawTokens(address token, uint256 tokens) public returns (bool success){
-     balances[token][msg.sender] = balances[token][msg.sender].sub(tokens);
+  function withdrawTokens(  uint256 tokens) public returns (bool success){
+     balances[minedToken][msg.sender] = balances[minedToken][msg.sender].sub(tokens);
 
-     require(ERC20Interface(token).transfer(msg.sender, tokens));
+     require(ERC20Interface(minedToken).transfer(msg.sender, tokens));
 
 
-     emit Withdraw(token, msg.sender, tokens, balances[token][msg.sender]);
+     emit Withdraw(token, msg.sender, tokens, balances[minedToken][msg.sender]);
      return true;
 }
 
