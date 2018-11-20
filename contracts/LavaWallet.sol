@@ -160,7 +160,7 @@ contract LavaWallet is ECRecovery{
    //mapping(address => uint256) depositedTokens;
 
    mapping(bytes32 => uint256) burnedSignatures;
- 
+
 
   event Deposit(address token, address user, uint amount, uint balance);
   event Withdraw(address token, address user, uint amount, uint balance);
@@ -184,7 +184,7 @@ contract LavaWallet is ECRecovery{
     address token;
     uint256 tokens;
     address relayerRewardToken;
-    uint256 relayerRewardAmount;
+    uint256 relayerRewardTokens;
     uint256 expires;
     uint256 nonce;
   }
@@ -199,7 +199,7 @@ contract LavaWallet is ECRecovery{
   );
 
   bytes32 constant LAVAPACKET_TYPEHASH = keccak256(
-      "LavaPacket(bytes methodName,address relayAuthority,address from,address to,address wallet,address token,uint256 tokens,address relayerRewardToken,uint256 relayerRewardAmount,uint256 expires,uint256 nonce)"
+      "LavaPacket(bytes methodName,address relayAuthority,address from,address to,address wallet,address token,uint256 tokens,address relayerRewardToken,uint256 relayerRewardTokens,uint256 expires,uint256 nonce)"
   );
 
 
@@ -234,7 +234,7 @@ contract LavaWallet is ECRecovery{
             packet.token,
             packet.tokens,
             packet.relayerRewardToken,
-            packet.relayerRewardAmount,
+            packet.relayerRewardTokens,
             packet.expires,
             packet.nonce
         ));
@@ -417,15 +417,15 @@ constructor(  )  {
        require(burnedSignature == 0x0 );
 
        //approve the relayer reward
-       allowed[packet.relayerRewardToken][packet.from][msg.sender] = packet.relayerRewardAmount;
-       emit Approval(packet.from, packet.relayerRewardToken, msg.sender, packet.relayerRewardAmount);
+       allowed[packet.relayerRewardToken][packet.from][msg.sender] = packet.relayerRewardTokens;
+       emit Approval(packet.from, packet.relayerRewardToken, msg.sender, packet.relayerRewardTokens);
 
        //transferRelayerReward
-       require(transferTokensFrom(packet.from, msg.sender, packet.relayerRewardToken, packet.relayerRewardAmount));
+       require(transferTokensFrom(packet.from, msg.sender, packet.relayerRewardToken, packet.relayerRewardTokens));
 
        //approve transfer of tokens
        allowed[packet.token][packet.from][packet.to] = packet.tokens;
-      emit Approval(packet.from, packet.token, packet.to, packet.tokens);
+       emit Approval(packet.from, packet.token, packet.to, packet.tokens);
 
 
        return true;

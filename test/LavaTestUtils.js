@@ -94,7 +94,7 @@ function typedSignatureHash(typedData) {
    return typedDataHash;
  }
 
- getLavaTypedDataFromParams(methodName,relayMode,from,to,walletAddress,tokenAddress,tokenAmount,relayerReward,expires,nonce)
+ getLavaTypedDataFromParams(methodName,relayMode,from,to,walletAddress,tokenAddress,tokenAmount,relayerRewardToken,relayerRewardTokens,expires,nonce)
  {
    const typedData = {
            types: {
@@ -104,13 +104,14 @@ function typedSignatureHash(typedData) {
                ],
                LavaPacket: [
                    { name: 'methodName', type: 'bytes' },  //?
-                   { name: 'relayMode', type: 'string' },
+                   { name: 'relayAuthority', type: 'address' },
                    { name: 'from', type: 'address' },
                    { name: 'to', type: 'address' },
                    { name: 'wallet', type: 'address' },
                    { name: 'token', type: 'address' },
                    { name: 'tokens', type: 'uint256' },
-                   { name: 'relayerReward', type: 'uint256' },
+                   { name: 'relayerRewardToken', type: 'address' },
+                   { name: 'relayerRewardTokens', type: 'uint256' },
                    { name: 'expires', type: 'uint256' },
                    { name: 'nonce', type: 'uint256' }
                ],
@@ -122,13 +123,14 @@ function typedSignatureHash(typedData) {
            },
            packet: {
                methodName: methodName,
-               relayMode: relayMode,
+               relayAuthority: relayMode,
                from: from,
                to: to,
                wallet: walletAddress,
                token: tokenAddress,
                tokens: tokenAmount,
-               relayerReward: relayerReward,
+               relayerRewardToken: relayerRewardToken,
+               relayerRewardTokens: relayerRewardTokens,
                expires: expires,
                nonce: nonce,
            },

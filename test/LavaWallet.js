@@ -31,18 +31,19 @@ contract("LavaWallet", (accounts) => {
 
   var walletContract ;
   var tokenContract;
-  var kingContract;
+  //var kingContract;
   var mintHelperContract;
-  var doubleKingsRewardContract;
-
+//  var doubleKingsRewardContract;
+    var MiningDelegate;
 
 
   it("can deploy ", async function () {
     walletContract = getInstance("LavaWallet")
     tokenContract = getInstance("_0xBitcoinToken")
-    kingContract = getInstance("MiningKing")
+  //  kingContract = getInstance("MiningKing")
     mintHelperContract = getInstance("MintHelper")
-    doubleKingsRewardContract = getInstance("DoubleKingsReward")
+    miningDelegateContract = getInstance("MiningDelegate")
+  //  doubleKingsRewardContract = getInstance("DoubleKingsReward")
 
 
 
@@ -67,13 +68,14 @@ contract("LavaWallet", (accounts) => {
                     ],
                     LavaPacket: [
                         { name: 'methodName', type: 'bytes' },  //?
-                        { name: 'relayMethod', type: 'string' },
+                        { name: 'relayAuthority', type: 'address' },
                         { name: 'from', type: 'address' },
                         { name: 'to', type: 'address' },
                         { name: 'wallet', type: 'address' },
                         { name: 'token', type: 'address' },
                         { name: 'tokens', type: 'uint256' },
-                        { name: 'relayerReward', type: 'uint256' },
+                        { name: 'relayerRewardToken', type: 'address' },
+                        { name: 'relayerRewardTokens', type: 'uint256' },
                         { name: 'expires', type: 'uint256' },
                         { name: 'nonce', type: 'uint256' }
                     ],
@@ -85,13 +87,14 @@ contract("LavaWallet", (accounts) => {
                 },
                 packet: {   //what is word supposed to be ??
                     methodname: 'approve',
-                    relayMode: 'any',
+                    relayAuthority:miningDelegateContract.options.address,
                     from: test_account.address,
                     to: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
                     wallet: walletContract.options.address,
                     token: tokenContract.options.address,
                     tokens: 0,
-                    relayerReward: 0,
+                    relayerRewardToken:tokenContract.options.address,
+                    relayerRewardTokens: 0,
                     expires: 999999999,
                     nonce: 0,
                 },
@@ -128,13 +131,14 @@ contract("LavaWallet", (accounts) => {
 
 
               var methodName = web3utils.fromAscii('approve')   //convert to bytes
-              var relayMode = 'any'
+              var relayAuthority = miningDelegateContract.options.address
               var from= test_account.address
               var to= "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c"
               var walletAddress=walletContract.options.address
               var tokenAddress=tokenContract.options.address
               var tokenAmount=2000000
-              var relayerReward=1000000
+              var relayerRewardToken=tokenContract.options.address
+              var relayerRewardTokens=1000000
               var expires=336504400
               var nonce='0xc18f687c56f1b2749af7d6151fa351'
               //var expectedSignature="0x8ef27391a81f77244bf95df58737eecac386ab9a47acd21bdb63757adf71ddf878169c18e4ab7b71d60f333c870258a0644ac7ade789d59c53b0ab75dbcc87d11b"
@@ -143,13 +147,14 @@ contract("LavaWallet", (accounts) => {
 
               var typedData = lavaTestUtils.getLavaTypedDataFromParams(
                 methodName,
-                relayMode,
+                relayAuthority,
                 from,
                 to,
                 walletAddress,
                 tokenAddress,
                 tokenAmount,
-                relayerReward,
+                relayerRewardToken,
+                relayerRewardTokens,
                 expires,
                 nonce);
 
@@ -164,13 +169,14 @@ contract("LavaWallet", (accounts) => {
 
 
                var lavaPacketTuple = [methodName,
-                                       relayMode,
+                                       relayAuthority,
                                        from,
                                        to,
                                        walletAddress,
                                        tokenAddress,
                                        tokenAmount,
-                                       relayerReward,
+                                       relayerRewardToken,
+                                       relayerRewardTokens,
                                        expires,
                                        nonce]
 
@@ -226,13 +232,14 @@ contract("LavaWallet", (accounts) => {
 
 
                  var methodName = web3utils.fromAscii(  'approve' )  //convert to bytes
-                 var relayMethod = 'any'
+                 var relayAuthority = miningDelegateContract.options.address
                  var from= addressFrom
                  var to= "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c"
                  var walletAddress=walletContract.options.address
                  var tokenAddress=tokenContract.options.address
                  var tokenAmount=2000000
-                 var relayerReward=1000000
+                 var relayerRewardToken=tokenContract.options.address
+                 var relayerRewardTokens=1000000
                  var expires=336504400
                  var nonce='0xc18f687c56f1b2749af7d6151fa351'
                  //var expectedSignature="0x8ef27391a81f77244bf95df58737eecac386ab9a47acd21bdb63757adf71ddf878169c18e4ab7b71d60f333c870258a0644ac7ade789d59c53b0ab75dbcc87d11b"
@@ -241,13 +248,14 @@ contract("LavaWallet", (accounts) => {
 
                  var typedData = lavaTestUtils.getLavaTypedDataFromParams(
                    methodName,
-                   relayMethod,
+                   relayAuthority,
                    from,
                    to,
                    walletAddress,
                    tokenAddress,
                    tokenAmount,
-                   relayerReward,
+                   relayerRewardToken,
+                   relayerRewardTokens,
                    expires,
                    nonce);
 
@@ -265,13 +273,14 @@ contract("LavaWallet", (accounts) => {
 
                   var tuple = [
                   methodName,
-                  relayMethod,
+                  relayAuthority,
                   from,
                   to,
                   walletAddress,
                   tokenAddress,
                   tokenAmount,
-                  relayerReward,
+                  relayerRewardToken,
+                  relayerRewardTokens,
                   expires,
                   nonce];
 
