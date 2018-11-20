@@ -52,7 +52,7 @@ library SafeMath {
 /*
 
 This is a King Of The Hill Aurhority contract which requires Proof of Stake to set the king
- 
+
 
 */
 
@@ -69,7 +69,7 @@ contract ERC20Interface {
 }
 contract ERC918Interface {
 
-  function epochCount() public constant returns (uint);
+  function epochCount() public view returns (uint256);
 
   function totalSupply() public constant returns (uint);
   function getMiningDifficulty() public constant returns (uint);
@@ -82,7 +82,7 @@ contract ERC918Interface {
   event Mint(address indexed from, uint reward_amount, uint epochCount, bytes32 newChallengeNumber);
 
 }
- 
+
 
 contract RelayAuthorityInterface {
     function getRelayAuthority() view public returns (address);
@@ -93,22 +93,22 @@ contract StakingDelegate is  RelayAuthorityInterface {
 
 
     using SafeMath for uint;
-  
-  
+
+
 
    //There are slots, can overwrite one by staking enough tokens
-   public address[] stakers;
-   public address[] stakerAuthorities;
-   public uint[] amountStaked; 
-   
-   public uint[] stakingLockBlock; //The block at which the staker is allowed to withdraw their stake 
-   
-   public uint numberOfStakers = 15;  //A constant 
+    address[] public stakers;
+    address[] public stakerAuthorities;
+    uint[] public amountStaked;
 
-   public mapping(address => uint) balances;
+    uint[] public stakingLockBlock; //The block at which the staker is allowed to withdraw their stake
+
+    uint public numberOfStakers = 15;  //A constant
+
+    mapping(address => uint) public balances;
 
 
-  
+
    address public minedToken;
 
 
@@ -129,25 +129,25 @@ contract StakingDelegate is  RelayAuthorityInterface {
   }
 
 
-  function startStaking(uint tokens , uint stakerIndex, address authority)
+  function startStaking(uint tokens , uint stakerIndex, address authority) returns (bool)
   {
-    require( amountStaked[stakerIndex].mul(1.05) < tokens );
+    require( amountStaked[stakerIndex].mul(21).div(20) < tokens );
     require( stakerIndex < numberOfStakers );
     require( stakers[stakerIndex] != msg.sender );
-    require( getEpochNumber() > stakingLockBlock[stakerIndex]); 
-    
+    require( getEpochNumber() > stakingLockBlock[stakerIndex]);
+
     stakingLockBlock[stakerIndex] = getEpochNumber() + 100;
-    
+
     address originalStaker = stakers[stakerIndex];
     uint originalAmountStaked = amountStaked[stakerIndex];
     address originalAuthority = stakerAuthorities[stakerIndex];
-    
-     
+
+
     balances[msg.sender] = balances[msg.sender].sub(tokens);
-    amountStaked[stakerIndex] = amountStaked[msg.sender].add(tokens);
+    amountStaked[stakerIndex] = amountStaked[stakerIndex].add(tokens);
     stakers[stakerIndex] = msg.sender;
     stakerAuthorities[stakerIndex] = authority;
-    
+
     if(originalAmountStaked>0)
     {
       balances[originalStaker] = balances[originalStaker].add(originalAmountStaked);
@@ -156,43 +156,43 @@ contract StakingDelegate is  RelayAuthorityInterface {
     return true;
   }
 
-  function stopStaking(uint stakerIndex)
+  function stopStaking(uint stakerIndex) returns (bool)
   {
-    require( amountStaked[stakerIndex] >= tokens );
+    //require( amountStaked[stakerIndex] >= tokens );
     require( stakers[stakerIndex] == msg.sender );
-    require( stakerIndex < numberOfStakers );    
-    require( getEpochNumber() > stakingLockBlock[stakerIndex]); 
-  
+    require( stakerIndex < numberOfStakers );
+    require( getEpochNumber() > stakingLockBlock[stakerIndex]);
+
     uint originalAmountStaked = amountStaked[stakerIndex];
-    
+
     amountStaked[stakerIndex] = 0;
     stakers[stakerIndex] = 0x0;
     stakerAuthorities[stakerIndex] = 0x0;
-    balances[msg.sender] = balances[msg.sender].add(originalAmountStaked);    
+    balances[msg.sender] = balances[msg.sender].add(originalAmountStaked);
 
     return true;
   }
 
 
   /*
-  Rotate through the staker authorities 
+  Rotate through the staker authorities
   */
   function getRelayAuthority() view public returns (address king)
-  {    
+  {
     uint stakerIndex = getEpochNumber() % numberOfStakers;
 
     return stakerAuthorities[stakerIndex];
   }
-  
-  
+
+
   function isSlotOpen(uint stakerIndex) view public returns (bool open)
   {
-    return ( getEpochNumber() > stakingLockBlock[stakerIndex] ); 
+    return ( getEpochNumber() > stakingLockBlock[stakerIndex] );
   }
-  
-  function getEpochNumber() view public returns (uint count)
+
+  function getEpochNumber()   public returns (uint256  )
   {
-    return  ERC918Interface(minedToken).epochCount;
+    return  ERC918Interface(minedToken).epochCount() ;
   }
 
 
@@ -203,9 +203,9 @@ function depositTokens(address from,  uint256 tokens ) public returns (bool succ
 
       require(ERC20Interface(minedToken).transferFrom(from, this, tokens));
 
-      balances[token][from] = balances[minedToken][from].add(tokens);
-   
-      emit Deposit(token, from, tokens, balances[minedToken][from]);
+      balances[from] = balances[from].add(tokens);
+
+      emit Deposit(minedToken, from, tokens, balances[from]);
 
       return true;
   }
@@ -213,26 +213,26 @@ function depositTokens(address from,  uint256 tokens ) public returns (bool succ
 
   //No approve needed, only from msg.sender
   function withdrawTokens(  uint256 tokens) public returns (bool success){
-     balances[minedToken][msg.sender] = balances[minedToken][msg.sender].sub(tokens);
+     balances[msg.sender] = balances[msg.sender].sub(tokens);
 
      require(ERC20Interface(minedToken).transfer(msg.sender, tokens));
 
 
-     emit Withdraw(token, msg.sender, tokens, balances[minedToken][msg.sender]);
+     emit Withdraw(minedToken, msg.sender, tokens, balances[msg.sender]);
      return true;
 }
 
 
-  function receiveApproval(address from, uint256 tokens, address token, bytes data) public returns (bool success) { 
+  function receiveApproval(address from, uint256 tokens, address token, bytes data) public returns (bool success) {
        require(token == minedToken);
-        
+
        return depositTokens(from,   tokens );
 
 }
- 
 
-  
- 
+
+
+
 
 
 
