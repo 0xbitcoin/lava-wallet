@@ -146,6 +146,66 @@ function typedSignatureHash(typedData) {
     return '0x' + buffer.toString('hex')
  }
 
+
+
+
+     static getLavaPacket(
+       methodName,relayAuthority,from,to,wallet,token,tokens,
+       relayerRewardToken,relayerRewardTokens,expires,nonce,signature)
+     {
+
+       return {
+         methodName:methodName,
+         relayAuthority:relayAuthority,
+         from: from,
+         to: to,
+         wallet:wallet,
+         token:token,
+         tokens:tokens,
+         relayerRewardToken:relayerRewardToken,
+         relayerRewardTokens:relayerRewardTokens,
+         expires:expires,
+         nonce:nonce,
+         signature:signature
+       }
+
+
+     }
+
+     static lavaPacketHasValidSignature(packetData){
+
+       var sigHash = LavaPacketUtils.getLavaTypedDataHash(packetData.methodName,
+          packetData.relayAuthority,
+          packetData.from,
+          packetData.to,
+          packetData.wallet,
+          packetData.token,
+          packetData.tokens,
+          packetData.relayerRewardToken,
+          acketData.relayerRewardTokens,
+          packetData.expires,
+          packetData.nonce);
+
+
+       var msgBuf = ethjsutil.toBuffer(packetData.signature)
+       const res = ethjsutil.fromRpcSig(msgBuf);
+
+
+       var hashBuf = ethjsutil.toBuffer(sigHash)
+
+       const pubKey  = ethjsutil.ecrecover(hashBuf, res.v, res.r, res.s);
+       const addrBuf = ethjsutil.pubToAddress(pubKey);
+       const recoveredSignatureSigner    = ethjsutil.bufferToHex(addrBuf);
+
+
+       //make sure the signer is the depositor of the tokens
+       return packetData.from.toLowerCase() == recoveredSignatureSigner.toLowerCase();
+
+     }
+
+
+
+
   /*
 
   ethSigUtil.recoverTypedSignature: function (msgParams) {

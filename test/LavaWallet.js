@@ -297,22 +297,44 @@ contract("LavaWallet", (accounts) => {
 
 
 
+                //how to generate a good signature using web3 ?
+                //---------------??????????????????????
+
                   var lavaPacketStruct =   typedData.packet
 
                   var privKey = Buffer.from(privateKey, 'hex')
 
-                const sig = ethUtil.ecsign(typedDataHash , privKey );
 
+              const sig = ethUtil.ecsign(typedDataHash , privKey );
+              //    let sig = await web3.eth.sign(typedDataHash, privKey);
+                  let signatureData = ethUtil.fromRpcSig(sig);
 
-                console.log('@@ walletContract',  walletContract.options.address)
+                console.log('@@ sig',  signatureData)
 
                 console.log('@@ struct ',  lavaPacketStruct)
+
+                var fullPacket = LavaTestUtils.getLavaPacket(
+                  methodName,
+                relayAuthority,
+                from,
+                to,
+                walletAddress,
+                tokenAddress,
+                tokenAmount,
+                relayerRewardToken,
+                relayerRewardTokens,
+                expires,
+                nonce,
+                signatureData
+              )
+
+                assert.equal(  LavaTestUtils.lavaPacketHasValidSignature( fallPacket ) , true   )
 
 
                 //finish me
 
                 //walletContract.methods.approveTokensWithSignature(    )
-                assert.equal(lavaPacketStruct.methodName ,  'approve'  )
+              /*  assert.equal(lavaPacketStruct.methodName ,  'approve'  )
 
                         if(lavaPacketStruct.methodName ==    'approve'  )
                         {
@@ -321,7 +343,7 @@ contract("LavaWallet", (accounts) => {
                              walletContract.methods.approveTokensWithSignature(
 
                               lavaPacketStruct,
-                              sig
+                              signatureData
 
                             ).send( {} , function(response){
                               resolve(response)
@@ -334,6 +356,7 @@ contract("LavaWallet", (accounts) => {
 
 
                           }
+                */
 
 
                   });
