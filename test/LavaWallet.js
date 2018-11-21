@@ -62,12 +62,9 @@ contract("LavaWallet", (accounts) => {
 
         const typedData = {
                 types: {
-                    EIP712Domain: [
-                        { name: 'name', type: 'string' },
-                        { name: 'verifyingContract', type: 'address' }
-                    ],
+
                     LavaPacket: [
-                        { name: 'methodName', type: 'bytes' },  //?
+                        { name: 'methodName', type: 'string' },
                         { name: 'relayAuthority', type: 'address' },
                         { name: 'from', type: 'address' },
                         { name: 'to', type: 'address' },
@@ -77,7 +74,8 @@ contract("LavaWallet", (accounts) => {
                         { name: 'relayerRewardToken', type: 'address' },
                         { name: 'relayerRewardTokens', type: 'uint256' },
                         { name: 'expires', type: 'uint256' },
-                        { name: 'nonce', type: 'uint256' }
+                        { name: 'nonce', type: 'uint256' },
+                        { name: 'callData', type: 'bytes' }
                     ],
                 },
                 primaryType: 'LavaPacket',
@@ -86,7 +84,7 @@ contract("LavaWallet", (accounts) => {
                     verifyingContract: walletContract.options.address,
                 },
                 packet: {   //what is word supposed to be ??
-                    methodname: 'approve',
+                    methodName: 'approve',
                     relayAuthority:miningDelegateContract.options.address,
                     from: test_account.address,
                     to: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
@@ -97,6 +95,7 @@ contract("LavaWallet", (accounts) => {
                     relayerRewardTokens: 0,
                     expires: 999999999,
                     nonce: 0,
+                    callData: web3utils.asciiToHex('')
                 },
             };
 
@@ -108,7 +107,7 @@ contract("LavaWallet", (accounts) => {
                 var typedDataHash = ethUtil.sha3(
                     Buffer.concat([
                         Buffer.from('1901', 'hex'),
-                        EIP712Helper.structHash('EIP712Domain', typedData.domain, types),
+                    //    EIP712Helper.structHash('EIP712Domain', typedData.domain, types),
                         EIP712Helper.structHash(typedData.primaryType, typedData.packet, types),
                     ]),
                 );
@@ -124,13 +123,13 @@ contract("LavaWallet", (accounts) => {
 
             it("checks sub hashes  ", async function () {
 
-              var domainTypehash = await walletContract.methods.getDomainTypehash().call()
+          //    var domainTypehash = await walletContract.methods.getDomainTypehash().call()
               var lavaPacketTypehash = await walletContract.methods.getLavaPacketTypehash().call()
 
 
 
 
-              var methodName = web3utils.fromAscii('approve')   //convert to bytes
+              var methodName =  'approve'    //convert to bytes
               var relayAuthority = miningDelegateContract.options.address
               var from= test_account.address
               var to= "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c"
@@ -159,10 +158,10 @@ contract("LavaWallet", (accounts) => {
                 nonce);
 
 
-              var domainStructHash =  EIP712Helper.typeHash('EIP712Domain', typedData.types);
+          //    var domainStructHash =  EIP712Helper.typeHash('EIP712Domain', typedData.types);
               var lavaPacketStructHash =  EIP712Helper.typeHash('LavaPacket', typedData.types);
 
-              assert.equal(LavaTestUtils.bufferToHex(domainStructHash), domainTypehash    ); //initialized
+        //      assert.equal(LavaTestUtils.bufferToHex(domainStructHash), domainTypehash    ); //initialized
 
                assert.equal(LavaTestUtils.bufferToHex(lavaPacketStructHash), lavaPacketTypehash  ); //initialized
 
@@ -186,12 +185,12 @@ contract("LavaWallet", (accounts) => {
               console.log('lava packet tuple ', lavaPacketTuple)
 
 
-               var domainHash = await walletContract.methods.getDomainHash(["Lava Wallet",walletContract.options.address]).call()
+          //     var domainHash = await walletContract.methods.getDomainHash(["Lava Wallet",walletContract.options.address]).call()
                var lavaPacketHash = await walletContract.methods.getLavaPacketHash(lavaPacketTuple).call()
 
 
 
-           assert.equal(domainHash, LavaTestUtils.bufferToHex( EIP712Helper.structHash('EIP712Domain', typedData.domain, typedData.types) )    );
+           //assert.equal(domainHash, LavaTestUtils.bufferToHex( EIP712Helper.structHash('EIP712Domain', typedData.domain, typedData.types) )    );
 
 
            //why is this failing on the values !?
@@ -231,7 +230,7 @@ contract("LavaWallet", (accounts) => {
                  var privateKey = test_account.privateKey;
 
 
-                 var methodName = web3utils.fromAscii(  'approve' )  //convert to bytes
+                 var methodName =   'approve'    //convert to bytes
                  var relayAuthority = miningDelegateContract.options.address
                  var from= addressFrom
                  var to= "0x357FfaDBdBEe756aA686Ef6843DA359E2a85229c"
@@ -291,6 +290,7 @@ contract("LavaWallet", (accounts) => {
                 ///msg hash signed is 0x9201073a01df85b87dab83ad2498bf5b2190bf62cb03b2a407ba7d77279a4ceb
                 var lavaMsgHash = await walletContract.methods.getLavaTypedDataHash(  tuple ).call({from: test_account.address})
                 console.log('lavaMsgHash',lavaMsgHash)
+                console.log('typedDataHash.toString()',typedDataHash.toString('hex'))
 
                 assert.equal(lavaMsgHash, '0x' + typedDataHash.toString('hex') ); //initialized
 
@@ -306,6 +306,34 @@ contract("LavaWallet", (accounts) => {
 
                 console.log('@@ walletContract',  walletContract.options.address)
 
+                console.log('@@ struct ',  lavaPacketStruct)
+
+
+                //finish me
+
+                //walletContract.methods.approveTokensWithSignature(    )
+                assert.equal(lavaPacketStruct.methodName ,  'approve'  )
+
+                        if(lavaPacketStruct.methodName ==    'approve'  )
+                        {
+
+                        var response = await new Promise((resolve, reject) => {
+                             walletContract.methods.approveTokensWithSignature(
+
+                              lavaPacketStruct,
+                              sig
+
+                            ).send( {} , function(response){
+                              resolve(response)
+                            });
+
+                            });///promise
+
+                            console.log('res',response)
+                            assert.ok(response); //initialized
+
+
+                          }
 
 
                   });

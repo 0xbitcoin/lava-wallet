@@ -86,7 +86,7 @@ function typedSignatureHash(typedData) {
    var typedDataHash = ethUtil.sha3(
        Buffer.concat([
            Buffer.from('1901', 'hex'),
-           EIP712Helper.structHash('EIP712Domain', typedData.domain, types),
+  //         EIP712Helper.structHash('EIP712Domain', typedData.domain, types),
            EIP712Helper.structHash(typedData.primaryType, typedData.packet, types),
        ]),
    );
@@ -94,16 +94,13 @@ function typedSignatureHash(typedData) {
    return typedDataHash;
  }
 
- getLavaTypedDataFromParams(methodName,relayMode,from,to,walletAddress,tokenAddress,tokenAmount,relayerRewardToken,relayerRewardTokens,expires,nonce)
+ getLavaTypedDataFromParams(methodName,relayAuthority,from,to,walletAddress,tokenAddress,tokenAmount,relayerRewardToken,relayerRewardTokens,expires,nonce )
  {
    const typedData = {
            types: {
-               EIP712Domain: [
-                   { name: 'name', type: 'string' },
-                   { name: 'verifyingContract', type: 'address' }
-               ],
+
                LavaPacket: [
-                   { name: 'methodName', type: 'bytes' },  //?
+                   { name: 'methodName', type: 'string' },
                    { name: 'relayAuthority', type: 'address' },
                    { name: 'from', type: 'address' },
                    { name: 'to', type: 'address' },
@@ -117,13 +114,13 @@ function typedSignatureHash(typedData) {
                ],
            },
            primaryType: 'LavaPacket',
-           domain: {
+          /* domain: {
                name: 'Lava Wallet',
                verifyingContract: walletAddress,
-           },
+           },*/
            packet: {
                methodName: methodName,
-               relayAuthority: relayMode,
+               relayAuthority: relayAuthority,
                from: from,
                to: to,
                wallet: walletAddress,
@@ -132,7 +129,7 @@ function typedSignatureHash(typedData) {
                relayerRewardToken: relayerRewardToken,
                relayerRewardTokens: relayerRewardTokens,
                expires: expires,
-               nonce: nonce,
+               nonce: nonce
            },
        };
 
